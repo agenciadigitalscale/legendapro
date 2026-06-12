@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegendaPro — Legendas dinâmicas pra CapCut, Premiere e DaVinci</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #111114;
+    color: #f0f0f2;
+    min-height: 100vh;
+  }
+  header {
+    padding: 20px 28px 12px;
+    border-bottom: 1px solid #26262c;
+  }
+  header h1 { font-size: 20px; font-weight: 800; }
+  header h1 span { color: #00d9ff; }
+  header p { font-size: 13px; color: #9a9aa3; margin-top: 4px; }
+  .app {
+    display: flex;
+    gap: 36px;
+    padding: 24px 36px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .preview-col {
+    flex: 0 0 auto;
+    position: sticky;
+    top: 16px;
+  }
+  #preview {
+    width: 290px;
+    aspect-ratio: 9 / 16;
+    height: auto;
+    border-radius: 14px;
+    background: #1c1c1f;
+    display: block;
+  }
+  @media (min-width: 1400px){ #preview { width: 400px; } }
+  @media (min-width: 1800px){ #preview { width: 470px; } }
+  .preview-hint { font-size: 11px; color: #6f6f78; text-align: center; margin-top: 8px; }
+  .controls { flex: 1 1 420px; min-width: 320px; }
+  .section { margin-bottom: 22px; }
+  .section h2 {
+    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: #9a9aa3; margin-bottom: 10px;
+  }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .chip {
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    background: #1c1c1f; color: #c9c9d1; border: 1px solid #2e2e35;
+    border-radius: 999px; padding: 7px 14px; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .chip:hover { border-color: #4a4a52; }
+  .chip.active { border-color: #00d9ff; color: #fff; background: #0c2128; }
+  .models {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+    gap: 12px;
+  }
+  .model-btn {
+    background: #1c1c1f;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 6px;
+    cursor: pointer;
+    text-align: center;
+    color: #c9c9d1;
+    font-family: inherit;
+    transition: border-color .15s;
+  }
+  .model-btn:hover { border-color: #3a3a42; }
+  .model-btn.active { border-color: #00d9ff; color: #fff; }
+  .model-btn canvas { width: 100%; border-radius: 6px; display: block; background: #232328; }
+  .model-btn p { font-size: 10px; margin-top: 5px; line-height: 1.3; }
+  .texts input[type="text"] {
+    width: 100%;
+    background: #1c1c1f;
+    border: 1px solid #2e2e35;
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    outline: none;
+  }
+  .texts input[type="text"]:focus { border-color: #00d9ff; }
+  .linha { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .linha input[type="text"] { margin-bottom: 0; }
+  .linha .eye {
+    flex: 0 0 40px; height: 40px; background: #1c1c1f; border: 1px solid #2e2e35;
+    border-radius: 8px; cursor: pointer; font-size: 15px; line-height: 1; color: #c9c9d1;
+  }
+  .linha .eye.off { border-color: #00d9ff; color: #00d9ff; }
+  .spwrap { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 0 0 auto; }
+  .spwrap input[type="range"] { width: 88px; height: 24px; padding: 0; accent-color: #00d9ff; }
+  .spwrap span { font-size: 9px; color: #6f6f78; letter-spacing: .5px; white-space: nowrap; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: #9a9aa3; }
+  .field input[type="color"] {
+    width: 52px; height: 34px; border: 1px solid #2e2e35;
+    border-radius: 8px; background: #1c1c1f; cursor: pointer; padding: 2px;
+  }
+  .field select, .field input[type="range"] {
+    background: #1c1c1f; border: 1px solid #2e2e35; border-radius: 8px;
+    color: #fff; font-family: inherit; font-size: 13px; padding: 8px 10px;
+  }
+  .field input[type="range"] { padding: 0; height: 34px; accent-color: #00d9ff; width: 150px; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    border: none; border-radius: 10px; padding: 12px 18px; cursor: pointer;
+    transition: transform .1s, opacity .15s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .btn-play { background: #2a2a31; color: #fff; }
+  .btn-png { background: #fff; color: #111; }
+  .btn-webm { background: #00d9ff; color: #04151c; }
+  #status { font-size: 13px; color: #9a9aa3; min-height: 18px; margin-top: 10px; }
+  .howto {
+    background: #1c1c1f; border-radius: 12px; padding: 16px 18px;
+    font-size: 13px; color: #b9b9c2; line-height: 1.7;
+  }
+  .howto strong { color: #fff; }
+  @media (max-width: 700px){
+    header { padding: 12px 16px 8px; }
+    header h1 { font-size: 18px; }
+    header p { font-size: 11px; }
+    .app { padding: 0 14px 20px; gap: 16px; }
+    .preview-col {
+      position: sticky; top: 0; z-index: 40;
+      width: calc(100% + 28px); margin: 0 -14px;
+      background: #111114;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 8px 0 8px;
+      border-bottom: 1px solid #26262c;
+    }
+    #preview { width: 148px; border-radius: 10px; }
+    .preview-hint { display: none; }
+    .controls { min-width: 0; width: 100%; }
+    .models { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+    .btns .btn { flex: 1 1 100%; }
+    .section { margin-bottom: 18px; }
+    .row { gap: 12px; }
+    .field input[type="range"] { width: 128px; }
+    .spwrap input[type="range"] { width: 64px; }
+  }
+</style>
+</head>
+<body>
+<header style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+  <div>
+    <h1>Legenda<span>Pro</span></h1>
+    <p>Escolha o modelo, edite o texto, exporte. Funciona no CapCut, Premiere e DaVinci.</p>
+    <p id="trialInfo" style="font-size:12px;color:#00d9ff;margin-top:3px;font-weight:700;"></p>
+  </div>
+  <div style="font-size:13px;">
+    <a id="lnkAdmin" href="admin.html" style="color:#00ffa3;text-decoration:none;display:none;margin-right:16px;">painel admin</a>
+    <a href="index.html" style="color:#9a9aa3;text-decoration:none;">← página do produto</a>
+    <a id="lnkSair" href="#" style="color:#9a9aa3;text-decoration:none;display:none;margin-left:16px;">sair</a>
+  </div>
+</header>
+
+<div class="app">
+  <div class="preview-col">
+    <canvas id="preview" width="1080" height="1920"></canvas>
+    <p class="preview-hint">O fundo escuro é só do preview — o PNG sai com fundo transparente.</p>
+  </div>
+
+  <div class="controls">
+    <div class="section">
+      <h2>Modelos</h2>
+      <div class="chips" id="cats"></div>
+      <div class="models" id="models"></div>
+    </div>
+
+    <div class="section">
+      <h2>Texto</h2>
+      <div class="texts" id="texts"></div>
+    </div>
+
+    <div class="section">
+      <h2>Estilo</h2>
+      <div class="row">
+        <div class="field"><label>Cor principal</label><input type="color" id="c1" value="#ffffff"></div>
+        <div class="field"><label>Cor de destaque</label><input type="color" id="c2" value="#00d9ff"></div>
+        <div class="field"><label>Cor extra</label><input type="color" id="c3" value="#00ffa3"></div>
+        <div class="field"><label>Sombra no texto</label><input type="checkbox" id="glow" style="width:22px;height:22px;accent-color:#00d9ff;margin-top:5px;"></div>
+        <div class="field"><label>Formato</label>
+          <select id="fmt">
+            <option value="9x16">Vertical 9:16 (Reels/TikTok)</option>
+            <option value="1x1">Quadrado 1:1 (Feed)</option>
+            <option value="16x9">Horizontal 16:9 (YouTube)</option>
+          </select>
+        </div>
+        <div class="field"><label>Animação</label>
+          <select id="anim">
+            <option value="fade">Fade (suave)</option>
+            <option value="pop">Pop (impacto)</option>
+            <option value="slide">Slide (sobe)</option>
+            <option value="typewriter">Máquina de escrever</option>
+            <option value="none">Sem animação</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <div class="field"><label>Tamanho: <span id="scaleOut">100%</span></label><input type="range" id="scale" min="50" max="150" value="100" step="1"></div>
+        <div class="field"><label>Posição vertical: <span id="offOut">0</span></label><input type="range" id="offset" min="-35" max="35" value="0" step="1"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Clientes (cores salvas)</h2>
+      <div class="row">
+        <div class="field"><label>Cliente salvo</label><select id="presetSel" style="min-width:170px;"><option value="">— selecionar —</option></select></div>
+        <div class="field"><label>Nome do cliente</label><input type="text" id="presetName" placeholder="ex: Restaurante do Zé" style="background:#1c1c1f;border:1px solid #2e2e35;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;padding:9px 10px;width:190px;outline:none;"></div>
+        <button class="btn btn-play" id="btnSavePreset" style="align-self:flex-end;">Salvar cores</button>
+        <button class="btn btn-play" id="btnDelPreset" style="align-self:flex-end;">Excluir</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Exportar</h2>
+      <div class="row" style="margin-bottom:12px;">
+        <div class="field"><label>Fundo do vídeo animado (pra chroma key)</label>
+          <select id="webmBg">
+            <option value="#00ff00">Verde (recomendado — remove com Croma no CapCut)</option>
+            <option value="#000000">Preto (use modo de mistura "Clarear")</option>
+          </select>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn btn-play" id="btnPlay">&#9654; Ver animação</button>
+        <button class="btn btn-png" id="btnPng">PNG transparente</button>
+        <button class="btn btn-webm" id="btnWebm">Vídeo WebM (CapCut)</button>
+        <button class="btn btn-webm" id="btnMp4">Vídeo MP4 (Premiere/DaVinci)</button>
+        <button class="btn btn-play" id="btnZip">Sequência PNG (Premiere/DaVinci)</button>
+        <button class="btn btn-webm" id="btnLayers">Camadas separadas — 1 PNG por palavra (ZIP)</button>
+      </div>
+      <p id="status"></p>
+    </div>
+
+    <div class="section">
+      <h2>Como usar no seu editor</h2>
+      <div class="howto">
+        <strong>PNG:</strong> importe a imagem, arraste pra cima do vídeo como sobreposição e ajuste a duração. Fundo já é transparente.<br>
+        <strong>Vídeo animado (verde):</strong> importe, coloque como sobreposição, toque em <strong>Recortar &gt; Croma</strong> (ou "Chroma key" no PC), selecione o verde e aumente a intensidade. Evite usar verde como cor do texto nesse caso.<br>
+        <strong>Premiere (MP4 verde):</strong> jogue o MP4 numa trilha acima do vídeo e aplique <strong>Ultra Key</strong> (Efeitos &gt; Chave) selecionando o verde com o conta-gotas.<br>
+        <strong>Premiere (sequência PNG):</strong> Arquivo &gt; Importar, selecione o quadro 000 e marque <strong>"Sequência de imagens"</strong> — entra já com transparência, sem chroma key.<br>
+        <strong>DaVinci Resolve (MP4 verde):</strong> arraste pra trilha de cima e aplique o efeito <strong>3D Keyer</strong> (Effects &gt; OpenFX) no verde.<br>
+        <strong>DaVinci Resolve (sequência PNG):</strong> solte a pasta no Media Pool — a sequência entra como um clipe único, já com transparência.<br>
+        <strong>Camadas separadas:</strong> cada palavra vira um PNG independente, na posição exata. Empilhe no CapCut (escala 100%) e ajuste o início de cada camada pra sincronizar com a fala — perfeito pra colocar efeito sonoro palavra por palavra.<br>
+        <strong>Dica:</strong> salve as cores de cada cliente na seção "Clientes" e exporte as variações de uma vez — seu pack pessoal por cliente.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lp-config.js"></script>
+<script>
+const FORMATS = {
+  '9x16': [1080, 1920],
+  '1x1': [1080, 1080],
+  '16x9': [1920, 1080]
+};
+function dims(){ return FORMATS[state.fmt] || FORMATS['9x16']; }
+const CATS = [
+  ['todos', 'Todos'],
+  ['geral', 'Estilo geral'],
+  ['editorial', 'Tipografia editorial'],
+  ['gancho', 'Ganchos'],
+  ['promo', 'Promoção & varejo'],
+  ['comida', 'Restaurantes'],
+  ['corp', 'Empresas & indústria'],
+  ['cta', 'CTA & engajamento']
+];
+const MODELS = [
+  { id:'mix', name:'Mix clássico', cat:'geral', anim:'fade', lines:[
+    { f:'Archivo Black', s:92, c:'c1', d:'como fazer' },
+    { f:'Playfair Display', s:170, it:1, w:800, c:'c1', d:'legenda', gap:-6 },
+    { f:'Archivo Black', s:118, c:'c1', d:'atrativa', gap:-52 },
+    { f:'Montserrat', s:44, w:700, c:'c1', d:'no CapCut', gap:10 } ]},
+  { id:'contorno', name:'Contorno + sólido', cat:'geral', anim:'pop', lines:[
+    { f:'Anton', s:160, c:'c1', sp:4, stroke:1, d:'3 DICAS' },
+    { f:'Anton', s:160, c:'c1', sp:4, d:'3 DICAS', gap:-18 },
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'que ninguém te conta', gap:18 } ]},
+  { id:'tarja', name:'Tarja destacada', cat:'geral', anim:'slide', lines:[
+    { f:'Montserrat', s:74, w:800, box:{ bg:'c1', fg:'dark' }, rot:-3, d:'PASSO A PASSO' },
+    { f:'Montserrat', s:74, w:800, box:{ bg:'c2', fg:'c1' }, rot:2, d:'pra viralizar', gap:30 } ]},
+  { id:'minimal', name:'Minimal editorial', cat:'geral', anim:'fade', lines:[
+    { f:'Montserrat', s:42, w:400, sp:22, c:'c1', d:'O SEGREDO' },
+    { f:'Playfair Display', s:130, it:1, w:700, c:'c1', d:'do alcance', gap:10 },
+    { rule:1, c:'c1', gap:30 } ]},
+  { id:'manuscrita', name:'Manuscrita + cor', cat:'geral', anim:'typewriter', lines:[
+    { f:'Montserrat', s:64, w:800, c:'c1', d:'pare de perder' },
+    { f:'Caveat', s:175, w:700, c:'c2', rot:-4, d:'seguidores', gap:-26 },
+    { f:'Montserrat', s:64, w:800, c:'c1', d:'fazendo isso', gap:-10 } ]},
+  { id:'impacto', name:'Impacto empilhado', cat:'gancho', anim:'pop', lines:[
+    { f:'Bebas Neue', s:185, c:'c1', d:'NINGUÉM' },
+    { f:'Bebas Neue', s:185, c:'c1', d:'TE CONTOU', gap:-34 },
+    { f:'Bebas Neue', s:185, c:'c2', d:'ISSO', gap:-34 } ]},
+  { id:'numero', name:'Número gigante', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:300, c:'c2', d:'5' },
+    { f:'Anton', s:96, c:'c1', d:'ERROS QUE', gap:-26 },
+    { f:'Anton', s:96, c:'c1', d:'VOCÊ COMETE', gap:-4 } ]},
+  { id:'sublinhado', name:'Sublinhado', cat:'gancho', anim:'slide', lines:[
+    { f:'Archivo Black', s:92, c:'c1', d:'pare de fazer' },
+    { f:'Archivo Black', s:125, c:'c2', u:1, d:'ISSO', gap:10 } ]},
+  { id:'pergunta', name:'Pergunta provocativa', cat:'gancho', anim:'fade', lines:[
+    { f:'Montserrat', s:84, w:800, c:'c1', d:'você faz isso' },
+    { f:'Playfair Display', s:160, it:1, w:800, c:'c2', d:'errado?', gap:-8 } ]},
+  { id:'espera', name:'Espera!', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:200, c:'c2', rot:-2, d:'ESPERA!' },
+    { f:'Montserrat', s:56, w:800, box:{ bg:'c1', fg:'dark' }, d:'você precisa ver isso', gap:34 } ]},
+  { id:'segredo', name:'Segredo do nicho', cat:'gancho', anim:'fade', lines:[
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'o que ninguém te conta sobre' },
+    { f:'Anton', s:170, c:'c1', d:'VENDAS', gap:10 },
+    { rule:1, c:'c2', gap:30 } ]},
+  { id:'parte', name:'Série / Parte 2', cat:'gancho', anim:'pop', lines:[
+    { f:'Bebas Neue', s:110, c:'c1', sp:8, d:'PARTE' },
+    { f:'Anton', s:330, c:'c2', d:'2', gap:-30 } ]},
+  { id:'desconto', name:'Desconto %', cat:'promo', anim:'pop', lines:[
+    { f:'Anton', s:300, c:'c2', d:'50%' },
+    { f:'Bebas Neue', s:120, c:'c1', d:'DE DESCONTO', gap:-34 },
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'em toda a loja', gap:8 } ]},
+  { id:'oferta', name:'Oferta relâmpago', cat:'promo', anim:'pop', lines:[
+    { f:'Archivo Black', s:120, c:'c1', sh:'c2', d:'OFERTA' },
+    { f:'Archivo Black', s:112, c:'c2', d:'RELÂMPAGO', gap:-16 },
+    { f:'Montserrat', s:46, w:800, box:{ bg:'c1', fg:'dark' }, d:'SÓ ATÉ DOMINGO', gap:38 } ]},
+  { id:'preco', name:'De / Por (preço)', cat:'promo', anim:'slide', lines:[
+    { f:'Montserrat', s:56, w:700, st:1, c:'c1', d:'de R$ 99,90' },
+    { f:'Anton', s:220, c:'c2', d:'R$ 49,90', gap:6 },
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c1', fg:'dark' }, d:'SÓ HOJE', gap:40 } ]},
+  { id:'chegou', name:'Chegou novidade', cat:'promo', anim:'typewriter', lines:[
+    { f:'Caveat', s:175, w:700, c:'c2', rot:-3, d:'chegou!' },
+    { f:'Archivo Black', s:92, c:'c1', d:'NOVA COLEÇÃO', gap:-20 } ]},
+  { id:'ultimas', name:'Últimas unidades', cat:'promo', anim:'slide', lines:[
+    { f:'Montserrat', s:74, w:800, box:{ bg:'c2', fg:'c1' }, rot:-2, d:'ÚLTIMAS UNIDADES' },
+    { f:'Caveat', s:115, w:700, c:'c1', d:'corre que acaba', gap:34 } ]},
+  { id:'hojetem', name:'Hoje tem', cat:'comida', anim:'pop', lines:[
+    { f:'Montserrat', s:58, w:800, sp:10, c:'c1', d:'HOJE TEM' },
+    { f:'Anton', s:185, c:'c2', d:'FEIJOADA', gap:4 },
+    { f:'Montserrat', s:50, it:1, w:400, c:'c1', d:'feita na hora', gap:12 } ]},
+  { id:'cardapio', name:'Novidade no cardápio', cat:'comida', anim:'fade', lines:[
+    { f:'Montserrat', s:42, w:400, sp:18, c:'c1', d:'NOVIDADE' },
+    { f:'Playfair Display', s:140, it:1, w:700, c:'c1', d:'no cardápio', gap:10 },
+    { rule:1, c:'c2', gap:30 } ]},
+  { id:'delivery', name:'Delivery / fome', cat:'comida', anim:'slide', lines:[
+    { f:'Bebas Neue', s:145, c:'c1', d:'BATEU A FOME?' },
+    { f:'Caveat', s:150, w:700, c:'c2', rot:-3, d:'pede agora', gap:-20 },
+    { f:'Montserrat', s:46, w:800, box:{ bg:'c1', fg:'dark' }, d:'ENTREGA GRÁTIS', gap:34 } ]},
+  { id:'sabor', name:'Sabor de verdade', cat:'comida', anim:'fade', lines:[
+    { f:'Montserrat', s:46, w:400, sp:16, c:'c1', d:'O SABOR DE' },
+    { f:'Playfair Display', s:150, it:1, w:800, c:'c2', d:'verdade', gap:6 },
+    { f:'Montserrat', s:62, w:800, c:'c1', d:'TÁ AQUI', gap:10 } ]},
+  { id:'resultado', name:'Número de resultado', cat:'corp', anim:'pop', lines:[
+    { f:'Montserrat', s:60, w:700, c:'c1', d:'+ de' },
+    { f:'Anton', s:260, c:'c2', d:'1.500', gap:-14 },
+    { f:'Montserrat', s:62, w:800, c:'c1', sp:2, d:'CLIENTES ATENDIDOS', gap:4 } ]},
+  { id:'vocesabia', name:'Você sabia?', cat:'corp', anim:'slide', lines:[
+    { f:'Montserrat', s:64, w:800, box:{ bg:'c2', fg:'c1' }, rot:-2, d:'VOCÊ SABIA?' },
+    { f:'Montserrat', s:68, w:800, c:'c1', d:'sua empresa pode', gap:40 },
+    { f:'Montserrat', s:68, w:800, c:'c1', d:'economizar 30%', gap:-4 } ]},
+  { id:'bastidores', name:'Bastidores / fábrica', cat:'corp', anim:'fade', lines:[
+    { f:'Montserrat', s:44, w:400, sp:20, c:'c1', d:'POR DENTRO DA' },
+    { f:'Bebas Neue', s:150, c:'c1', d:'NOSSA FÁBRICA', gap:8 } ]},
+  { id:'qualidade', name:'Institucional clean', cat:'corp', anim:'fade', lines:[
+    { f:'Montserrat', s:46, w:400, sp:22, c:'c1', d:'QUALIDADE' },
+    { rule:1, c:'c2', gap:26 },
+    { f:'Playfair Display', s:100, it:1, w:700, c:'c1', d:'que gera resultado', gap:28 } ]},
+  { id:'linkbio', name:'Link na bio', cat:'cta', anim:'pop', lines:[
+    { f:'Montserrat', s:80, w:800, box:{ bg:'c2', fg:'c1' }, d:'LINK NA BIO' },
+    { f:'Caveat', s:115, w:700, c:'c1', d:'pra saber mais', gap:36 } ]},
+  { id:'segue', name:'Me segue', cat:'cta', anim:'typewriter', lines:[
+    { f:'Caveat', s:190, w:700, c:'c2', rot:-4, d:'me segue' },
+    { f:'Montserrat', s:58, w:800, c:'c1', d:'PRA MAIS DICAS', gap:-14 } ]},
+  { id:'salva', name:'Salva esse vídeo', cat:'cta', anim:'slide', lines:[
+    { f:'Montserrat', s:58, w:800, c:'c1', d:'SALVA ESSE VÍDEO' },
+    { f:'Caveat', s:140, w:700, c:'c2', rot:-3, d:'pra não esquecer', gap:-12 } ]},
+  { id:'comenta', name:'Comenta a palavra', cat:'cta', anim:'pop', lines:[
+    { f:'Montserrat', s:66, w:800, c:'c1', d:'comenta' },
+    { f:'Anton', s:165, c:'c2', sh:'c1', d:'"EU QUERO"', gap:4 },
+    { f:'Montserrat', s:48, it:1, w:400, c:'c1', d:'que eu te chamo no direct', gap:16 } ]},
+  { id:'detalhe', name:'Palavras soltas', cat:'editorial', anim:'fade', lines:[
+    { f:'Playfair Display', s:95, it:1, w:700, c:'c1', d:'esse', dx:150 },
+    { f:'Playfair Display', s:200, it:1, w:800, c:'c3', d:'único', dx:-70, gap:-40 },
+    { f:'Archivo Black', s:125, c:'c1', d:'detalhe', dx:-50, gap:-30 },
+    { f:'Playfair Display', s:90, it:1, w:700, c:'c1', d:'pode fazer seu', dx:110, gap:-6 },
+    { f:'Playfair Display', s:190, it:1, w:800, c:'c2', d:'vídeo', dx:50, gap:-46 } ]},
+  { id:'sobreposto', name:'Serif sobreposta', cat:'editorial', anim:'fade', lines:[
+    { f:'Archivo Black', s:100, c:'c1', d:'combinações' },
+    { f:'Playfair Display', s:175, it:1, w:700, c:'c2', d:'perfeitas', gap:-105 } ]},
+  { id:'numeroserif', name:'Número + serif', cat:'editorial', anim:'fade', lines:[
+    { f:'Playfair Display', s:310, w:700, c:'c1', d:'3', dx:-230 },
+    { f:'Playfair Display', s:150, it:1, w:700, c:'c1', d:'ajustes', dx:90, gap:-300 },
+    { f:'Montserrat', s:56, w:400, c:'c1', d:'que vão', dx:-160, gap:90 },
+    { f:'Playfair Display', s:160, it:1, w:700, c:'c1', d:'melhorar', gap:-20 },
+    { f:'Montserrat', s:56, w:400, c:'c1', d:'sua legenda', dx:130, gap:-24 } ]},
+  { id:'escada', name:'Escada colorida', cat:'editorial', anim:'slide', lines:[
+    { f:'Montserrat', s:115, w:800, c:'c3', d:'Pare', dx:-190 },
+    { f:'Montserrat', s:115, w:800, c:'c1', d:'agora', dx:-50, gap:-30 },
+    { f:'Montserrat', s:115, w:800, c:'c1', d:'de usar', dx:70, gap:-30 },
+    { f:'Montserrat', s:115, w:800, c:'c2', d:'Legendas', dx:40, gap:-30 } ]},
+  { id:'mixdestaque', name:'Mix com destaque', cat:'editorial', anim:'pop', lines:[
+    { f:'Playfair Display', s:85, it:1, w:700, c:'c1', d:'o que', dx:-160 },
+    { f:'Archivo Black', s:135, c:'c1', d:'NINGUÉM', gap:-14 },
+    { f:'Playfair Display', s:155, it:1, w:800, c:'c2', d:'te ensina', dx:70, gap:-30 } ]}
+];
+
+const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16' };
+
+function colorOf(key){
+  if (key === 'c1') return state.c1;
+  if (key === 'c2') return state.c2;
+  if (key === 'c3') return state.c3;
+  if (key === 'dark') return '#111111';
+  return key || '#ffffff';
+}
+
+function fontStr(ln, size){
+  return (ln.it ? 'italic ' : '') + (ln.w || 400) + ' ' + size + 'px "' + ln.f + '"';
+}
+
+function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
+function easeOutBack(t){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+
+function drawFrame(ctx, t, bg, model, texts, opts){
+  const F = FORMATS[opts.fmt] || FORMATS['9x16'];
+  const W = F[0], H = F[1];
+  const sc = opts.scale;
+  ctx.clearRect(0, 0, W, H);
+  if (bg){ ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H); }
+
+  const ovs = opts.lineOv || [];
+  const lines = model.lines
+    .map((ln, i) => ({ ...ln, txt: texts[i] !== undefined ? texts[i] : (ln.d || ''), ov: ovs[i], idx: i }))
+    .filter(ln => !(ln.ov && ln.ov.hide));
+  const lineHs = lines.map(ln => ((ln.rule ? 8 : ln.s * 1.12) + (ln.gap || 0)) * sc);
+  const totalH = lineHs.reduce((a, b) => a + b, 0);
+  let y = H / 2 - totalH / 2 + (opts.offset / 100) * H;
+  const n = lines.length, stag = 0.18;
+  const animName = opts.anim;
+
+  lines.forEach((ln, i) => {
+    const lh = lineHs[i];
+    const cy = y + lh / 2 + ((ln.gap || 0) * sc) / 2;
+    y += lh;
+    if (opts.onlyLine !== undefined && opts.onlyLine !== null && ln.idx !== opts.onlyLine) return;
+    let p = 1;
+    if (animName !== 'none'){
+      p = Math.max(0, Math.min(1, t * (1 + (n - 1) * stag) - i * stag));
+    }
+    if (p <= 0) return;
+
+    ctx.save();
+    ctx.translate(W / 2 + (ln.dx || 0) * sc, cy);
+    if (ln.rot) ctx.rotate(ln.rot * Math.PI / 180);
+
+    let alpha = 1, scale = 1, dy = 0, txt = ln.txt;
+    if (animName === 'fade'){ alpha = easeOut(p); }
+    else if (animName === 'pop'){ scale = easeOutBack(p); alpha = Math.min(p * 3, 1); }
+    else if (animName === 'slide'){ const e = easeOut(p); dy = (1 - e) * 70 * sc; alpha = e; }
+    else if (animName === 'typewriter'){ txt = ln.txt.slice(0, Math.ceil(ln.txt.length * p)); }
+
+    ctx.globalAlpha = alpha;
+    ctx.translate(0, dy);
+    ctx.scale(scale, scale);
+
+    if (ln.rule){
+      ctx.fillStyle = colorOf(ln.c);
+      ctx.fillRect(-70 * sc, -3 * sc, 140 * sc, 6 * sc);
+      ctx.restore();
+      return;
+    }
+
+    const size = ln.s * sc;
+    ctx.font = fontStr(ln, size);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const spv = (ln.ov && ln.ov.sp !== null && ln.ov.sp !== undefined) ? ln.ov.sp : (ln.sp || 0);
+    if ('letterSpacing' in ctx) ctx.letterSpacing = (spv * sc) + 'px';
+    if (opts.glow){
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = size * 0.18;
+    }
+
+    if (ln.box){
+      const m = ctx.measureText(txt);
+      const padX = size * 0.35, padY = size * 0.28;
+      const bw = m.width + padX * 2, bh = size + padY * 2;
+      ctx.fillStyle = colorOf(ln.box.bg);
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 10 * sc);
+      else ctx.rect(-bw / 2, -bh / 2, bw, bh);
+      ctx.fill();
+      ctx.fillStyle = colorOf(ln.box.fg);
+      ctx.fillText(txt, 0, size * 0.04);
+    } else if (ln.stroke){
+      ctx.lineWidth = Math.max(2, size * 0.04);
+      ctx.strokeStyle = colorOf(ln.c);
+      ctx.strokeText(txt, 0, 0);
+    } else {
+      if (ln.sh){
+        ctx.fillStyle = colorOf(ln.sh);
+        ctx.fillText(txt, size * 0.05, size * 0.05);
+      }
+      ctx.fillStyle = colorOf(ln.c);
+      ctx.fillText(txt, 0, 0);
+      if (ln.st){
+        const m = ctx.measureText(txt);
+        ctx.fillRect(-m.width / 2 - size * 0.06, -size * 0.05, m.width + size * 0.12, size * 0.09);
+      }
+      if (ln.u){
+        const m = ctx.measureText(txt);
+        ctx.fillRect(-m.width / 2, size * 0.52, m.width, size * 0.08);
+      }
+    }
+    ctx.restore();
+  });
+  ctx.globalAlpha = 1;
+}
+
+const preview = document.getElementById('preview');
+const pctx = preview.getContext('2d');
+
+function renderPreview(t){
+  if (t === undefined) t = 1;
+  drawFrame(pctx, t, '#1c1c1f', state.model, state.texts, state);
+}
+
+let playRaf = null;
+function playAnim(targetCtx, bg, onDone, holdMs){
+  if (playRaf) cancelAnimationFrame(playRaf);
+  const dur = 1400, hold = holdMs || 0;
+  const start = performance.now();
+  function tick(now){
+    const el = now - start;
+    const t = Math.min(el / dur, 1);
+    drawFrame(targetCtx, t, bg, state.model, state.texts, state);
+    if (el < dur + hold){ playRaf = requestAnimationFrame(tick); }
+    else if (onDone) onDone();
+  }
+  playRaf = requestAnimationFrame(tick);
+}
+
+function buildTexts(){
+  const wrap = document.getElementById('texts');
+  wrap.innerHTML = '';
+  state.texts = state.model.lines.map(ln => ln.d || '');
+  state.lineOv = state.model.lines.map(() => ({ hide: false, sp: null }));
+  state.model.lines.forEach((ln, i) => {
+    if (ln.rule) return;
+    const row = document.createElement('div');
+    row.className = 'linha';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = ln.d || '';
+    inp.placeholder = 'Linha ' + (i + 1);
+    inp.addEventListener('input', () => { state.texts[i] = inp.value; renderPreview(); });
+    row.appendChild(inp);
+    const spw = document.createElement('div');
+    spw.className = 'spwrap';
+    spw.title = 'Espaço entre letras desta linha';
+    const sp = document.createElement('input');
+    sp.type = 'range'; sp.min = -5; sp.max = 60; sp.step = 1; sp.value = ln.sp || 0;
+    const spLab = document.createElement('span');
+    spLab.textContent = 'letras: ' + (ln.sp || 0);
+    sp.addEventListener('input', () => {
+      state.lineOv[i].sp = Number(sp.value);
+      spLab.textContent = 'letras: ' + sp.value;
+      renderPreview();
+    });
+    spw.appendChild(sp); spw.appendChild(spLab);
+    row.appendChild(spw);
+    const eye = document.createElement('button');
+    eye.type = 'button'; eye.className = 'eye'; eye.textContent = '👁'; eye.title = 'Ocultar/mostrar esta linha';
+    eye.addEventListener('click', () => {
+      state.lineOv[i].hide = !state.lineOv[i].hide;
+      eye.classList.toggle('off', state.lineOv[i].hide);
+      eye.textContent = state.lineOv[i].hide ? '✕' : '👁';
+      inp.style.opacity = state.lineOv[i].hide ? .4 : 1;
+      renderPreview();
+    });
+    row.appendChild(eye);
+    wrap.appendChild(row);
+  });
+}
+
+let activeCat = 'todos';
+function buildChips(){
+  const wrap = document.getElementById('cats');
+  CATS.forEach(cat => {
+    const id = cat[0], label = cat[1];
+    const b = document.createElement('button');
+    b.className = 'chip' + (id === activeCat ? ' active' : '');
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      activeCat = id;
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      buildModels();
+    });
+    wrap.appendChild(b);
+  });
+}
+
+function buildModels(){
+  const wrap = document.getElementById('models');
+  wrap.innerHTML = '';
+  MODELS.filter(m => activeCat === 'todos' || m.cat === activeCat).forEach(model => {
+    const btn = document.createElement('button');
+    btn.className = 'model-btn' + (model === state.model ? ' active' : '');
+    const c = document.createElement('canvas');
+    c.width = 270; c.height = 480;
+    btn.appendChild(c);
+    const p = document.createElement('p');
+    p.textContent = model.name;
+    btn.appendChild(p);
+    btn.addEventListener('click', () => {
+      state.model = model;
+      state.anim = model.anim;
+      document.getElementById('anim').value = model.anim;
+      document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      buildTexts();
+      renderPreview();
+      playAnim(pctx, '#1c1c1f');
+    });
+    wrap.appendChild(btn);
+    const tctx = c.getContext('2d');
+    tctx.scale(270 / 1080, 480 / 1920);
+    drawFrame(tctx, 1, '#232328', model, model.lines.map(l => l.d || ''), { scale: 1, offset: 0, anim: 'none', fmt: '9x16' });
+  });
+}
+
+function download(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+function exportPNG(){
+  const F = dims();
+  const c = document.createElement('canvas');
+  c.width = F[0]; c.height = F[1];
+  drawFrame(c.getContext('2d'), 1, null, state.model, state.texts, state);
+  c.toBlob(blob => download(blob, 'legenda-' + state.model.id + '-' + state.fmt + '.png'), 'image/png');
+  setStatus('PNG baixado! Fundo transparente, ' + F[0] + '×' + F[1] + '.');
+}
+
+function exportVideo(kind, btnId){
+  const btn = document.getElementById(btnId);
+  const mimes = kind === 'mp4'
+    ? ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4']
+    : ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
+  if (!mime){
+    setStatus(kind === 'mp4'
+      ? 'Seu navegador não exporta MP4 — atualize o Chrome ou use o WebM (CapCut) / sequência PNG (Premiere).'
+      : 'Seu navegador não suporta gravação de vídeo.');
+    return;
+  }
+  btn.disabled = true;
+  setStatus('Gravando vídeo animado (4s)...');
+  const bg = document.getElementById('webmBg').value;
+  const F = dims();
+  const c = document.createElement('canvas');
+  c.width = F[0]; c.height = F[1];
+  const cctx = c.getContext('2d');
+  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8000000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    download(new Blob(chunks, { type: mime.split(';')[0] }), 'legenda-' + state.model.id + '-' + state.fmt + '.' + kind);
+    setStatus(kind === 'mp4'
+      ? 'MP4 baixado! Premiere: Ultra Key na cor ' + (bg === '#00ff00' ? 'verde' : 'preta') + '. DaVinci: efeito 3D Keyer.'
+      : 'WebM baixado! No CapCut: sobreposição + Croma pra remover o fundo ' + (bg === '#00ff00' ? 'verde' : 'preto') + '.');
+    btn.disabled = false;
+  };
+  rec.start();
+  const dur = 1400, total = 4000;
+  const start = performance.now();
+  function tick(now){
+    const el = now - start;
+    const t = Math.min(el / dur, 1);
+    drawFrame(cctx, t, bg, state.model, state.texts, state);
+    if (el < total) requestAnimationFrame(tick);
+    else rec.stop();
+  }
+  requestAnimationFrame(tick);
+}
+
+async function exportZip(){
+  const btn = document.getElementById('btnZip');
+  btn.disabled = true;
+  const F = dims();
+  const c = document.createElement('canvas');
+  c.width = F[0]; c.height = F[1];
+  const cctx = c.getContext('2d');
+  const zip = new JSZip();
+  const frames = 36;
+  for (let i = 0; i < frames; i++){
+    setStatus('Gerando sequência PNG... quadro ' + (i + 1) + '/' + frames);
+    drawFrame(cctx, i / (frames - 1), null, state.model, state.texts, state);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    zip.file('legenda_' + String(i).padStart(3, '0') + '.png', blob);
+  }
+  zip.file('LEIA-ME.txt',
+    'COMO IMPORTAR NO PREMIERE\r\n\r\n1. Arquivo > Importar\r\n2. Selecione o arquivo legenda_000.png\r\n3. Marque a opcao "Sequencia de imagens" e importe\r\n4. A animacao entra com transparencia (canal alfa) - e so arrastar pra timeline\r\n\r\nCOMO IMPORTAR NO DAVINCI RESOLVE\r\n\r\n1. Solte a pasta inteira no Media Pool\r\n2. A sequencia entra como um clipe unico, ja com transparencia\r\n(se entrar como fotos separadas, ative Frame Display Mode > Sequence nas preferencias do Media Pool)\r\n\r\nA sequencia tem 36 quadros. Interprete como 25 fps (~1,4s de animacao).\r\nPra animacao durar mais na tela, estique o ultimo quadro ou congele o frame final.');
+  const blob = await zip.generateAsync({ type: 'blob' });
+  download(blob, 'legenda-' + state.model.id + '-' + state.fmt + '-sequencia.zip');
+  setStatus('Sequência PNG baixada! No Premiere, importe o quadro 000 marcando "Sequência de imagens".');
+  btn.disabled = false;
+}
+
+async function exportLayers(){
+  const btn = document.getElementById('btnLayers');
+  btn.disabled = true;
+  const F = dims();
+  const c = document.createElement('canvas');
+  c.width = F[0]; c.height = F[1];
+  const cctx = c.getContext('2d');
+  const zip = new JSZip();
+  let n = 0;
+  for (let i = 0; i < state.model.lines.length; i++){
+    const ln = state.model.lines[i];
+    if (ln.rule) continue;
+    if (state.lineOv[i] && state.lineOv[i].hide) continue;
+    n++;
+    setStatus('Gerando camada ' + n + '...');
+    drawFrame(cctx, 1, null, state.model, state.texts, Object.assign({}, state, { onlyLine: i }));
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    const slug = (state.texts[i] || 'linha').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'linha';
+    zip.file('camada-' + String(n).padStart(2, '0') + '-' + slug + '.png', blob);
+  }
+  if (n === 0){ setStatus('Nenhuma linha visível pra exportar.'); btn.disabled = false; return; }
+  zip.file('LEIA-ME.txt',
+    'CAMADAS SEPARADAS - LegendaPro\r\n\r\nCada PNG tem UMA linha/palavra, ja na posicao certa do quadro, com fundo transparente.\r\n\r\nNO CAPCUT:\r\n1. Importe todos os PNGs\r\n2. Coloque cada um como sobreposicao, em escala 100% e centralizado no quadro\r\n3. As palavras se encaixam exatamente como no preview\r\n4. Ajuste o INICIO de cada camada na timeline pra palavra entrar em sincronia com a fala\r\n5. Aplique animacao de entrada e efeito sonoro em cada camada como preferir\r\n\r\nDica: nao mude posicao nem escala das camadas - mexa so no tempo.');
+  const blob = await zip.generateAsync({ type: 'blob' });
+  download(blob, 'legenda-' + state.model.id + '-camadas.zip');
+  setStatus('Camadas baixadas! Cada palavra entra na hora da fala — e com efeito sonoro. 🎬');
+  btn.disabled = false;
+}
+
+function setStatus(msg){ document.getElementById('status').textContent = msg; }
+
+document.getElementById('c1').addEventListener('input', e => { state.c1 = e.target.value; renderPreview(); });
+document.getElementById('c2').addEventListener('input', e => { state.c2 = e.target.value; renderPreview(); });
+document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); });
+document.getElementById('glow').addEventListener('change', e => { state.glow = e.target.checked; renderPreview(); });
+document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; playAnim(pctx, '#1c1c1f'); });
+document.getElementById('scale').addEventListener('input', e => {
+  state.scale = e.target.value / 100;
+  document.getElementById('scaleOut').textContent = e.target.value + '%';
+  renderPreview();
+});
+document.getElementById('offset').addEventListener('input', e => {
+  state.offset = Number(e.target.value);
+  document.getElementById('offOut').textContent = e.target.value;
+  renderPreview();
+});
+function applyFormat(){
+  const F = dims();
+  preview.width = F[0]; preview.height = F[1];
+  preview.style.aspectRatio = F[0] + ' / ' + F[1];
+  renderPreview();
+}
+document.getElementById('fmt').addEventListener('change', e => { state.fmt = e.target.value; applyFormat(); });
+
+function loadPresets(){ try { return JSON.parse(localStorage.getItem('legendas_presets')) || []; } catch (e){ return []; } }
+function refreshPresetSel(){
+  const sel = document.getElementById('presetSel');
+  sel.innerHTML = '';
+  const opt0 = document.createElement('option');
+  opt0.value = ''; opt0.textContent = '— selecionar —';
+  sel.appendChild(opt0);
+  loadPresets().forEach((p, i) => {
+    const o = document.createElement('option');
+    o.value = i; o.textContent = p.nome;
+    sel.appendChild(o);
+  });
+}
+document.getElementById('presetSel').addEventListener('change', e => {
+  if (e.target.value === '') return;
+  const p = loadPresets()[Number(e.target.value)];
+  if (!p) return;
+  state.c1 = p.c1; state.c2 = p.c2; state.c3 = p.c3;
+  document.getElementById('c1').value = p.c1;
+  document.getElementById('c2').value = p.c2;
+  document.getElementById('c3').value = p.c3;
+  document.getElementById('presetName').value = p.nome;
+  renderPreview();
+  setStatus('Cores de "' + p.nome + '" aplicadas.');
+});
+document.getElementById('btnSavePreset').addEventListener('click', () => {
+  const nome = document.getElementById('presetName').value.trim();
+  if (!nome){ setStatus('Digite o nome do cliente antes de salvar.'); return; }
+  const ps = loadPresets();
+  const novo = { nome: nome, c1: state.c1, c2: state.c2, c3: state.c3 };
+  const idx = ps.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+  if (idx >= 0) ps[idx] = novo; else ps.push(novo);
+  localStorage.setItem('legendas_presets', JSON.stringify(ps));
+  refreshPresetSel();
+  document.getElementById('presetSel').value = String(ps.findIndex(p => p.nome === nome));
+  setStatus('Cliente "' + nome + '" salvo com as cores atuais.');
+});
+document.getElementById('btnDelPreset').addEventListener('click', () => {
+  const sel = document.getElementById('presetSel');
+  if (sel.value === ''){ setStatus('Selecione um cliente pra excluir.'); return; }
+  const ps = loadPresets();
+  const nome = ps[Number(sel.value)].nome;
+  ps.splice(Number(sel.value), 1);
+  localStorage.setItem('legendas_presets', JSON.stringify(ps));
+  refreshPresetSel();
+  setStatus('Cliente "' + nome + '" excluído.');
+});
+
+document.getElementById('btnPlay').addEventListener('click', () => playAnim(pctx, '#1c1c1f'));
+document.getElementById('btnPng').addEventListener('click', exportPNG);
+document.getElementById('btnWebm').addEventListener('click', () => exportVideo('webm', 'btnWebm'));
+document.getElementById('btnMp4').addEventListener('click', () => exportVideo('mp4', 'btnMp4'));
+document.getElementById('btnZip').addEventListener('click', exportZip);
+document.getElementById('btnLayers').addEventListener('click', exportLayers);
+
+const FONT_LOADS = [
+  '92px "Archivo Black"', 'italic 800 92px "Playfair Display"', 'italic 700 92px "Playfair Display"', '700 92px "Playfair Display"',
+  '92px "Anton"', '92px "Bebas Neue"', '700 92px "Caveat"',
+  '400 92px "Montserrat"', '700 92px "Montserrat"', '800 92px "Montserrat"', 'italic 400 92px "Montserrat"'
+];
+Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
+  buildChips();
+  buildModels();
+  buildTexts();
+  refreshPresetSel();
+  renderPreview();
+  playAnim(pctx, '#1c1c1f');
+});
+
+const DIA_MS = 24 * 60 * 60 * 1000;
+let sb = null;
+
+async function authCheck(){
+  const info = document.getElementById('trialInfo');
+  if (!window.LP_CONFIGURADO()){
+    info.textContent = 'Modo demonstração — login ainda não configurado';
+    return;
+  }
+  sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session){ location.href = 'login.html'; return; }
+  const { data: prof, error } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+  if (error || !prof){ info.textContent = 'Não consegui carregar seu perfil — recarregue a página.'; return; }
+  document.getElementById('lnkSair').style.display = 'inline';
+  document.getElementById('lnkSair').addEventListener('click', async ev => {
+    ev.preventDefault();
+    await sb.auth.signOut();
+    location.href = 'login.html';
+  });
+  if (prof.is_admin){
+    info.textContent = 'Admin — acesso vitalício ✓';
+    document.getElementById('lnkAdmin').style.display = 'inline';
+    return;
+  }
+  iniciarTravaDeAparelho(session.user.id);
+  if (prof.is_pro){ info.textContent = 'Plano LegendaPro ativo ✓'; return; }
+  const left = new Date(prof.trial_start).getTime() + DIA_MS - Date.now();
+  if (left <= 0){ showPaywall(); return; }
+  const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000);
+  info.textContent = 'Teste grátis: ' + h + 'h ' + m + 'min restantes';
+}
+
+function iniciarTravaDeAparelho(userId){
+  let devId = localStorage.getItem('lp_device');
+  if (!devId){
+    devId = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+    localStorage.setItem('lp_device', devId);
+  }
+  async function guard(){
+    const { data: p } = await sb.from('profiles').select('current_device').eq('id', userId).single();
+    if (p && p.current_device && p.current_device !== devId){
+      await sb.auth.signOut();
+      location.href = 'login.html?m=device';
+    }
+  }
+  sb.rpc('lp_claim_device', { dev: devId }).then(() => {
+    setInterval(guard, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) guard(); });
+  });
+}
+
+function showPaywall(){
+  document.getElementById('trialInfo').textContent = 'Teste grátis encerrado';
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,9,12,.93);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML = '<div style="background:#15171c;border:1px solid rgba(0,217,255,.35);border-radius:20px;max-width:430px;width:100%;padding:36px 30px;text-align:center;">'
+    + '<h2 style="font-size:22px;font-weight:800;margin-bottom:10px;">Seu teste grátis de 1 dia acabou</h2>'
+    + '<p style="font-size:14px;color:#9a9aa3;line-height:1.7;margin-bottom:6px;">Curtiu o LegendaPro? Continue com acesso total por</p>'
+    + '<p style="font-size:36px;font-weight:800;color:#00d9ff;margin-bottom:20px;">R$ 37,99<span style="font-size:15px;color:#9a9aa3;font-weight:700;">/mês</span></p>'
+    + '<a href="assinar.html" style="display:block;background:linear-gradient(90deg,#00d9ff,#00ffa3);color:#04151c;font-weight:800;border-radius:12px;padding:14px;text-decoration:none;margin-bottom:10px;">Pagar com PIX (QR Code ou chave)</a>'
+    + '<a href="' + window.LP_WHATSAPP + '" style="display:block;background:transparent;border:1px solid #2a2f38;color:#eef1f4;font-weight:700;border-radius:12px;padding:13px;text-decoration:none;margin-bottom:16px;">Falar no WhatsApp</a>'
+    + '<p style="font-size:12px;color:#6f6f78;line-height:1.6;margin-bottom:14px;">Pagou e mandou o comprovante? Seu acesso é liberado na sua conta em minutos.</p>'
+    + '<button id="lpRecheck" style="background:transparent;border:1px solid #2a2f38;color:#eef1f4;border-radius:10px;font-weight:700;padding:10px 16px;cursor:pointer;font-family:inherit;font-size:13px;">Já fui liberado — verificar de novo</button>'
+    + '<p id="lpErr" style="font-size:12px;color:#ff6b6b;margin-top:8px;min-height:14px;"></p></div>';
+  document.body.appendChild(ov);
+  document.getElementById('lpRecheck').addEventListener('click', async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    const { data: prof } = await sb.from('profiles').select('is_pro').eq('id', session.user.id).single();
+    if (prof && prof.is_pro){ ov.remove(); authCheck(); }
+    else { document.getElementById('lpErr').textContent = 'Ainda não liberado — chama o criador no WhatsApp.'; }
+  });
+}
+authCheck();
+</script>
+</body>
+</html>

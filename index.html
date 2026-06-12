@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegendaPro — Legendas dinâmicas prontas pra CapCut, Premiere e DaVinci</title>
+<meta name="description" content="34 modelos de legendas dinâmicas editáveis. Digite seu texto, exporte com transparência e arraste pro CapCut, Premiere Pro ou DaVinci Resolve. Sem procurar template nunca mais.">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --cy: #00d9ff; --mint: #00ffa3; --bg: #08090c; --card: #101216; --line: #1d2128; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: #eef1f4; overflow-x: hidden; }
+  a { color: inherit; }
+  .glow { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; opacity: .16; }
+  .glow-1 { width: 520px; height: 520px; background: var(--cy); top: -160px; right: -120px; animation: drift 14s ease-in-out infinite alternate; }
+  .glow-2 { width: 460px; height: 460px; background: #2563eb; bottom: -180px; left: -140px; animation: drift 18s ease-in-out infinite alternate-reverse; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(60px,40px) scale(1.15); } }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 24px; margin: 0 -24px;
+    background: rgba(8,9,12,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(29,33,40,.6);
+  }
+  .logo { font-size: 22px; font-weight: 800; }
+  .logo span { background: linear-gradient(90deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn {
+    display: inline-block; font-weight: 800; font-size: 15px; text-decoration: none;
+    border-radius: 12px; padding: 14px 26px; transition: transform .15s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-accent { background: linear-gradient(90deg, var(--cy), var(--mint)); color: #04151c; }
+  .btn-accent:hover { box-shadow: 0 10px 36px rgba(0,217,255,.35); }
+  .btn-ghost { background: rgba(16,18,22,.6); color: #eef1f4; border: 1px solid #2a2f38; }
+  .btn-ghost:hover { border-color: var(--cy); box-shadow: 0 8px 26px rgba(0,217,255,.15); }
+  .btn-white { background: #fff; color: #0a0c10; }
+  .btn-white:hover { box-shadow: 0 10px 36px rgba(255,255,255,.18); }
+  .hero { display: flex; gap: 48px; align-items: center; padding: 56px 0 72px; flex-wrap: wrap; }
+  .hero-copy { flex: 1 1 420px; min-width: 300px; }
+  .tag {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    color: var(--cy); border: 1px solid rgba(0,217,255,.25); background: rgba(0,217,255,.06);
+    border-radius: 999px; padding: 7px 16px; margin-bottom: 22px;
+  }
+  h1 { font-family: 'Archivo Black', sans-serif; font-size: clamp(34px, 5vw, 54px); line-height: 1.05; font-weight: 400; }
+  h1 em, h2 em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 800; background: linear-gradient(90deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: 17px; line-height: 1.7; color: #aab2bd; margin: 22px 0 30px; max-width: 520px; }
+  .ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+  .mini { display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px; color: #8a93a0; }
+  .mini b { color: #eef1f4; }
+  .phone-wrap { flex: 0 0 auto; margin: 0 auto; perspective: 1100px; animation: float 5.5s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  .phone {
+    width: 300px; padding: 12px;
+    background: #11141a; border: 1px solid #232a35; border-radius: 36px;
+    box-shadow: 0 40px 90px rgba(0,0,0,.5), 0 0 70px rgba(0,217,255,.12);
+    transition: transform .25s ease; transform-style: preserve-3d; will-change: transform;
+  }
+  .phone canvas { width: 276px; height: 490px; border-radius: 26px; display: block; background: #181c23; }
+  .strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 22px 0; position: relative; z-index: 1; }
+  .strip .wrap { display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .strip span { font-size: 12px; letter-spacing: 2px; color: #5d6671; font-weight: 700; }
+  .pill { font-size: 14px; font-weight: 800; background: var(--card); border: 1px solid #252b35; border-radius: 999px; padding: 10px 22px; transition: border-color .2s, box-shadow .2s; }
+  .pill:hover { border-color: var(--cy); box-shadow: 0 6px 22px rgba(0,217,255,.15); }
+  section { padding: 76px 0; }
+  h2 { font-family: 'Archivo Black', sans-serif; font-size: clamp(26px, 3.6vw, 38px); font-weight: 400; line-height: 1.15; text-align: center; }
+  .lead { text-align: center; color: #8a93a0; font-size: 16px; margin: 14px auto 44px; max-width: 560px; line-height: 1.7; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card3d {
+    background: var(--card); border: 1px solid #20252e; border-radius: 18px;
+    transition: transform .25s ease, border-color .25s, box-shadow .25s;
+  }
+  .card3d:hover { transform: perspective(800px) rotateX(2.5deg) translateY(-6px); border-color: rgba(0,217,255,.45); box-shadow: 0 22px 50px rgba(0,0,0,.45), 0 0 30px rgba(0,217,255,.08); }
+  .step { padding: 28px 24px; }
+  .step .n { font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1; background: linear-gradient(180deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .step h3 { font-size: 17px; font-weight: 800; margin: 14px 0 8px; }
+  .step p { font-size: 14px; color: #8a93a0; line-height: 1.7; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; perspective: 900px; }
+  .gallery canvas {
+    width: 100%; border-radius: 14px; background: #14181f; display: block;
+    border: 1px solid #20252e; transition: transform .25s ease, border-color .25s, box-shadow .25s;
+  }
+  .gallery canvas:hover { transform: rotateX(5deg) rotateY(-5deg) scale(1.06); border-color: rgba(0,217,255,.5); box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 0 26px rgba(0,217,255,.12); }
+  .gal-note { text-align: center; color: #5d6671; font-size: 13px; margin-top: 18px; }
+  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .feat { padding: 24px; }
+  .feat h3 { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .feat h3 span { color: var(--cy); margin-right: 8px; }
+  .feat p { font-size: 14px; color: #8a93a0; line-height: 1.7; }
+  .editors { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .editor { padding: 26px 24px; }
+  .editor h3 { font-size: 18px; font-weight: 800; margin-bottom: 14px; }
+  .editor li { font-size: 14px; color: #aab2bd; line-height: 1.8; margin-left: 18px; }
+  .editor li b { color: #fff; }
+  .cta-box {
+    position: relative; overflow: hidden;
+    background: radial-gradient(120% 160% at 50% -20%, rgba(0,217,255,.14), rgba(16,18,22,.9) 55%), var(--card);
+    border: 1px solid rgba(0,217,255,.28); border-radius: 24px;
+    padding: 52px 32px; text-align: center;
+  }
+  .cta-box .preco { font-family: 'Anton', sans-serif; font-size: 50px; margin: 18px 0 6px; background: linear-gradient(90deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .cta-box p { color: #aab2bd; font-size: 15px; line-height: 1.7; max-width: 480px; margin: 0 auto; }
+  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; max-width: 680px; margin: 0 auto; }
+  .price-card { padding: 36px 28px 32px; text-align: center; position: relative; }
+  .price-card h3 { font-size: 15px; font-weight: 800; color: #aab2bd; letter-spacing: 1.5px; text-transform: uppercase; }
+  .price-card .preco { font-family: 'Anton', sans-serif; font-size: 46px; margin: 14px 0 2px; }
+  .price-card .preco small { font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 700; color: #8a93a0; }
+  .price-card .preco.grad { background: linear-gradient(90deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .price-card ul { list-style: none; margin: 18px 0 26px; }
+  .price-card li { font-size: 14px; color: #aab2bd; line-height: 2.1; }
+  .price-card li::before { content: '✓  '; color: var(--mint); font-weight: 800; }
+  .price-destaque { border-color: rgba(0,217,255,.45) !important; background: radial-gradient(120% 160% at 50% -20%, rgba(0,217,255,.12), var(--card) 60%); }
+  .badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, var(--cy), var(--mint)); color: #04151c; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 999px; padding: 5px 14px; white-space: nowrap; }
+  details { background: var(--card); border: 1px solid #20252e; border-radius: 14px; padding: 18px 22px; margin-bottom: 12px; max-width: 720px; margin-left: auto; margin-right: auto; transition: border-color .2s; }
+  details:hover { border-color: rgba(0,217,255,.35); }
+  summary { font-size: 15px; font-weight: 700; cursor: pointer; }
+  details p { font-size: 14px; color: #8a93a0; line-height: 1.7; margin-top: 12px; }
+  footer { border-top: 1px solid var(--line); padding: 32px 0; text-align: center; color: #5d6671; font-size: 13px; position: relative; z-index: 1; }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .phone-wrap, .glow-1, .glow-2 { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="wrap">
+  <nav>
+    <div class="logo">Legenda<span>Pro</span></div>
+    <a class="btn btn-accent" href="app.html">Abrir o app</a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-copy">
+      <span class="tag">PRA EDITORES DE VÍDEO</span>
+      <h1>Legendas dinâmicas <em>prontas</em> pro seu próximo vídeo</h1>
+      <p class="sub">34 modelos no estilo que viraliza, com o seu texto e as cores da sua marca. Exporte com transparência e arraste direto pro <b>CapCut</b>, <b>Premiere</b> ou <b>DaVinci</b>. Sem procurar template nunca mais.</p>
+      <div class="ctas">
+        <a class="btn btn-accent" href="app.html">Usar agora — grátis</a>
+        <a class="btn btn-ghost" href="#modelos">Ver os modelos</a>
+      </div>
+      <div class="mini">
+        <span><b>Zero instalação</b> — roda no navegador</span>
+        <span><b>3 formatos</b> — 9:16, 1:1, 16:9</span>
+      </div>
+    </div>
+    <div class="phone-wrap"><div class="phone" id="phone"><canvas id="hero" width="1080" height="1920"></canvas></div></div>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="wrap">
+    <span>FUNCIONA COM</span>
+    <div class="pill">CapCut</div>
+    <div class="pill">Adobe Premiere Pro</div>
+    <div class="pill">DaVinci Resolve</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section>
+    <h2 class="reveal">Do texto ao vídeo em <em>3 passos</em></h2>
+    <p class="lead reveal">O tempo que você gasta procurando template dá pra editar mais um cliente.</p>
+    <div class="steps">
+      <div class="step card3d reveal"><div class="n">1</div><h3>Escolha o modelo</h3><p>34 estilos organizados por nicho: ganchos, promoção, restaurantes, empresas, CTA e tipografia editorial.</p></div>
+      <div class="step card3d reveal"><div class="n">2</div><h3>Digite seu texto</h3><p>Troque a frase, ajuste as 3 cores pra identidade do cliente e escolha a animação. Preview na hora.</p></div>
+      <div class="step card3d reveal"><div class="n">3</div><h3>Exporte e arraste</h3><p>PNG transparente, vídeo animado ou sequência PNG. Cai pronto na timeline do seu editor.</p></div>
+    </div>
+  </section>
+
+  <section id="modelos">
+    <h2 class="reveal">Modelos que <em>vendem</em> sozinhos</h2>
+    <p class="lead reveal">Tudo que você vê abaixo foi gerado pelo próprio LegendaPro — é exatamente o que sai no seu vídeo.</p>
+    <div class="gallery" id="gallery"></div>
+    <p class="gal-note">+ outros 22 modelos dentro do app, com novas adições frequentes</p>
+  </section>
+
+  <section>
+    <h2 class="reveal">Feito pra quem edita <em>todo dia</em></h2>
+    <p class="lead reveal">Criado por quem edita pra 30+ clientes por mês e cansou de procurar legenda.</p>
+    <div class="feats">
+      <div class="feat card3d reveal"><h3><span>◆</span>7 categorias por nicho</h3><p>Restaurante, loja, indústria, criador de conteúdo — o modelo certo pro cliente certo, sem adaptação forçada.</p></div>
+      <div class="feat card3d reveal"><h3><span>◆</span>Cores e presets de cliente</h3><p>Salve as cores de cada cliente uma vez. Depois é selecionar o nome e exportar — identidade visual sempre certa.</p></div>
+      <div class="feat card3d reveal"><h3><span>◆</span>Animações prontas</h3><p>Fade, pop, slide e máquina de escrever. A legenda já entra com movimento, sem keyframe manual.</p></div>
+      <div class="feat card3d reveal"><h3><span>◆</span>Export universal</h3><p>PNG com transparência, WebM pro CapCut, MP4 pra chroma key e sequência PNG com canal alfa pros editores pro.</p></div>
+      <div class="feat card3d reveal"><h3><span>◆</span>3 formatos de tela</h3><p>Vertical pra Reels e TikTok, quadrado pro feed, widescreen pro YouTube. Mesmo modelo, qualquer plataforma.</p></div>
+      <div class="feat card3d reveal"><h3><span>◆</span>Zero instalação</h3><p>Abre no navegador, funciona em qualquer computador. Nada de plugin, extensão ou programa pesado.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal">Cai redondo no <em>seu editor</em></h2>
+    <p class="lead reveal">Cada exportação foi pensada pro fluxo real de cada programa.</p>
+    <div class="editors">
+      <div class="editor card3d reveal"><h3>CapCut</h3><ul>
+        <li><b>PNG transparente</b> — sobreposição direta</li>
+        <li><b>WebM animado</b> — remove o fundo com Croma</li>
+        <li>Funciona no celular e no PC</li>
+      </ul></div>
+      <div class="editor card3d reveal"><h3>Premiere Pro</h3><ul>
+        <li><b>Sequência PNG</b> — alfa nativo, sem chroma</li>
+        <li><b>MP4 verde</b> — Ultra Key e pronto</li>
+        <li>LEIA-ME com passo a passo incluso</li>
+      </ul></div>
+      <div class="editor card3d reveal"><h3>DaVinci Resolve</h3><ul>
+        <li><b>Sequência PNG</b> — clipe único com alfa</li>
+        <li><b>MP4 verde</b> — efeito 3D Keyer</li>
+        <li>Compatível com a versão gratuita</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section id="precos">
+    <h2 class="reveal">Comece <em>de graça</em></h2>
+    <p class="lead reveal">Teste tudo por 1 dia, sem cartão. Gostou? Continue por menos de R$ 1,30 por dia.</p>
+    <div class="pricing">
+      <div class="price-card card3d reveal">
+        <h3>Teste grátis</h3>
+        <div class="preco">1 dia</div>
+        <ul>
+          <li>Acesso a todos os 34 modelos</li>
+          <li>Todas as exportações liberadas</li>
+          <li>Sem cartão de crédito</li>
+        </ul>
+        <a class="btn btn-ghost" href="app.html" style="display:block;">Começar agora</a>
+      </div>
+      <div class="price-card card3d price-destaque reveal">
+        <span class="badge">MAIS POPULAR</span>
+        <h3>LegendaPro completo</h3>
+        <div class="preco grad">R$ 37,99<small>/mês</small></div>
+        <ul>
+          <li>Tudo do teste, sem limite de tempo</li>
+          <li>Novos modelos adicionados sempre</li>
+          <li>Presets ilimitados de clientes</li>
+          <li>Suporte direto com o criador</li>
+        </ul>
+        <a class="btn btn-accent" href="assinar.html" style="display:block;">Assinar com PIX</a>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:26px;">
+      <a class="btn btn-ghost" href="https://wa.me/5511997295407?text=Ol%C3%A1!%20Vi%20o%20LegendaPro%20e%20quero%20saber%20mais">Falar com o criador</a>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="reveal">Perguntas <em>frequentes</em></h2>
+    <p class="lead"></p>
+    <details class="reveal"><summary>Quanto custa?</summary><p>Você testa tudo de graça por 1 dia, sem cartão. Depois, o acesso completo custa R$ 37,99 por mês — menos de R$ 1,30 por dia pra nunca mais perder tempo procurando legenda. A assinatura é feita direto com o criador pelo WhatsApp.</p></details>
+    <details class="reveal"><summary>Preciso instalar alguma coisa?</summary><p>Não. O LegendaPro roda 100% no navegador. Você abre o link, edita e baixa os arquivos — funciona em qualquer computador com Chrome ou Edge.</p></details>
+    <details class="reveal"><summary>Como a legenda vai parar no meu vídeo?</summary><p>Você baixa o arquivo e arrasta pra timeline como uma camada por cima do vídeo. PNG já vem com fundo transparente; o vídeo animado vem com fundo verde que você remove com um clique (Croma no CapCut, Ultra Key no Premiere, 3D Keyer no DaVinci).</p></details>
+    <details class="reveal"><summary>Posso usar as cores da marca do meu cliente?</summary><p>Sim — são 3 cores configuráveis em todos os modelos, e dá pra salvar as cores de cada cliente como preset. Atende quantos clientes você tiver.</p></details>
+    <details class="reveal"><summary>Os modelos servem pra qualquer nicho?</summary><p>Tem categoria pra restaurante, loja/promoção, empresa/indústria, criador de conteúdo e CTAs de engajamento — além dos estilos editoriais que funcionam pra tudo.</p></details>
+  </section>
+</div>
+
+<footer>LegendaPro © 2026 — feito por Agência Digital Scale</footer>
+
+<script>
+const P = { c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', dark:'#0a1418' };
+const LMODELS = [
+  { id:'mix', anim:'fade', lines:[
+    { f:'Archivo Black', s:92, c:'c1', d:'como fazer' },
+    { f:'Playfair Display', s:170, it:1, w:800, c:'c1', d:'legenda', gap:-6 },
+    { f:'Archivo Black', s:118, c:'c1', d:'atrativa', gap:-52 },
+    { f:'Montserrat', s:44, w:700, c:'c1', d:'no LegendaPro', gap:10 } ]},
+  { id:'detalhe', anim:'fade', lines:[
+    { f:'Playfair Display', s:95, it:1, w:700, c:'c1', d:'esse', dx:150 },
+    { f:'Playfair Display', s:200, it:1, w:800, c:'c3', d:'único', dx:-70, gap:-40 },
+    { f:'Archivo Black', s:125, c:'c1', d:'detalhe', dx:-50, gap:-30 },
+    { f:'Playfair Display', s:90, it:1, w:700, c:'c1', d:'pode fazer seu', dx:110, gap:-6 },
+    { f:'Playfair Display', s:190, it:1, w:800, c:'c2', d:'vídeo', dx:50, gap:-46 } ]},
+  { id:'escada', anim:'slide', lines:[
+    { f:'Montserrat', s:115, w:800, c:'c3', d:'Pare', dx:-190 },
+    { f:'Montserrat', s:115, w:800, c:'c1', d:'agora', dx:-50, gap:-30 },
+    { f:'Montserrat', s:115, w:800, c:'c1', d:'de usar', dx:70, gap:-30 },
+    { f:'Montserrat', s:115, w:800, c:'c2', d:'Legendas', dx:40, gap:-30 } ]},
+  { id:'impacto', anim:'pop', lines:[
+    { f:'Bebas Neue', s:185, c:'c1', d:'NINGUÉM' },
+    { f:'Bebas Neue', s:185, c:'c1', d:'TE CONTOU', gap:-34 },
+    { f:'Bebas Neue', s:185, c:'c2', d:'ISSO', gap:-34 } ]},
+  { id:'desconto', anim:'pop', lines:[
+    { f:'Anton', s:300, c:'c2', d:'50%' },
+    { f:'Bebas Neue', s:120, c:'c1', d:'DE DESCONTO', gap:-34 },
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'em toda a loja', gap:8 } ]},
+  { id:'manuscrita', anim:'typewriter', lines:[
+    { f:'Montserrat', s:64, w:800, c:'c1', d:'pare de perder' },
+    { f:'Caveat', s:175, w:700, c:'c2', rot:-4, d:'seguidores', gap:-26 },
+    { f:'Montserrat', s:64, w:800, c:'c1', d:'fazendo isso', gap:-10 } ]},
+  { id:'tarja', anim:'slide', lines:[
+    { f:'Montserrat', s:74, w:800, box:{ bg:'c1', fg:'dark' }, rot:-3, d:'PASSO A PASSO' },
+    { f:'Montserrat', s:74, w:800, box:{ bg:'c2', fg:'dark' }, rot:2, d:'pra viralizar', gap:30 } ]},
+  { id:'contorno', anim:'pop', lines:[
+    { f:'Anton', s:160, c:'c1', sp:4, stroke:1, d:'3 DICAS' },
+    { f:'Anton', s:160, c:'c1', sp:4, d:'3 DICAS', gap:-18 },
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'que ninguém te conta', gap:18 } ]},
+  { id:'preco', anim:'slide', lines:[
+    { f:'Montserrat', s:56, w:700, st:1, c:'c1', d:'de R$ 99,90' },
+    { f:'Anton', s:220, c:'c2', d:'R$ 49,90', gap:6 },
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c1', fg:'dark' }, d:'SÓ HOJE', gap:40 } ]},
+  { id:'hojetem', anim:'pop', lines:[
+    { f:'Montserrat', s:58, w:800, sp:10, c:'c1', d:'HOJE TEM' },
+    { f:'Anton', s:185, c:'c2', d:'FEIJOADA', gap:4 },
+    { f:'Montserrat', s:50, it:1, w:400, c:'c1', d:'feita na hora', gap:12 } ]},
+  { id:'resultado', anim:'pop', lines:[
+    { f:'Montserrat', s:60, w:700, c:'c1', d:'+ de' },
+    { f:'Anton', s:260, c:'c2', d:'1.500', gap:-14 },
+    { f:'Montserrat', s:62, w:800, c:'c1', sp:2, d:'CLIENTES ATENDIDOS', gap:4 } ]},
+  { id:'numeroserif', anim:'fade', lines:[
+    { f:'Playfair Display', s:310, w:700, c:'c1', d:'3', dx:-230 },
+    { f:'Playfair Display', s:150, it:1, w:700, c:'c1', d:'ajustes', dx:90, gap:-300 },
+    { f:'Montserrat', s:56, w:400, c:'c1', d:'que vão', dx:-160, gap:90 },
+    { f:'Playfair Display', s:160, it:1, w:700, c:'c1', d:'melhorar', gap:-20 },
+    { f:'Montserrat', s:56, w:400, c:'c1', d:'sua legenda', dx:130, gap:-24 } ]}
+];
+
+function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
+function easeOutBack(t){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+
+function drawCap(ctx, model, t, bg){
+  const W = 1080, H = 1920;
+  ctx.clearRect(0, 0, W, H);
+  if (bg){ ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H); }
+  const lines = model.lines;
+  const lineHs = lines.map(ln => (ln.rule ? 8 : ln.s * 1.12) + (ln.gap || 0));
+  const totalH = lineHs.reduce((a, b) => a + b, 0);
+  let y = H / 2 - totalH / 2;
+  const n = lines.length, stag = 0.18;
+  lines.forEach((ln, i) => {
+    const lh = lineHs[i];
+    const cy = y + lh / 2 + (ln.gap || 0) / 2;
+    y += lh;
+    let p = Math.max(0, Math.min(1, t * (1 + (n - 1) * stag) - i * stag));
+    if (p <= 0) return;
+    ctx.save();
+    ctx.translate(W / 2 + (ln.dx || 0), cy);
+    if (ln.rot) ctx.rotate(ln.rot * Math.PI / 180);
+    let alpha = 1, scale = 1, dy = 0, txt = ln.d;
+    if (model.anim === 'fade'){ alpha = easeOut(p); }
+    else if (model.anim === 'pop'){ scale = easeOutBack(p); alpha = Math.min(p * 3, 1); }
+    else if (model.anim === 'slide'){ const e = easeOut(p); dy = (1 - e) * 70; alpha = e; }
+    else if (model.anim === 'typewriter'){ txt = ln.d.slice(0, Math.ceil(ln.d.length * p)); }
+    ctx.globalAlpha = alpha;
+    ctx.translate(0, dy);
+    ctx.scale(scale, scale);
+    if (ln.rule){
+      ctx.fillStyle = P[ln.c];
+      ctx.fillRect(-70, -3, 140, 6);
+      ctx.restore();
+      return;
+    }
+    const size = ln.s;
+    ctx.font = (ln.it ? 'italic ' : '') + (ln.w || 400) + ' ' + size + 'px "' + ln.f + '"';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = (ln.sp || 0) + 'px';
+    if (ln.box){
+      const m = ctx.measureText(txt);
+      const padX = size * 0.35, padY = size * 0.28;
+      const bw = m.width + padX * 2, bh = size + padY * 2;
+      ctx.fillStyle = P[ln.box.bg];
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 10); else ctx.rect(-bw / 2, -bh / 2, bw, bh);
+      ctx.fill();
+      ctx.fillStyle = P[ln.box.fg];
+      ctx.fillText(txt, 0, size * 0.04);
+    } else if (ln.stroke){
+      ctx.lineWidth = Math.max(2, size * 0.04);
+      ctx.strokeStyle = P[ln.c];
+      ctx.strokeText(txt, 0, 0);
+    } else {
+      if (ln.sh){ ctx.fillStyle = P[ln.sh]; ctx.fillText(txt, size * 0.05, size * 0.05); }
+      ctx.fillStyle = P[ln.c];
+      ctx.fillText(txt, 0, 0);
+      if (ln.st){
+        const m = ctx.measureText(txt);
+        ctx.fillRect(-m.width / 2 - size * 0.06, -size * 0.05, m.width + size * 0.12, size * 0.09);
+      }
+      if (ln.u){
+        const m = ctx.measureText(txt);
+        ctx.fillRect(-m.width / 2, size * 0.52, m.width, size * 0.08);
+      }
+    }
+    ctx.restore();
+  });
+  ctx.globalAlpha = 1;
+}
+
+const FONT_LOADS = [
+  '92px "Archivo Black"', 'italic 800 92px "Playfair Display"', 'italic 700 92px "Playfair Display"', '700 92px "Playfair Display"',
+  '92px "Anton"', '92px "Bebas Neue"', '700 92px "Caveat"',
+  '400 92px "Montserrat"', '700 92px "Montserrat"', '800 92px "Montserrat"', 'italic 400 92px "Montserrat"'
+];
+Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
+  const gal = document.getElementById('gallery');
+  LMODELS.forEach((m, i) => {
+    const c = document.createElement('canvas');
+    c.width = 270; c.height = 480;
+    c.className = 'reveal';
+    c.style.transitionDelay = (i * 45) + 'ms';
+    gal.appendChild(c);
+    const ctx = c.getContext('2d');
+    ctx.scale(270 / 1080, 480 / 1920);
+    drawCap(ctx, m, 1, '#14181f');
+    obs.observe(c);
+  });
+
+  const hero = document.getElementById('hero');
+  const hctx = hero.getContext('2d');
+  const ciclo = ['mix', 'detalhe', 'escada', 'desconto', 'manuscrita', 'impacto'];
+  let idx = 0, start = performance.now();
+  const ANIM = 1300, HOLD = 1700;
+  function tick(now){
+    const el = now - start;
+    const model = LMODELS.find(m => m.id === ciclo[idx]);
+    drawCap(hctx, model, Math.min(el / ANIM, 1), '#181c23');
+    if (el > ANIM + HOLD){ idx = (idx + 1) % ciclo.length; start = now; }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+});
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+const phone = document.getElementById('phone');
+const pwrap = document.querySelector('.phone-wrap');
+pwrap.addEventListener('mousemove', e => {
+  const r = phone.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width - 0.5;
+  const yy = (e.clientY - r.top) / r.height - 0.5;
+  phone.style.transform = 'rotateY(' + (x * 14) + 'deg) rotateX(' + (-yy * 14) + 'deg)';
+});
+pwrap.addEventListener('mouseleave', () => { phone.style.transform = 'rotateY(0) rotateX(0)'; });
+</script>
+</body>
+</html>

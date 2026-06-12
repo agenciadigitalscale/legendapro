@@ -1,0 +1,8 @@
+.vercel
+.claude/
+meu-video-engine/
+*.mp4
+*.webm
+*.zip
+Thumbs.db
+desktop.ini

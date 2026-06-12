@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — LegendaPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: #08090c; color: #eef1f4; min-height: 100vh; }
+  header { padding: 20px 28px; border-bottom: 1px solid #1d2128; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  h1 { font-size: 20px; font-weight: 800; }
+  h1 span { background: linear-gradient(90deg, #00d9ff, #00ffa3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header a { color: #8a93a0; font-size: 13px; text-decoration: none; margin-left: 16px; }
+  header a:hover { color: #00d9ff; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .stat { background: #101216; border: 1px solid #20252e; border-radius: 14px; padding: 18px; }
+  .stat .v { font-size: 28px; font-weight: 800; color: #00d9ff; }
+  .stat .l { font-size: 12px; color: #8a93a0; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; background: #101216; border: 1px solid #20252e; border-radius: 14px; overflow: hidden; }
+  th { text-align: left; font-size: 11px; letter-spacing: 1px; color: #8a93a0; text-transform: uppercase; padding: 14px 16px; border-bottom: 1px solid #20252e; }
+  td { font-size: 14px; padding: 13px 16px; border-bottom: 1px solid #181c22; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 4px 12px; }
+  .p-admin { background: rgba(0,217,255,.12); color: #00d9ff; }
+  .p-pro { background: rgba(0,255,163,.12); color: #00ffa3; }
+  .p-teste { background: rgba(255,179,60,.12); color: #ffb33c; }
+  .p-exp { background: rgba(255,107,107,.12); color: #ff6b6b; }
+  button.tog {
+    font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer;
+    border: 1px solid #2a2f38; background: transparent; color: #eef1f4;
+    border-radius: 9px; padding: 7px 14px; transition: border-color .15s;
+  }
+  button.tog:hover { border-color: #00ffa3; }
+  #estado { padding: 60px 20px; text-align: center; color: #8a93a0; font-size: 15px; line-height: 1.7; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Legenda<span>Pro</span> — painel do criador</h1>
+  <div><a href="app.html">← voltar pro app</a><a href="#" id="sair">sair</a></div>
+</header>
+<div class="wrap">
+  <div id="estado">Carregando...</div>
+  <div id="painel" style="display:none;">
+    <div class="cards">
+      <div class="stat"><div class="v" id="stTotal">0</div><div class="l">contas criadas</div></div>
+      <div class="stat"><div class="v" id="stPro">0</div><div class="l">assinantes Pro</div></div>
+      <div class="stat"><div class="v" id="stTeste">0</div><div class="l">em teste grátis</div></div>
+      <div class="stat"><div class="v" id="stExp">0</div><div class="l">teste expirado</div></div>
+    </div>
+    <table>
+      <thead><tr><th>E-mail</th><th>Criado em</th><th>Status</th><th>Ação</th></tr></thead>
+      <tbody id="linhas"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lp-config.js"></script>
+<script>
+const DIA = 86400000;
+let sb = null;
+
+async function init(){
+  const estado = document.getElementById('estado');
+  if (!window.LP_CONFIGURADO()){ estado.textContent = 'Supabase ainda não configurado no lp-config.js.'; return; }
+  sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session){ location.href = 'login.html'; return; }
+  const { data: eu } = await sb.from('profiles').select('is_admin').eq('id', session.user.id).single();
+  if (!eu || !eu.is_admin){ estado.textContent = 'Acesso restrito ao criador. Essa área não é pra você. 😉'; return; }
+  await carregar();
+}
+
+async function carregar(){
+  const { data: perfis, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  if (error){ document.getElementById('estado').textContent = 'Erro ao carregar: ' + error.message; return; }
+  document.getElementById('estado').style.display = 'none';
+  document.getElementById('painel').style.display = 'block';
+  const tb = document.getElementById('linhas');
+  tb.innerHTML = '';
+  let nPro = 0, nTeste = 0, nExp = 0;
+  perfis.forEach(p => {
+    const tr = document.createElement('tr');
+    const expirou = Date.now() - new Date(p.trial_start).getTime() > DIA;
+    let pill, rotulo;
+    if (p.is_admin){ pill = 'p-admin'; rotulo = 'ADMIN'; }
+    else if (p.is_pro){ pill = 'p-pro'; rotulo = 'PRO'; nPro++; }
+    else if (!expirou){ pill = 'p-teste'; rotulo = 'TESTE'; nTeste++; }
+    else { pill = 'p-exp'; rotulo = 'EXPIRADO'; nExp++; }
+    const tdMail = document.createElement('td'); tdMail.textContent = p.email || '—';
+    const tdData = document.createElement('td'); tdData.textContent = new Date(p.created_at).toLocaleDateString('pt-BR');
+    const tdSt = document.createElement('td'); tdSt.innerHTML = '<span class="pill ' + pill + '">' + rotulo + '</span>';
+    const tdAc = document.createElement('td');
+    if (!p.is_admin){
+      const b = document.createElement('button');
+      b.className = 'tog';
+      b.textContent = p.is_pro ? 'Remover Pro' : 'Liberar Pro';
+      b.addEventListener('click', async () => {
+        b.disabled = true;
+        const { error: e2 } = await sb.from('profiles').update({ is_pro: !p.is_pro }).eq('id', p.id);
+        if (e2) alert('Erro: ' + e2.message);
+        await carregar();
+      });
+      tdAc.appendChild(b);
+    }
+    tr.appendChild(tdMail); tr.appendChild(tdData); tr.appendChild(tdSt); tr.appendChild(tdAc);
+    tb.appendChild(tr);
+  });
+  document.getElementById('stTotal').textContent = perfis.length;
+  document.getElementById('stPro').textContent = nPro;
+  document.getElementById('stTeste').textContent = nTeste;
+  document.getElementById('stExp').textContent = nExp;
+}
+
+document.getElementById('sair').addEventListener('click', async ev => {
+  ev.preventDefault();
+  if (sb) await sb.auth.signOut();
+  location.href = 'login.html';
+});
+init();
+</script>
+</body>
+</html>

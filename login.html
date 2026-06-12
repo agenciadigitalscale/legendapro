@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — LegendaPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #08090c; color: #eef1f4;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px; overflow: hidden; position: relative;
+  }
+  .glow { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; opacity: .16; }
+  .glow-1 { width: 480px; height: 480px; background: #00d9ff; top: -140px; right: -100px; }
+  .glow-2 { width: 420px; height: 420px; background: #2563eb; bottom: -160px; left: -120px; }
+  .card {
+    position: relative; z-index: 1;
+    background: #101216; border: 1px solid rgba(0,217,255,.22); border-radius: 22px;
+    width: 100%; max-width: 400px; padding: 38px 32px;
+    box-shadow: 0 40px 90px rgba(0,0,0,.5), 0 0 60px rgba(0,217,255,.06);
+  }
+  .logo { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+  .logo span { background: linear-gradient(90deg, #00d9ff, #00ffa3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: 13px; color: #8a93a0; text-align: center; margin-bottom: 26px; }
+  .tabs { display: flex; background: #16181d; border-radius: 12px; padding: 4px; margin-bottom: 22px; }
+  .tabs button {
+    flex: 1; border: none; background: transparent; color: #8a93a0;
+    font-family: inherit; font-weight: 700; font-size: 14px; padding: 10px; border-radius: 9px; cursor: pointer;
+  }
+  .tabs button.on { background: #232732; color: #fff; }
+  label { display: block; font-size: 12px; color: #8a93a0; margin: 14px 0 6px; font-weight: 700; }
+  input {
+    width: 100%; background: #16181d; border: 1px solid #262b34; border-radius: 10px;
+    color: #fff; font-family: inherit; font-size: 14px; padding: 12px 14px; outline: none;
+  }
+  input:focus { border-color: #00d9ff; }
+  .go {
+    width: 100%; margin-top: 24px; border: none; border-radius: 12px; padding: 14px;
+    background: linear-gradient(90deg, #00d9ff, #00ffa3); color: #04151c;
+    font-family: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
+    transition: transform .12s, box-shadow .2s;
+  }
+  .go:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0,217,255,.3); }
+  .go:disabled { opacity: .6; cursor: wait; }
+  #msg { font-size: 13px; margin-top: 14px; text-align: center; min-height: 18px; line-height: 1.5; }
+  #msg.erro { color: #ff6b6b; }
+  #msg.ok { color: #00ffa3; }
+  .volta { display: block; text-align: center; font-size: 13px; color: #8a93a0; margin-top: 22px; text-decoration: none; }
+  .volta:hover { color: #00d9ff; }
+</style>
+</head>
+<body>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="card">
+  <div class="logo">Legenda<span>Pro</span></div>
+  <p class="sub">Entre na sua conta ou crie uma pra começar seu teste grátis de 1 dia</p>
+  <div class="tabs">
+    <button id="tabEntrar" class="on" type="button">Entrar</button>
+    <button id="tabCriar" type="button">Criar conta</button>
+  </div>
+  <form id="form">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" autocomplete="email" placeholder="seu@email.com" required>
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" placeholder="mínimo 6 caracteres" minlength="6" required>
+    <button class="go" id="btnGo" type="submit">Entrar</button>
+  </form>
+  <p id="msg"></p>
+  <a class="volta" href="index.html">← voltar pra página do produto</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lp-config.js"></script>
+<script>
+let modo = 'entrar';
+const msg = document.getElementById('msg');
+const btnGo = document.getElementById('btnGo');
+let sb = null;
+
+if (!window.LP_CONFIGURADO()){
+  setMsg('Login ainda não configurado — fale com o criador.', 'erro');
+  btnGo.disabled = true;
+} else {
+  sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+  sb.auth.getSession().then(({ data: { session } }) => { if (session) location.href = 'app.html'; });
+}
+
+function setMsg(t, cls){ msg.textContent = t; msg.className = cls || ''; }
+
+if (new URLSearchParams(location.search).get('m') === 'device'){
+  setMsg('Sua conta foi conectada em outro aparelho e esta sessão saiu. Cada conta funciona em 1 aparelho por vez.', 'erro');
+}
+
+function setModo(m){
+  modo = m;
+  document.getElementById('tabEntrar').className = m === 'entrar' ? 'on' : '';
+  document.getElementById('tabCriar').className = m === 'criar' ? 'on' : '';
+  btnGo.textContent = m === 'entrar' ? 'Entrar' : 'Criar conta e começar o teste';
+  setMsg('');
+}
+document.getElementById('tabEntrar').addEventListener('click', () => setModo('entrar'));
+document.getElementById('tabCriar').addEventListener('click', () => setModo('criar'));
+
+function traduz(e){
+  const t = (e && e.message) || '';
+  if (t.indexOf('Invalid login credentials') > -1) return 'E-mail ou senha incorretos.';
+  if (t.indexOf('already registered') > -1) return 'Esse e-mail já tem conta — use a aba Entrar.';
+  if (t.indexOf('at least 6') > -1 || t.indexOf('Password should') > -1) return 'A senha precisa ter pelo menos 6 caracteres.';
+  if (t.indexOf('valid email') > -1 || t.indexOf('invalid format') > -1) return 'Digite um e-mail válido.';
+  if (t.indexOf('rate limit') > -1 || t.indexOf('Too many') > -1) return 'Muitas tentativas — aguarde um minuto.';
+  return 'Algo deu errado: ' + t;
+}
+
+document.getElementById('form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (!sb) return;
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value;
+  btnGo.disabled = true;
+  setMsg(modo === 'entrar' ? 'Entrando...' : 'Criando sua conta...');
+  try {
+    if (modo === 'entrar'){
+      const { error } = await sb.auth.signInWithPassword({ email: email, password: senha });
+      if (error){ setMsg(traduz(error), 'erro'); }
+      else { location.href = 'app.html'; return; }
+    } else {
+      const { data, error } = await sb.auth.signUp({ email: email, password: senha });
+      if (error){ setMsg(traduz(error), 'erro'); }
+      else if (data.session){ location.href = 'app.html'; return; }
+      else { setMsg('Conta criada! Confirme no link que enviamos pro seu e-mail e depois entre aqui.', 'ok'); }
+    }
+  } catch (e){ setMsg('Sem conexão — tente de novo.', 'erro'); }
+  btnGo.disabled = false;
+});
+</script>
+</body>
+</html>

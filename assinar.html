@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assinar — LegendaPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Anton&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #08090c; color: #eef1f4;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; position: relative; overflow-x: hidden;
+  }
+  .glow { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; opacity: .15; }
+  .glow-1 { width: 480px; height: 480px; background: #00d9ff; top: -140px; right: -100px; }
+  .glow-2 { width: 420px; height: 420px; background: #2563eb; bottom: -160px; left: -120px; }
+  .card {
+    position: relative; z-index: 1;
+    background: #101216; border: 1px solid rgba(0,217,255,.22); border-radius: 22px;
+    width: 100%; max-width: 460px; padding: 36px 30px;
+    box-shadow: 0 40px 90px rgba(0,0,0,.5), 0 0 60px rgba(0,217,255,.06);
+    text-align: center;
+  }
+  .logo { font-size: 22px; font-weight: 800; }
+  .logo span { background: linear-gradient(90deg, #00d9ff, #00ffa3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .preco { font-family: 'Anton', sans-serif; font-size: 44px; margin: 10px 0 2px; background: linear-gradient(90deg, #00d9ff, #00ffa3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .preco small { font-size: 16px; font-family: 'Montserrat', sans-serif; font-weight: 700; color: #8a93a0; }
+  .sub { font-size: 13px; color: #8a93a0; margin-bottom: 22px; }
+  .qrbox { background: #fff; border-radius: 16px; padding: 14px; display: inline-block; margin-bottom: 6px; }
+  .qrbox img, .qrbox canvas { display: block; }
+  .nome { font-size: 12px; color: #8a93a0; line-height: 1.6; margin-bottom: 20px; }
+  .nome b { color: #eef1f4; }
+  h3 { font-size: 12px; font-weight: 800; letter-spacing: 1.5px; color: #8a93a0; text-transform: uppercase; margin: 20px 0 8px; text-align: left; }
+  .copy-row { display: flex; gap: 8px; }
+  .copy-row input, .copy-row textarea {
+    flex: 1; background: #16181d; border: 1px solid #262b34; border-radius: 10px;
+    color: #cfd6dd; font-family: inherit; font-size: 12px; padding: 11px 12px; outline: none; resize: none;
+  }
+  .copy-row textarea { height: 64px; font-size: 11px; line-height: 1.5; }
+  .copy-row button {
+    background: #fff; color: #111; border: none; border-radius: 10px;
+    font-family: inherit; font-weight: 800; font-size: 13px; padding: 0 16px; cursor: pointer;
+    transition: transform .1s;
+  }
+  .copy-row button:active { transform: scale(.96); }
+  .passos { text-align: left; background: #16181d; border-radius: 14px; padding: 16px 18px; margin-top: 22px; }
+  .passos p { font-size: 13px; color: #aab2bd; line-height: 1.9; }
+  .passos b { color: #00ffa3; }
+  .wa {
+    display: block; margin-top: 20px; background: linear-gradient(90deg, #00d9ff, #00ffa3);
+    color: #04151c; font-weight: 800; font-size: 15px; border-radius: 12px; padding: 14px;
+    text-decoration: none; transition: transform .12s, box-shadow .2s;
+  }
+  .wa:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0,217,255,.3); }
+  .volta { display: block; font-size: 13px; color: #8a93a0; margin-top: 18px; text-decoration: none; }
+  .volta:hover { color: #00d9ff; }
+  .ok-msg { font-size: 12px; color: #00ffa3; min-height: 16px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="card">
+  <div class="logo">Legenda<span>Pro</span></div>
+  <div class="preco">R$ 37,99<small>/mês</small></div>
+  <p class="sub">Pague com PIX do jeito que preferir:</p>
+
+  <div class="qrbox" id="qr"></div>
+  <p class="nome"><b>KAIQUE STEFHANO SENA SANTOS</b><br>CNPJ: 58.867.806/0001-61 · Valor fixo: R$ 37,99</p>
+
+  <h3>PIX copia e cola</h3>
+  <div class="copy-row">
+    <textarea id="copiaecola" readonly></textarea>
+    <button type="button" data-copy="copiaecola">Copiar</button>
+  </div>
+
+  <h3>Ou use a chave PIX (CNPJ)</h3>
+  <div class="copy-row">
+    <input id="chave" readonly value="58867806000161">
+    <button type="button" data-copy="chave">Copiar</button>
+  </div>
+  <p class="ok-msg" id="okmsg"></p>
+
+  <div class="passos">
+    <p><b>1.</b> Pague os R$ 37,99 pelo QR Code, copia e cola ou chave</p>
+    <p><b>2.</b> Mande o comprovante no WhatsApp junto com o e-mail da sua conta</p>
+    <p><b>3.</b> Seu acesso Pro é liberado na hora — é só recarregar o app</p>
+  </div>
+
+  <a class="wa" href="https://wa.me/5511997295407?text=Ol%C3%A1!%20Paguei%20o%20LegendaPro%20via%20PIX%20%E2%80%94%20segue%20o%20comprovante.%20Meu%20e-mail%20de%20cadastro%20%C3%A9%3A%20">Enviar comprovante no WhatsApp</a>
+  <a class="volta" href="app.html">← voltar pro app</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+function tlv(id, v){ return id + String(v.length).padStart(2, '0') + v; }
+function crc16(s){
+  let crc = 0xFFFF;
+  for (let i = 0; i < s.length; i++){
+    crc ^= s.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+function pixPayload(chave, nome, cidade, valor, txid){
+  const mai = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', chave));
+  let p = tlv('00', '01') + mai + tlv('52', '0000') + tlv('53', '986') + tlv('54', valor)
+        + tlv('58', 'BR') + tlv('59', nome) + tlv('60', cidade) + tlv('62', tlv('05', txid));
+  p += '6304' + crc16(p + '6304');
+  return p;
+}
+
+const payload = pixPayload('58867806000161', 'KAIQUE STEFHANO SENA', 'SAO PAULO', '37.99', 'LEGENDAPRO37');
+document.getElementById('copiaecola').value = payload;
+new QRCode(document.getElementById('qr'), { text: payload, width: 210, height: 210, correctLevel: QRCode.CorrectLevel.M });
+
+document.querySelectorAll('button[data-copy]').forEach(b => {
+  b.addEventListener('click', () => {
+    const el = document.getElementById(b.getAttribute('data-copy'));
+    el.select();
+    navigator.clipboard.writeText(el.value).then(() => {
+      document.getElementById('okmsg').textContent = 'Copiado! Cole no app do seu banco.';
+      setTimeout(() => { document.getElementById('okmsg').textContent = ''; }, 3000);
+    });
+  });
+});
+</script>
+</body>
+</html>
