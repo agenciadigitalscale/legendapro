@@ -1,35 +1,22 @@
-name: Deploy LegendaPro
+name: Deploy LegendaPro → Vercel
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    branches: [master]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: legendapro
-          directory: .
-          productionBranch: main
+          node-version: '20'
 
-      - name: Notify Deployment
-        if: success()
-        run: |
-          echo "✅ LegendaPro deployed successfully!"
-          echo "🌐 Live at: https://legendapro.pages.dev"
+      - name: Deploy to Vercel
+        run: npx vercel --prod --yes --token "$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_kZTmEoVpVC1gITFZZy7d6oQ8
+          VERCEL_PROJECT_ID: prj_zaUcym70TuKcNDqAaGy61iJqEXG0

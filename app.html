@@ -356,6 +356,10 @@ select.si:focus{border-color:var(--cy);}
             <span class="arr">→</span>
           </button>
           <input type="file" id="srtFile" accept=".srt,.txt" style="display:none;">
+          <button class="tool-btn" id="btnSRTPack" style="display:none;background:linear-gradient(135deg,rgba(0,217,255,.15),rgba(0,255,163,.1));border-color:var(--cy);">
+            <span>🎬</span> Exportar pacote SRT sincronizado
+            <span class="arr" id="srtPackInfo" style="color:var(--cy);font-size:10px;"></span>
+          </button>
         </div>
 
         <!-- Looks -->
@@ -908,7 +912,7 @@ const MODELS = [
     { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]}
 ];
 
-const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16', bpm:0 };
+const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16', bpm:0, _srtSegs:[] };
 
 function colorOf(key){
   if (key === 'c1') return state.c1;
@@ -1768,32 +1772,114 @@ document.getElementById('srtFile').addEventListener('change', e => {
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
   r.onload = ev => {
-    const segs = _parseSRT(ev.target.result);
+    const segs = _parseSRTFull(ev.target.result);
     if(!segs.length){ setStatus('SRT sem texto encontrado.'); return; }
+    state._srtSegs = segs;
     const n = state.model.lines.filter(l => !l.rule).length;
-    // Fill lines: concatenate SRT segments evenly across model lines
     const perLine = Math.ceil(segs.length / n);
     let idx = 0;
     state.model.lines.forEach((ln, i) => {
       if(ln.rule) return;
-      const chunk = segs.slice(idx, idx + perLine).join(' ');
+      const chunk = segs.slice(idx, idx + perLine).map(s => s.text).join(' ');
       state.texts[i] = chunk;
       idx += perLine;
     });
-    buildTexts();
-    renderPreview();
-    saveToLocalStorage();
-    setStatus('✓ SRT importado — ' + segs.length + ' segmentos distribuídos em ' + n + ' linhas');
+    buildTexts(); renderPreview(); saveToLocalStorage();
+    const btn = document.getElementById('btnSRTPack');
+    btn.style.display = 'flex';
+    document.getElementById('srtPackInfo').textContent = segs.length + ' seg';
+    setStatus('✓ SRT importado — ' + segs.length + ' segmentos · clique em "Exportar pacote SRT" pra gerar um WebM por legenda');
   };
   r.readAsText(f);
   e.target.value = '';
 });
-function _parseSRT(txt){
+
+function _parseSRTFull(txt){
+  const toMs = t => {
+    const m = t.trim().match(/(\d+):(\d+):(\d+)[,.](\d+)/);
+    if(!m) return 0;
+    return (+m[1]*3600 + +m[2]*60 + +m[3])*1000 + +m[4].padEnd(3,'0').slice(0,3);
+  };
   return txt.trim().split(/\n\s*\n/).map(block => {
-    const lines = block.split('\n');
-    // Skip index line and timestamp line
-    return lines.slice(2).join(' ').replace(/<[^>]+>/g,'').replace(/\{[^}]+\}/g,'').trim();
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    const tsLine = lines.find(l => l.includes('-->'));
+    const text = lines.filter(l => !l.match(/^\d+$/) && !l.includes('-->')).join(' ')
+                      .replace(/<[^>]+>/g,'').replace(/\{[^}]+\}/g,'').trim();
+    if(!text) return null;
+    const [start, end] = tsLine ? tsLine.split('-->').map(toMs) : [0, 3000];
+    return { start, end, text };
   }).filter(Boolean);
+}
+
+// SRT Pack Export — um WebM por segmento, duração exata do timing original
+document.getElementById('btnSRTPack').addEventListener('click', exportSRTPack);
+
+async function exportSRTPack(){
+  const segs = state._srtSegs;
+  if(!segs || !segs.length){ setStatus('Importe um arquivo SRT primeiro.'); return; }
+  const btn = document.getElementById('btnSRTPack');
+  btn.disabled = true;
+
+  const mimes = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
+  if(!mime){ setStatus('Seu navegador não suporta gravação de vídeo.'); btn.disabled=false; return; }
+
+  const bg = document.getElementById('webmBg').value;
+  const zip = new JSZip();
+  const nLines = state.model.lines.filter(l => !l.rule).length;
+
+  for(let i = 0; i < segs.length; i++){
+    const seg = segs[i];
+    setStatus('Gravando segmento ' + (i+1) + '/' + segs.length + ' — "' + seg.text.slice(0,30) + '"...');
+
+    // Distribui texto do segmento pelas linhas do modelo
+    const words = seg.text.split(' ');
+    const perLine = Math.ceil(words.length / nLines);
+    const texts = [...state.texts];
+    let wi = 0;
+    state.model.lines.forEach((ln, li) => {
+      if(ln.rule) return;
+      texts[li] = words.slice(wi, wi + perLine).join(' ');
+      wi += perLine;
+    });
+
+    const durationMs = Math.max(600, seg.end - seg.start);
+    const blob = await _recordSegment(bg, texts, durationMs, mime);
+    zip.file(String(i+1).padStart(3,'0') + '_legenda.webm', blob);
+  }
+
+  setStatus('Comprimindo ZIP...');
+  const readme = 'PACOTE SRT — LegendaPro\r\n\r\n' + segs.length + ' clipes WebM, um por legenda.\r\n\r\nNO CAPCUT:\r\n1. Importe todos os WebMs\r\n2. Coloque cada um como sobreposição na ordem (001, 002, 003...)\r\n3. Use o SRT original pra alinhar cada clipe no tempo certo\r\n4. Remova o fundo: Recortar > Croma > selecione o ' + (bg==='#00ff00'?'verde':'preto') + '\r\n\r\nNO PREMIERE / DAVINCI:\r\n1. Importe os WebMs na timeline acima do vídeo\r\n2. Ultra Key / 3D Keyer na cor ' + (bg==='#00ff00'?'verde':'preta') + '\r\n3. Posicione cada clipe usando o SRT como referência de tempo';
+  zip.file('LEIA-ME.txt', readme);
+
+  const zipBlob = await zip.generateAsync({ type:'blob' });
+  download(zipBlob, 'srt-pack-' + state.model.id + '-' + segs.length + 'segs.zip');
+  setStatus('✓ Pacote SRT pronto! ' + segs.length + ' clipes · cada WebM tem a duração exata da legenda.');
+  btn.disabled = false;
+}
+
+function _recordSegment(bg, texts, durationMs, mime){
+  return new Promise(resolve => {
+    const F = dims();
+    const c = document.createElement('canvas');
+    c.width = F[0]; c.height = F[1];
+    const cctx = c.getContext('2d');
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8000000 });
+    const chunks = [];
+    rec.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
+    rec.onstop = () => resolve(new Blob(chunks, { type: mime.split(';')[0] }));
+    rec.start();
+    const animDur = Math.min(1400, durationMs * 0.6);
+    const start = performance.now();
+    function tick(now){
+      const el = now - start;
+      const t = Math.min(el / animDur, 1);
+      drawFrame(cctx, t, bg, state.model, texts, state);
+      if(el < durationMs) requestAnimationFrame(tick);
+      else rec.stop();
+    }
+    requestAnimationFrame(tick);
+  });
 }
 
 // Looks save/load
