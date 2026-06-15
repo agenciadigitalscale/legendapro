@@ -102,7 +102,10 @@
   }
   .cta-box .preco { font-family: 'Anton', sans-serif; font-size: 50px; margin: 18px 0 6px; background: linear-gradient(90deg, var(--cy), var(--mint)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .cta-box p { color: #aab2bd; font-size: 15px; line-height: 1.7; max-width: 480px; margin: 0 auto; }
-  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; max-width: 680px; margin: 0 auto; }
+  .pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; max-width: 960px; margin: 0 auto; }
+  .price-anual { border-color: rgba(0,255,163,.45) !important; background: radial-gradient(120% 160% at 50% -20%, rgba(0,255,163,.1), var(--card) 60%); }
+  .badge-anual { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, var(--mint), #00d9ff); color: #04151c; font-size: 11px; font-weight: 800; letter-spacing: 1px; border-radius: 999px; padding: 5px 14px; white-space: nowrap; }
+  .economy-tag { display: inline-block; background: rgba(0,255,163,.15); border: 1px solid rgba(0,255,163,.35); color: var(--mint); font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 6px; margin: 6px 0 14px; }
   .price-card { padding: 36px 28px 32px; text-align: center; position: relative; }
   .price-card h3 { font-size: 15px; font-weight: 800; color: #aab2bd; letter-spacing: 1.5px; text-transform: uppercase; }
   .price-card .preco { font-family: 'Anton', sans-serif; font-size: 46px; margin: 14px 0 2px; }
@@ -272,41 +275,65 @@
 
   <section id="precos">
     <h2 class="reveal">Comece <em>de graça</em></h2>
-    <p class="lead reveal">Teste tudo por 1 dia, sem cartão. Gostou? Continue por menos de R$ 1,30 por dia.</p>
+    <p class="lead reveal">Teste tudo por 1 dia, sem cartão. Gostou? Continue por menos de R$ 2,00 por dia.</p>
     <div class="pricing">
+
+      <!-- GRÁTIS -->
       <div class="price-card card3d reveal">
         <h3>Teste grátis</h3>
         <div class="preco">1 dia</div>
         <ul>
           <li>Acesso a todos os 80+ modelos</li>
+          <li>80+ efeitos sonoros WAV</li>
           <li>Todas as exportações liberadas</li>
           <li>Sem cartão de crédito</li>
         </ul>
         <a class="btn btn-ghost" href="app.html" style="display:block;">Começar agora</a>
       </div>
+
+      <!-- MENSAL -->
       <div class="price-card card3d price-destaque reveal">
         <span class="badge">MAIS POPULAR</span>
-        <h3>LegendaPro completo</h3>
-        <div class="preco grad">R$ 37,99<small>/mês</small></div>
+        <h3>Mensal</h3>
+        <div class="preco grad">R$ 59,90<small>/mês</small></div>
         <ul>
-          <li>80+ modelos de legenda dinâmica</li>
-          <li>80+ efeitos sonoros WAV incluídos</li>
+          <li>90+ modelos com motion design</li>
+          <li>80+ efeitos sonoros WAV</li>
+          <li>19 animações (word-by-word, glitch…)</li>
           <li>Transcrição automática por IA</li>
-          <li>Presets ilimitados de clientes</li>
+          <li>Looks e presets de clientes</li>
+          <li>Importação de SRT</li>
           <li>Suporte direto com o criador</li>
         </ul>
-        <a class="btn btn-accent" href="assinar.html" style="display:block;">Assinar com PIX</a>
+        <a class="btn btn-accent" href="assinar.html" style="display:block;">Assinar agora</a>
       </div>
+
+      <!-- ANUAL -->
+      <div class="price-card card3d price-anual reveal">
+        <span class="badge-anual">MELHOR VALOR</span>
+        <h3>Anual</h3>
+        <div class="preco" style="background:linear-gradient(90deg,var(--mint),#00d9ff);-webkit-background-clip:text;background-clip:text;color:transparent;">R$ 479,90<small style="font-size:16px;font-family:'Montserrat',sans-serif;font-weight:700;color:#8a93a0;">/ano</small></div>
+        <div class="economy-tag">4 meses grátis · R$ 238 de economia</div>
+        <ul>
+          <li>Tudo do plano Mensal</li>
+          <li>Equivale a R$ 39,99/mês</li>
+          <li>1 pagamento, 12 meses de acesso</li>
+          <li>Sem renovação automática surpresa</li>
+          <li>Prioridade no suporte</li>
+        </ul>
+        <a class="btn btn-accent" href="assinar.html?plano=anual" style="display:block;background:linear-gradient(90deg,var(--mint),var(--cy));color:#04151c;">Assinar anual</a>
+      </div>
+
     </div>
     <div style="text-align:center; margin-top:26px;">
-      <a class="btn btn-ghost" href="https://wa.me/5511997295407?text=Ol%C3%A1!%20Vi%20o%20LegendaPro%20e%20quero%20saber%20mais">Falar com o criador</a>
+      <a class="btn btn-ghost" href="https://wa.me/5511997295407?text=Ol%C3%A1!%20Vi%20o%20LegendaPro%20e%20quero%20saber%20mais">Dúvidas? Fala com o criador</a>
     </div>
   </section>
 
   <section>
     <h2 class="reveal">Perguntas <em>frequentes</em></h2>
     <p class="lead"></p>
-    <details class="reveal"><summary>Quanto custa?</summary><p>Você testa tudo de graça por 1 dia, sem cartão. Depois, o acesso completo custa R$ 37,99 por mês — menos de R$ 1,30 por dia pra nunca mais perder tempo procurando legenda. A assinatura é feita direto com o criador pelo WhatsApp.</p></details>
+    <details class="reveal"><summary>Quanto custa?</summary><p>Você testa tudo de graça por 1 dia, sem cartão. O plano <strong>Mensal</strong> custa R$ 59,90/mês. O plano <strong>Anual</strong> sai por R$ 479,90 — equivale a R$ 39,99/mês, com 4 meses grátis em relação ao mensal. O pagamento é feito por PIX ou cartão via Mercado Pago, e o acesso é liberado na hora.</p></details>
     <details class="reveal"><summary>Preciso instalar alguma coisa?</summary><p>Não. O LegendaPro roda 100% no navegador. Você abre o link, edita e baixa os arquivos — funciona em qualquer computador com Chrome ou Edge.</p></details>
     <details class="reveal"><summary>Como a legenda vai parar no meu vídeo?</summary><p>Você baixa o arquivo e arrasta pra timeline como uma camada por cima do vídeo. PNG já vem com fundo transparente; o vídeo animado vem com fundo verde que você remove com um clique (Croma no CapCut, Ultra Key no Premiere, 3D Keyer no DaVinci).</p></details>
     <details class="reveal"><summary>Posso usar as cores da marca do meu cliente?</summary><p>Sim — são 3 cores configuráveis em todos os modelos, e dá pra salvar as cores de cada cliente como preset. Atende quantos clientes você tiver.</p></details>

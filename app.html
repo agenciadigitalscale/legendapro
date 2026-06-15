@@ -13,357 +13,486 @@
 <title>LegendaPro — Legendas dinâmicas pra CapCut, Premiere e DaVinci</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Montserrat', sans-serif;
-    background: #111114;
-    color: #f0f0f2;
-    min-height: 100vh;
-  }
-  header {
-    padding: 20px 28px 12px;
-    border-bottom: 1px solid #26262c;
-  }
-  header h1 { font-size: 20px; font-weight: 800; }
-  header h1 span { color: #00d9ff; }
-  header p { font-size: 13px; color: #9a9aa3; margin-top: 4px; }
-  .app {
-    display: flex;
-    gap: 36px;
-    padding: 24px 36px;
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-  .preview-col {
-    flex: 0 0 auto;
-    position: sticky;
-    top: 16px;
-  }
-  #preview {
-    width: 290px;
-    aspect-ratio: 9 / 16;
-    height: auto;
-    border-radius: 14px;
-    background: #1c1c1f;
-    display: block;
-  }
-  @media (min-width: 1400px){ #preview { width: 400px; } }
-  @media (min-width: 1800px){ #preview { width: 470px; } }
-  .preview-hint { font-size: 11px; color: #6f6f78; text-align: center; margin-top: 8px; }
-  .controls { flex: 1 1 420px; min-width: 320px; }
-  .section { margin-bottom: 22px; }
-  .section h2 {
-    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: #9a9aa3; margin-bottom: 10px;
-  }
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .chip {
-    font-family: inherit; font-size: 12px; font-weight: 700;
-    background: #1c1c1f; color: #c9c9d1; border: 1px solid #2e2e35;
-    border-radius: 999px; padding: 7px 14px; cursor: pointer;
-    transition: border-color .15s, color .15s;
-  }
-  .chip:hover { border-color: #4a4a52; }
-  .chip.active { border-color: #00d9ff; color: #fff; background: #0c2128; }
-  .models {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-    gap: 12px;
-  }
-  .model-btn {
-    background: #1c1c1f;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 6px;
-    cursor: pointer;
-    text-align: center;
-    color: #c9c9d1;
-    font-family: inherit;
-    transition: border-color .15s;
-  }
-  .model-btn:hover { border-color: #3a3a42; }
-  .model-btn.active { border-color: #00d9ff; color: #fff; }
-  .model-btn canvas { width: 100%; border-radius: 6px; display: block; background: #232328; }
-  .model-btn p { font-size: 10px; margin-top: 5px; line-height: 1.3; }
-  .texts input[type="text"] {
-    width: 100%;
-    background: #1c1c1f;
-    border: 1px solid #2e2e35;
-    border-radius: 8px;
-    color: #fff;
-    font-family: inherit;
-    font-size: 14px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    outline: none;
-  }
-  .texts input[type="text"]:focus { border-color: #00d9ff; }
-  .linha { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-  .linha input[type="text"] { margin-bottom: 0; }
-  .linha .eye {
-    flex: 0 0 40px; height: 40px; background: #1c1c1f; border: 1px solid #2e2e35;
-    border-radius: 8px; cursor: pointer; font-size: 15px; line-height: 1; color: #c9c9d1;
-  }
-  .linha .eye.off { border-color: #00d9ff; color: #00d9ff; }
-  .spwrap { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 0 0 auto; }
-  .spwrap input[type="range"] { width: 88px; height: 24px; padding: 0; accent-color: #00d9ff; }
-  .spwrap span { font-size: 9px; color: #6f6f78; letter-spacing: .5px; white-space: nowrap; }
-  .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 12px; color: #9a9aa3; }
-  .field input[type="color"] {
-    width: 52px; height: 34px; border: 1px solid #2e2e35;
-    border-radius: 8px; background: #1c1c1f; cursor: pointer; padding: 2px;
-  }
-  .field select, .field input[type="range"] {
-    background: #1c1c1f; border: 1px solid #2e2e35; border-radius: 8px;
-    color: #fff; font-family: inherit; font-size: 13px; padding: 8px 10px;
-  }
-  .field input[type="range"] { padding: 0; height: 34px; accent-color: #00d9ff; width: 150px; }
-  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn {
-    font-family: inherit; font-weight: 700; font-size: 14px;
-    border: none; border-radius: 10px; padding: 12px 18px; cursor: pointer;
-    transition: transform .1s, opacity .15s;
-  }
-  .btn:active { transform: scale(.97); }
-  .btn:disabled { opacity: .5; cursor: wait; }
-  .btn-play { background: #2a2a31; color: #fff; }
-  .btn-png { background: #fff; color: #111; }
-  .btn-webm { background: #00d9ff; color: #04151c; }
-  #status { font-size: 13px; color: #9a9aa3; min-height: 18px; margin-top: 10px; }
-  .howto {
-    background: #1c1c1f; border-radius: 12px; padding: 16px 18px;
-    font-size: 13px; color: #b9b9c2; line-height: 1.7;
-  }
-  .howto strong { color: #fff; }
-  .btn { position: relative; }
-  .btn.loading::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid rgba(255,255,255,.3); border-top: 2px solid #fff; border-radius: 50%; animation: spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .tooltip { position: relative; }
-  .tooltip::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #252a34; color: #eef1f4; padding: 6px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 99; margin-bottom: 4px; }
-  .tooltip:hover::after { opacity: 1; }
-  .model-btn.tooltip::after { content: attr(data-tip); bottom: auto; top: 100%; margin-bottom: 0; margin-top: 4px; }
-  .salvo { display: inline-block; color: #00ffa3; font-size: 11px; margin-left: 4px; font-weight: 800; }
-  .preview-info { font-size: 12px; color: #8a93a0; text-align: center; margin-top: 8px; }
-  @media (max-width: 700px){
-    header { padding: 12px 16px 8px; }
-    header h1 { font-size: 18px; }
-    header p { font-size: 11px; }
-    .app { padding: 0 14px 20px; gap: 16px; }
-    .preview-col {
-      position: sticky; top: 0; z-index: 40;
-      width: calc(100% + 28px); margin: 0 -14px;
-      background: #111114;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 8px 0 8px;
-      border-bottom: 1px solid #26262c;
-    }
-    #preview { width: 148px; border-radius: 10px; }
-    .preview-hint { display: none; }
-    .preview-info { display: none; }
-    .controls { min-width: 0; width: 100%; }
-    .models { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
-    .btns .btn { flex: 1 1 100%; }
-    .section { margin-bottom: 18px; }
-    .row { gap: 12px; }
-    .field input[type="range"] { width: 128px; }
-    .spwrap input[type="range"] { width: 64px; }
-  }
+:root {
+  --bg:#0a0b0e; --s1:#111318; --s2:#161920; --s3:#1c2030;
+  --bd:#232736; --bd2:#2c3048; --cy:#00d9ff; --mt:#00ffa3;
+  --tx:#e0e4f0; --tx2:#8a93a8; --tx3:#4a5268;
+  --cy10:rgba(0,217,255,.1); --cy25:rgba(0,217,255,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── APPBAR ── */
+.appbar{height:52px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 18px;gap:14px;flex-shrink:0;position:sticky;top:0;z-index:100;}
+.appbar-logo{font-size:17px;font-weight:800;white-space:nowrap;}
+.appbar-logo span{color:var(--cy);}
+.fmt-tabs{display:flex;gap:3px;background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:3px;}
+.fmt-tab{font-family:inherit;font-size:11px;font-weight:700;color:var(--tx3);background:transparent;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;transition:background .12s,color .12s;white-space:nowrap;}
+.fmt-tab.active{background:var(--cy);color:#04151c;}
+.appbar-spacer{flex:1;}
+.appbar-meta{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:12px;}
+.appbar-meta a{color:var(--tx3);text-decoration:none;transition:color .15s;}
+.appbar-meta a:hover{color:var(--cy);}
+.trial-badge{background:var(--cy10);border:1px solid var(--cy25);color:var(--cy);font-weight:700;font-size:10px;padding:3px 8px;border-radius:4px;}
+
+/* ── WORKSPACE ── */
+.workspace{display:grid;grid-template-columns:230px 1fr 420px;height:calc(100vh - 52px);overflow:hidden;}
+
+/* ── SCROLLBARS ── */
+.sidebar-left::-webkit-scrollbar,.sidebar-right::-webkit-scrollbar{width:3px;}
+.sidebar-left::-webkit-scrollbar-thumb,.sidebar-right::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.sidebar-left::-webkit-scrollbar-track,.sidebar-right::-webkit-scrollbar-track{background:transparent;}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar-left{background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);padding:13px 12px 9px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--s1);z-index:1;}
+.cat-list{display:flex;flex-direction:column;padding:6px;gap:2px;}
+.cat-btn{font-family:inherit;font-size:12px;font-weight:600;color:var(--tx2);background:transparent;border:none;border-radius:5px;padding:8px 11px;cursor:pointer;text-align:left;transition:background .12s,color .12s;white-space:nowrap;}
+.cat-btn:hover{background:var(--s2);color:var(--tx);}
+.cat-btn.active{background:var(--cy10);color:var(--cy);font-weight:700;}
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;}
+.model-thumb{background:var(--s2);border:2px solid transparent;border-radius:9px;padding:6px;cursor:pointer;text-align:center;color:var(--tx2);font-family:inherit;transition:border-color .12s,background .12s;}
+.model-thumb:hover{border-color:var(--bd2);background:var(--s3);}
+.model-thumb.active{border-color:var(--cy);color:var(--tx);background:#0b1f2b;}
+.model-thumb canvas{width:100%;border-radius:6px;display:block;background:#1a1c24;}
+.model-thumb p{font-size:10px;margin-top:5px;line-height:1.3;color:inherit;}
+
+/* ── CENTER PREVIEW ── */
+.preview-center{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:hidden;}
+#preview{height:calc(100vh - 52px - 180px);width:auto;max-width:min(380px,100%);aspect-ratio:9/16;border-radius:14px;background:#1c1c1f;display:block;box-shadow:0 10px 50px rgba(0,0,0,.8);}
+.prev-actions{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;max-width:380px;}
+.btn-prev-play{width:100%;font-family:inherit;font-weight:700;font-size:14px;background:var(--s1);color:var(--tx);border:1px solid var(--bd2);border-radius:9px;padding:11px;cursor:pointer;transition:background .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-prev-play:hover{background:var(--s2);border-color:var(--cy);}
+.prev-meta{font-size:11px;color:var(--tx3);text-align:center;}
+.beat-bar{width:100%;max-width:380px;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;}
+.beat-row{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);font-weight:700;}
+.beat-row em{color:var(--cy);font-style:normal;font-weight:800;}
+.beat-bar input[type=range]{width:100%;height:3px;accent-color:var(--cy);}
+.prev-footer{display:flex;gap:6px;width:100%;max-width:380px;align-items:center;}
+.btn-clear{flex:1;font-family:inherit;font-size:11px;font-weight:700;background:transparent;border:1px solid var(--bd);border-radius:7px;color:var(--tx3);padding:8px 10px;cursor:pointer;transition:border-color .12s,color .12s;}
+.btn-clear:hover{border-color:var(--bd2);color:var(--tx2);}
+#salvoLabel{font-size:11px;color:var(--tx3);}
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar-right{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;}
+
+/* ── PANELS ── */
+.panel{border-bottom:1px solid var(--bd);flex-shrink:0;}
+.panel-hd{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx3);padding:12px 16px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bd);}
+.panel-hd .ico{font-size:14px;}
+.panel-body{padding:12px 16px 16px;}
+
+/* ── LABELS ── */
+.lbl{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px;display:block;}
+.lbl em{color:var(--cy);font-style:normal;font-weight:800;}
+
+/* ── HIGHLIGHT HINT ── */
+.hl-hint{font-size:11px;color:var(--tx3);line-height:1.8;margin-bottom:10px;}
+.hl-hint code{background:var(--s2);border:1px solid var(--bd);border-radius:3px;padding:1px 6px;font-size:11px;}
+
+/* ── LINHA DE TEXTO ── */
+.linha-wrap{margin-bottom:9px;border:1px solid transparent;border-radius:9px;transition:border-color .18s,background .18s;padding:4px 4px 3px;}
+.linha-wrap.selected{border-color:var(--cy);background:rgba(0,217,255,.05);}
+.linha{display:flex;gap:6px;align-items:center;}
+.linha input[type=text]{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:7px;color:var(--tx);font-family:inherit;font-size:13px;padding:9px 11px;outline:none;transition:border-color .12s;min-width:0;}
+.linha input[type=text]:focus{border-color:var(--cy);}
+.linha .eye{flex:0 0 32px;height:32px;background:var(--s2);border:1px solid var(--bd);border-radius:7px;cursor:pointer;font-size:13px;color:var(--tx3);}
+.linha .eye.off{border-color:var(--cy);color:var(--cy);}
+.linha-sub{display:flex;gap:7px;margin-top:5px;padding:0 2px 2px;}
+.ctrl-mini{flex:1;display:flex;flex-direction:column;gap:2px;}
+.ctrl-mini input[type=range]{width:100%;height:14px;accent-color:var(--cy);cursor:pointer;}
+.ctrl-mini span{font-size:9px;color:var(--tx3);letter-spacing:.3px;white-space:nowrap;}
+.spwrap{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto;}
+.spwrap input[type=range]{width:64px;height:20px;padding:0;accent-color:var(--cy);}
+.spwrap span{font-size:9px;color:var(--tx3);letter-spacing:.5px;white-space:nowrap;}
+
+/* ── STYLE GRID ── */
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ctrl{display:flex;flex-direction:column;gap:6px;}
+.ctrl.w2{grid-column:1/-1;}
+.clr-row{display:flex;gap:6px;}
+.clr-sw{width:48px;height:34px;border:1px solid var(--bd2);border-radius:7px;background:var(--s2);cursor:pointer;padding:2px;}
+select.si{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:7px;color:var(--tx);font-family:inherit;font-size:12px;padding:8px 10px;outline:none;}
+select.si:focus{border-color:var(--cy);}
+.rng-row{display:flex;flex-direction:column;gap:4px;}
+.rng-row input[type=range]{width:100%;height:4px;accent-color:var(--cy);}
+.chk-row{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.chk-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--cy);cursor:pointer;}
+.chk-row label{font-size:12px;color:var(--tx2);cursor:pointer;}
+.divider{height:1px;background:var(--bd);margin:10px 0;}
+
+/* ── TOOL BUTTONS ── */
+.tool-btn{font-family:inherit;font-size:12px;font-weight:700;color:var(--tx);background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:10px 13px;cursor:pointer;text-align:left;transition:border-color .12s,background .12s;display:flex;align-items:center;gap:9px;width:100%;}
+.tool-btn:hover{border-color:var(--bd2);background:var(--s3);}
+.tool-btn .arr{margin-left:auto;color:var(--tx3);font-size:11px;}
+.tool-row{display:flex;flex-direction:column;gap:7px;margin-bottom:11px;}
+
+/* ── LOOK CHIPS ── */
+.look-chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px;}
+.look-chip{font-family:inherit;font-size:10px;font-weight:700;padding:4px 9px;border-radius:4px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:border-color .12s,color .12s;}
+.look-chip:hover{border-color:var(--cy);color:var(--cy);}
+
+/* ── PRESET GRID ── */
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.preset-grid input{background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 8px;outline:none;}
+.preset-grid input:focus{border-color:var(--cy);}
+
+/* ── TRANSCRIPTION ── */
+.dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:var(--s2);border:2px dashed var(--bd2);border-radius:8px;padding:14px 10px;cursor:pointer;transition:border-color .12s;text-align:center;margin-bottom:8px;}
+.dropzone:hover{border-color:var(--cy);}
+.dropzone .dz-ico{font-size:20px;}
+.dropzone .dz-lbl{font-size:11px;color:var(--tx2);}
+.dropzone .dz-sub{font-size:9px;color:var(--tx3);}
+
+/* ── SFX ── */
+.sfx-bar{display:flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:7px 10px;margin-bottom:8px;font-size:11px;}
+.sfx-bar-lbl{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--tx3);}
+.sfx-bar-name{font-weight:700;color:var(--cy);flex:1;}
+.sfx-clr{font-size:10px;background:transparent;border:1px solid var(--bd2);color:var(--tx3);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:inherit;}
+
+/* ── EXPORT ── */
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.exp-btn{font-family:inherit;font-weight:700;font-size:11px;border:none;border-radius:7px;padding:9px 6px;cursor:pointer;transition:transform .1s,opacity .15s;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.exp-btn:active{transform:scale(.97);}
+.exp-btn:disabled{opacity:.4;cursor:wait;}
+.exp-btn .ei{font-size:16px;}
+.exp-btn .el{font-size:11px;font-weight:700;}
+.exp-btn .es{font-size:9px;opacity:.7;}
+.exp-btn.epng{background:#f0f1f5;color:#111;}
+.exp-btn.ewebm{background:linear-gradient(135deg,#00d9ff,#0099cc);color:#04151c;}
+.exp-btn.emp4{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+.exp-btn.ezip{background:var(--s3);color:var(--tx);border:1px solid var(--bd2);}
+.exp-btn.elayers{grid-column:1/-1;background:var(--s3);color:var(--tx);border:1px solid var(--bd2);flex-direction:row;justify-content:center;padding:9px 10px;}
+.exp-bg-row{margin-bottom:8px;}
+#status{font-size:11px;color:var(--cy);margin-top:7px;min-height:14px;display:block;}
+#salvoLabel{font-size:10px;color:var(--tx3);}
+
+/* ── BTN (legacy) ── */
+.btn{font-family:inherit;font-weight:700;font-size:12px;border:none;border-radius:7px;padding:8px 12px;cursor:pointer;transition:transform .1s,opacity .15s;position:relative;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:wait;}
+.btn-play{background:var(--s3);color:var(--tx);border:1px solid var(--bd2);}
+.btn-play:hover{border-color:var(--cy);}
+.btn-png{background:#f0f1f5;color:#111;}
+.btn-webm{background:linear-gradient(135deg,var(--cy),#0099cc);color:#04151c;}
+.btn.loading::after{content:'';display:inline-block;width:11px;height:11px;margin-left:6px;border:2px solid rgba(255,255,255,.3);border-top:2px solid #fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.tooltip{position:relative;}
+.tooltip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#252a34;color:#eef1f4;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:99;}
+.tooltip:hover::after{opacity:1;}
+.salvo{display:inline-block;color:var(--mt);font-size:11px;margin-left:4px;font-weight:800;}
+
+/* ── HOWTO COLLAPSIBLE ── */
+.howto-toggle{width:100%;font-family:inherit;font-size:11px;font-weight:700;color:var(--tx3);background:transparent;border:none;border-top:1px solid var(--bd);padding:10px 14px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.howto-toggle:hover{color:var(--tx2);}
+.howto-body{font-size:11px;color:var(--tx2);line-height:1.9;padding:10px 14px 14px;display:none;border-top:1px solid var(--bd);}
+.howto-body.open{display:block;}
+.howto-body strong{color:var(--tx);}
+
+/* ── HIDDEN LEGACY ── */
+.chips,.models,.app,.controls,.preview-col,.section,.row,.field{display:none!important;}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  .workspace{grid-template-columns:1fr;grid-template-rows:auto auto auto;height:auto;overflow:visible;}
+  .sidebar-left{border-right:none;border-bottom:1px solid var(--bd);overflow-x:auto;max-height:none;}
+  .cat-list{flex-direction:row;overflow-x:auto;flex-wrap:nowrap;}
+  .cat-btn{white-space:nowrap;flex-shrink:0;}
+  .model-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));}
+  .preview-center{position:sticky;top:52px;z-index:50;background:var(--bg);padding:10px;border-bottom:1px solid var(--bd);}
+  #preview{height:auto;max-width:170px;}
+  .sidebar-right{border-left:none;overflow-y:visible;}
+  .workspace{overflow:visible;}
+}
+@media(min-width:1400px){
+  .workspace{grid-template-columns:250px 1fr 460px;}
+  #preview{max-width:420px;}
+}
+@media(min-width:1800px){
+  .workspace{grid-template-columns:270px 1fr 500px;}
+  #preview{max-width:480px;}
+}
 </style>
 </head>
 <body>
-<header style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-  <div>
-    <h1>Legenda<span>Pro</span></h1>
-    <p>Escolha o modelo, edite o texto, exporte. Funciona no CapCut, Premiere e DaVinci.</p>
-    <p id="trialInfo" style="font-size:12px;color:#00d9ff;margin-top:3px;font-weight:700;"></p>
+<!-- APPBAR -->
+<header class="appbar">
+  <div class="appbar-logo">Legenda<span>Pro</span></div>
+  <div class="fmt-tabs" id="fmtTabs">
+    <button class="fmt-tab active" data-fmt="9x16">9:16</button>
+    <button class="fmt-tab" data-fmt="1x1">1:1</button>
+    <button class="fmt-tab" data-fmt="16x9">16:9</button>
   </div>
-  <div style="font-size:13px;">
-    <a id="lnkAdmin" href="admin.html" style="color:#00ffa3;text-decoration:none;display:none;margin-right:16px;">painel admin</a>
-    <a href="index.html" style="color:#9a9aa3;text-decoration:none;">← página do produto</a>
-    <a id="lnkSair" href="#" style="color:#9a9aa3;text-decoration:none;display:none;margin-left:16px;">sair</a>
+  <div class="appbar-spacer"></div>
+  <div class="appbar-meta">
+    <span id="trialBadge" class="trial-badge" style="display:none;"></span>
+    <span id="trialInfo" style="font-size:11px;color:#00d9ff;font-weight:700;"></span>
+    <a id="lnkAdmin" href="admin.html" style="display:none;color:#00ffa3;">Admin</a>
+    <a href="index.html">Produto</a>
+    <a id="lnkSair" href="#" style="display:none;">Sair</a>
   </div>
 </header>
 
-<div class="app">
-  <div class="preview-col">
+<!-- HIDDEN LEGACY ELEMENTS FOR JS COMPATIBILITY -->
+<select id="fmt" style="display:none!important;">
+  <option value="9x16">9:16</option>
+  <option value="1x1">1:1</option>
+  <option value="16x9">16:9</option>
+</select>
+
+<div class="workspace">
+
+  <!-- ── LEFT: MODEL BROWSER ── -->
+  <aside class="sidebar-left">
+    <div class="sb-title">Modelos</div>
+    <div class="cat-list" id="catList"></div>
+    <div class="model-grid" id="modelGrid"></div>
+    <!-- legacy hidden elements kept for JS -->
+    <div class="chips" id="cats" style="display:none;"></div>
+    <div class="models" id="models" style="display:none;"></div>
+  </aside>
+
+  <!-- ── CENTER: PREVIEW ── -->
+  <main class="preview-center">
     <canvas id="preview" width="1080" height="1920"></canvas>
-    <p class="preview-hint">O fundo escuro é só do preview — o PNG sai com fundo transparente.</p>
-    <p class="preview-info" id="previewInfo"></p>
-    <div style="font-size:12px;color:#6f6f78;text-align:center;margin-top:12px;gap:8px;display:flex;flex-direction:column;">
-      <button id="btnLimparHistorico" class="btn btn-play" style="font-size:11px;padding:8px 12px;width:100%;">Limpar rascunho</button>
+    <div class="prev-actions">
+      <button class="btn-prev-play tooltip" id="btnPlay" data-tip="Space ou Enter">▶ &nbsp;Ver animação</button>
+      <p class="prev-meta" id="previewInfo">PNG transparente · WebM · MP4 croma</p>
+    </div>
+    <div class="beat-bar">
+      <div class="beat-row">🥁 Beat Sync <em id="bpmOut">OFF</em></div>
+      <input type="range" id="bpm" min="0" max="200" value="0" step="1">
+    </div>
+    <div class="prev-footer">
+      <button class="btn-clear" id="btnLimparHistorico">Limpar rascunho</button>
       <small id="salvoLabel"></small>
     </div>
-  </div>
+  </main>
 
-  <div class="controls">
-    <div class="section">
-      <h2>Modelos</h2>
-      <div class="chips" id="cats"></div>
-      <div class="models" id="models"></div>
+  <!-- ── RIGHT: CONTROLS ── -->
+  <aside class="sidebar-right">
+
+    <!-- TEXTO -->
+    <div class="panel">
+      <div class="panel-hd"><span class="ico">✏️</span> Texto</div>
+      <div class="panel-body">
+        <p class="hl-hint"><code style="color:#00d9ff;">*palavra*</code> ciano &nbsp;·&nbsp; <code style="color:#00ffa3;">~palavra~</code> verde &nbsp;·&nbsp; 🎨 cor da linha &nbsp;·&nbsp; 2× clique = reset</p>
+        <div id="texts"></div>
+      </div>
     </div>
 
-    <div class="section">
-      <h2>Texto</h2>
-      <p style="font-size:11px;color:#4a505c;margin-bottom:10px;">Use <code style="background:#16181d;border:1px solid #2a2f38;border-radius:4px;padding:1px 6px;color:#00d9ff;">*palavra*</code> pra destacar em ciano · <code style="background:#16181d;border:1px solid #2a2f38;border-radius:4px;padding:1px 6px;color:#00ffa3;">~palavra~</code> em verde · 🎨 = cor da linha · duplo clique = resetar</p>
-      <div class="texts" id="texts"></div>
+    <!-- ESTILO -->
+    <div class="panel">
+      <div class="panel-hd"><span class="ico">🎨</span> Estilo</div>
+      <div class="panel-body">
+        <div class="style-grid">
+          <div class="ctrl">
+            <span class="lbl">Cores</span>
+            <div class="clr-row">
+              <input type="color" id="c1" value="#ffffff" class="clr-sw" title="Cor principal">
+              <input type="color" id="c2" value="#00d9ff" class="clr-sw" title="Destaque (ciano)">
+              <input type="color" id="c3" value="#00ffa3" class="clr-sw" title="Extra (verde)">
+            </div>
+          </div>
+          <div class="ctrl">
+            <span class="lbl">Sombra</span>
+            <div class="chk-row"><input type="checkbox" id="glow"><label for="glow">Sombra no texto</label></div>
+          </div>
+          <div class="ctrl w2">
+            <span class="lbl">Animação</span>
+            <select id="anim" class="si">
+              <optgroup label="— Entradas clássicas —">
+                <option value="fade">Fade (suave)</option>
+                <option value="pop">Pop (impacto)</option>
+                <option value="zoom">Zoom in</option>
+                <option value="bounce">Bounce (quica)</option>
+                <option value="elastic">Elástico</option>
+              </optgroup>
+              <optgroup label="— Slides —">
+                <option value="slide">Slide ↑ (sobe)</option>
+                <option value="slide-down">Slide ↓ (desce)</option>
+                <option value="slide-left">Slide ← (esquerda)</option>
+                <option value="slide-right">Slide → (direita)</option>
+              </optgroup>
+              <optgroup label="— Efeitos especiais —">
+                <option value="spin-in">Spin in (gira)</option>
+                <option value="blur-in">Blur in (foca)</option>
+                <option value="glitch-in">Glitch in (falha)</option>
+                <option value="reveal">Reveal ◀▶ (máscara)</option>
+                <option value="typewriter">Máquina de escrever</option>
+              </optgroup>
+              <optgroup label="— Palavra por palavra —">
+                <option value="word-pop">Word Pop (impacto)</option>
+                <option value="word-slide">Word Slide (cascata)</option>
+                <option value="word-fade">Word Fade (suave)</option>
+                <option value="word-bounce">Word Bounce (quica)</option>
+              </optgroup>
+              <optgroup label="— Sem animação —">
+                <option value="none">Sem animação</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="ctrl w2">
+            <span class="lbl">Tamanho — <em id="scaleOut">100%</em></span>
+            <div class="rng-row"><input type="range" id="scale" min="50" max="150" value="100" step="1"></div>
+          </div>
+          <div class="ctrl w2">
+            <span class="lbl">Posição vertical — <em id="offOut">0</em></span>
+            <div class="rng-row"><input type="range" id="offset" min="-35" max="35" value="0" step="1"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="section">
-      <h2>Estilo</h2>
-      <div class="row">
-        <div class="field"><label>Cor principal</label><input type="color" id="c1" value="#ffffff"></div>
-        <div class="field"><label>Cor de destaque</label><input type="color" id="c2" value="#00d9ff"></div>
-        <div class="field"><label>Cor extra</label><input type="color" id="c3" value="#00ffa3"></div>
-        <div class="field"><label>Sombra no texto</label><input type="checkbox" id="glow" style="width:22px;height:22px;accent-color:#00d9ff;margin-top:5px;"></div>
-        <div class="field"><label>Formato</label>
-          <select id="fmt">
-            <option value="9x16">Vertical 9:16 (Reels/TikTok)</option>
-            <option value="1x1">Quadrado 1:1 (Feed)</option>
-            <option value="16x9">Horizontal 16:9 (YouTube)</option>
+    <!-- FERRAMENTAS -->
+    <div class="panel">
+      <div class="panel-hd"><span class="ico">🛠️</span> Ferramentas</div>
+      <div class="panel-body">
+
+        <!-- SRT Import -->
+        <div class="tool-row">
+          <button class="tool-btn" id="btnSRT">
+            <span>📄</span> Importar arquivo SRT
+            <span class="arr">→</span>
+          </button>
+          <input type="file" id="srtFile" accept=".srt,.txt" style="display:none;">
+        </div>
+
+        <!-- Looks -->
+        <span class="lbl">Looks salvos</span>
+        <div class="look-chips" id="lookChips"></div>
+        <div style="display:flex;gap:5px;margin-bottom:10px;">
+          <input type="text" id="lookName" placeholder="Nome do look..." style="flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 9px;outline:none;">
+          <button class="btn btn-play" id="btnSaveLook" style="font-size:10px;padding:7px 10px;">Salvar</button>
+          <button class="btn btn-play" id="btnDelLook" style="font-size:10px;padding:7px 10px;">✕</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Paletas de cliente -->
+        <span class="lbl">Paletas de clientes</span>
+        <div class="preset-grid" style="margin-bottom:6px;">
+          <select id="presetSel" class="si" style="font-size:11px;"><option value="">— selecionar —</option></select>
+          <input type="text" id="presetName" placeholder="Nome do cliente...">
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <button class="btn btn-play" id="btnSavePreset" style="flex:1;font-size:10px;padding:7px 9px;">Salvar cores</button>
+          <button class="btn btn-play" id="btnDelPreset" style="flex:1;font-size:10px;padding:7px 9px;">Excluir</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Transcrição -->
+        <button class="tool-btn" id="btnOpenTranscribe" onclick="var p=document.getElementById('transcribePanel');p.style.display=p.style.display==='none'?'block':'none'">
+          <span>🎤</span> Transcrever áudio com IA
+          <span class="arr" id="transcArrow">▼</span>
+        </button>
+        <div id="transcribePanel" style="display:none;margin-top:8px;">
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <input type="password" id="transcribeApiKey" placeholder="Chave OpenAI (sk-...)" style="flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 9px;outline:none;">
+            <button onclick="(function(){var k=document.getElementById('transcribeApiKey').value.trim();if(k){localStorage.setItem('lp_api_key',k);document.getElementById('transcribeMsg').textContent='✓ Salva';document.getElementById('transcribeApiKey').value='';document.getElementById('transcribeKeyHint').textContent='Chave salva ✓';}})()" style="background:var(--s3);border:1px solid var(--bd2);color:var(--cy);font-family:inherit;font-size:11px;font-weight:700;border-radius:6px;padding:7px 10px;cursor:pointer;">OK</button>
+          </div>
+          <p id="transcribeKeyHint" style="font-size:10px;color:var(--tx3);margin-bottom:8px;">Salva só no browser, nunca enviada a nós. Crie em platform.openai.com</p>
+          <label id="transcribeDropzone" class="dropzone">
+            <span class="dz-ico">🎵</span>
+            <span class="dz-lbl" id="transcribeFileName">Clique ou arraste o arquivo</span>
+            <span class="dz-sub">mp3 · mp4 · wav · m4a — até 25MB</span>
+            <input type="file" id="transcribeFile" accept="audio/*,video/mp4,video/webm" style="display:none;">
+          </label>
+          <div style="display:flex;gap:5px;margin-bottom:6px;">
+            <select id="transcribeLines" style="flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 8px;outline:none;">
+              <option value="5">5 palavras/linha</option>
+              <option value="4">4 palavras/linha</option>
+              <option value="6">6 palavras/linha</option>
+              <option value="3">3 palavras/linha</option>
+            </select>
+            <button class="btn btn-play" id="btnTranscribe" style="flex:1;font-size:10px;padding:7px 9px;" disabled>🎤 Transcrever</button>
+          </div>
+          <div id="transcribeProgress" style="display:none;font-size:11px;color:var(--cy);text-align:center;padding:6px;">Transcrevendo com IA...</div>
+          <div id="transcribeResult" style="display:none;">
+            <div style="font-size:9px;color:var(--tx3);margin-bottom:5px;font-weight:700;letter-spacing:1px;">LINHAS DETECTADAS</div>
+            <div id="transcribeLines_out" style="display:flex;flex-direction:column;gap:4px;"></div>
+            <button class="btn" id="btnApplyTranscription" style="width:100%;margin-top:8px;background:linear-gradient(90deg,var(--cy),var(--mt));color:#04151c;font-size:11px;padding:9px;">✓ Usar essas linhas</button>
+          </div>
+          <p id="transcribeMsg" style="font-size:10px;color:#ff6b6b;min-height:14px;margin-top:4px;"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EFEITOS SONOROS -->
+    <div class="panel" id="sfxSection">
+      <div class="panel-hd"><span class="ico">🎵</span> Efeitos Sonoros</div>
+      <div class="panel-body">
+        <p style="font-size:10px;color:var(--tx3);margin-bottom:8px;">80+ sons em WAV · preview na hora · download individual ou ZIP</p>
+        <div class="sfx-bar">
+          <span class="sfx-bar-lbl">ATIVO:</span>
+          <span class="sfx-bar-name" id="sfxSelectedName">🔇 Nenhum</span>
+          <button class="sfx-clr" onclick="window.selectSoundEffect && window.selectSoundEffect('none','Nenhum')">✕</button>
+        </div>
+        <select id="soundEffect" style="display:none;"><option value="none">Nenhum</option></select>
+        <div id="soundLibraryContainer"></div>
+      </div>
+    </div>
+
+    <!-- EXPORTAR -->
+    <div class="panel">
+      <div class="panel-hd"><span class="ico">📤</span> Exportar</div>
+      <div class="panel-body">
+        <div class="exp-bg-row">
+          <select id="webmBg" class="si">
+            <option value="#00ff00">Fundo verde — chroma key (CapCut / Premiere)</option>
+            <option value="#000000">Fundo preto — modo "Clarear"</option>
           </select>
         </div>
-        <div class="field"><label>Animação</label>
-          <select id="anim">
-            <option value="fade">Fade (suave)</option>
-            <option value="pop">Pop (impacto)</option>
-            <option value="slide">Slide (sobe)</option>
-            <option value="typewriter">Máquina de escrever</option>
-            <option value="none">Sem animação</option>
-          </select>
+        <div class="exp-grid">
+          <button class="exp-btn epng tooltip" id="btnPng" data-tip="Ctrl+S">
+            <span class="ei">🖼</span><span class="el">PNG</span><span class="es">transparente</span>
+          </button>
+          <button class="exp-btn ewebm tooltip" id="btnWebm" data-tip="CapCut 📱">
+            <span class="ei">🎬</span><span class="el">WebM</span><span class="es">CapCut</span>
+          </button>
+          <button class="exp-btn emp4 tooltip" id="btnMp4" data-tip="Premiere/DaVinci">
+            <span class="ei">🎥</span><span class="el">MP4</span><span class="es">Premiere</span>
+          </button>
+          <button class="exp-btn ezip tooltip" id="btnZip" data-tip="sequência PNG">
+            <span class="ei">📦</span><span class="el">ZIP</span><span class="es">sequência</span>
+          </button>
+          <button class="exp-btn elayers tooltip" id="btnLayers" data-tip="1 PNG por palavra">
+            <span class="ei">🗂</span><span class="el">Camadas — 1 PNG por palavra (ZIP)</span>
+          </button>
         </div>
-      </div>
-      <div class="row" style="margin-top:14px;">
-        <div class="field"><label>Tamanho: <span id="scaleOut">100%</span></label><input type="range" id="scale" min="50" max="150" value="100" step="1"></div>
-        <div class="field"><label>Posição vertical: <span id="offOut">0</span></label><input type="range" id="offset" min="-35" max="35" value="0" step="1"></div>
+        <p id="status"></p>
       </div>
     </div>
 
-    <!-- ── SEÇÃO EFEITOS SONOROS ── -->
-    <div class="section" id="sfxSection">
-      <h2>🎵 Efeitos Sonoros</h2>
-      <p style="font-size:13px;color:#8a93a0;margin:8px 0 16px;">80+ sons em WAV prontos — preview na hora, download individual ou pack ZIP completo. Arraste pro CapCut, Premiere ou DaVinci junto com a legenda.</p>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#13161c;border:1px solid #1e2228;border-radius:10px;padding:10px 14px;">
-        <span style="font-size:12px;color:#6f7482;font-weight:700;letter-spacing:1px;">SOM ATIVO:</span>
-        <span id="sfxSelectedName" style="font-size:13px;font-weight:700;color:#00d9ff;">🔇 Nenhum</span>
-        <button onclick="window.selectSoundEffect && window.selectSoundEffect('none','Nenhum')" style="margin-left:auto;font-size:11px;background:transparent;border:1px solid #2a2f38;color:#6f7482;border-radius:6px;padding:4px 10px;cursor:pointer;">✕ limpar</button>
-      </div>
-      <select id="soundEffect" style="display:none;"><option value="none">Nenhum</option></select>
-      <div id="soundLibraryContainer"></div>
+    <!-- HIDDEN batch/cloud for JS -->
+    <div id="batchSection" style="display:none;">
+      <div id="batchList"></div>
+      <select id="batchFormat"><option value="png">PNG</option><option value="webm">WebM</option><option value="mp4">MP4</option></select>
+      <button id="btnBatchExport">Pacote</button>
+      <p id="batchStatus"></p>
+    </div>
+    <div id="cloudSection" style="display:none;">
+      <button id="btnSaveCloud">Salvar</button>
+      <button id="btnLoadCloud">Carregar</button>
+      <button id="btnListCloud">Listar</button>
+      <div id="cloudList"></div>
     </div>
 
-    <div class="section">
-      <h2>Clientes (cores salvas)</h2>
-      <div class="row">
-        <div class="field"><label>Cliente salvo</label><select id="presetSel" style="min-width:170px;"><option value="">— selecionar —</option></select></div>
-        <div class="field"><label>Nome do cliente</label><input type="text" id="presetName" placeholder="ex: Restaurante do Zé" style="background:#1c1c1f;border:1px solid #2e2e35;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;padding:9px 10px;width:190px;outline:none;"></div>
-        <button class="btn btn-play" id="btnSavePreset" style="align-self:flex-end;">Salvar cores</button>
-        <button class="btn btn-play" id="btnDelPreset" style="align-self:flex-end;">Excluir</button>
-      </div>
+    <!-- COMO USAR -->
+    <button class="howto-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.arr2').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+      Como usar no editor <span class="arr2">▼</span>
+    </button>
+    <div class="howto-body">
+      <strong>PNG:</strong> importe, arraste sobre o vídeo, ajuste duração. Fundo transparente.<br>
+      <strong>WebM (CapCut):</strong> sobreposição → Recortar → Croma → selecione o verde.<br>
+      <strong>MP4 (Premiere):</strong> trilha acima + <strong>Ultra Key</strong> → conta-gotas verde.<br>
+      <strong>ZIP PNG (Premiere):</strong> Arquivo → Importar → "Sequência de imagens".<br>
+      <strong>DaVinci:</strong> MP4 verde + 3D Keyer, ou ZIP no Media Pool.<br>
+      <strong>Camadas:</strong> cada palavra = 1 PNG. Empilhe no CapCut e sincronize com a fala.
     </div>
 
-    <!-- TRANSCRIÇÃO AUTOMÁTICA -->
-    <div class="section" id="transcribeSection">
-      <h2>🎤 Transcrever Áudio</h2>
-      <p style="font-size:13px;color:#8a93a0;margin-bottom:12px;">Sobe o áudio/vídeo → IA preenche as linhas automaticamente. Formatos: mp3, mp4, wav, m4a (até 25MB)</p>
-
-      <!-- Chave API -->
-      <div style="margin-bottom:12px;">
-        <div style="display:flex;gap:6px;align-items:center;">
-          <input type="password" id="transcribeApiKey" placeholder="Cole sua chave OpenAI aqui (sk-...)"
-            style="flex:1;background:#13161c;border:1px solid #2a2f38;border-radius:8px;color:#eef1f4;font-family:inherit;font-size:12px;padding:9px 12px;outline:none;">
-          <button onclick="(function(){var k=document.getElementById('transcribeApiKey').value.trim();if(k){localStorage.setItem('lp_api_key',k);document.getElementById('transcribeMsg').textContent='✓ Chave salva';document.getElementById('transcribeApiKey').value='';document.getElementById('transcribeKeyHint').textContent='Chave salva ✓';}})();"
-            style="background:#1e2228;border:1px solid #2a2f38;color:#00d9ff;font-family:inherit;font-size:12px;font-weight:700;border-radius:8px;padding:9px 14px;cursor:pointer;white-space:nowrap;">Salvar</button>
-        </div>
-        <p id="transcribeKeyHint" style="font-size:11px;color:#4a505c;margin-top:5px;">Chave OpenAI (Whisper). Crie em <strong style="color:#6f7482;">platform.openai.com</strong> → API Keys. Salva só no seu browser, nunca enviada a nós.</p>
-      </div>
-
-      <div class="row" style="flex-direction:column;gap:10px;">
-        <label id="transcribeDropzone" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#13161c;border:2px dashed #2a2f38;border-radius:12px;padding:20px;cursor:pointer;transition:border-color .15s;text-align:center;flex-direction:column;">
-          <span style="font-size:28px;">🎵</span>
-          <span id="transcribeFileName" style="font-size:13px;color:#8a93a0;">Clique ou arraste o arquivo aqui</span>
-          <input type="file" id="transcribeFile" accept="audio/*,video/mp4,video/webm" style="display:none;">
-        </label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select id="transcribeLines" style="background:#16181d;border:1px solid #2e2e35;border-radius:8px;color:#eef1f4;font-family:inherit;font-size:13px;padding:9px 10px;outline:none;">
-            <option value="5">5 palavras/linha</option>
-            <option value="4">4 palavras/linha</option>
-            <option value="6">6 palavras/linha</option>
-            <option value="3">3 palavras/linha</option>
-          </select>
-          <button class="btn btn-play" id="btnTranscribe" style="flex:1;" disabled>🎤 Transcrever</button>
-        </div>
-        <div id="transcribeProgress" style="display:none;font-size:12px;color:#00d9ff;text-align:center;padding:8px;">Transcrevendo com IA...</div>
-        <div id="transcribeResult" style="display:none;">
-          <div style="font-size:11px;color:#8a93a0;margin-bottom:6px;font-weight:700;letter-spacing:1px;">LINHAS DETECTADAS — clique pra editar</div>
-          <div id="transcribeLines_out" style="display:flex;flex-direction:column;gap:6px;"></div>
-          <button class="btn btn-play" id="btnApplyTranscription" style="width:100%;margin-top:10px;background:linear-gradient(90deg,#00d9ff,#00ffa3);color:#04151c;">✓ Usar essas linhas na legenda</button>
-        </div>
-        <p id="transcribeMsg" style="font-size:12px;color:#ff6b6b;min-height:16px;"></p>
-      </div>
-    </div>
-
-    <div class="section" id="cloudSection" style="display:none;">
-      <h2>☁️ Salvo na Nuvem</h2>
-      <div class="row">
-        <button class="btn btn-play" id="btnSaveCloud" style="flex:1;">Salvar template na nuvem</button>
-        <button class="btn btn-play" id="btnLoadCloud" style="flex:1;">Carregar da nuvem</button>
-        <button class="btn btn-play" id="btnListCloud" style="flex:1;">Meus templates</button>
-      </div>
-      <div id="cloudList" style="margin-top:12px;"></div>
-    </div>
-
-    <div class="section" id="batchSection" style="display:none;">
-      <h2>📦 Exportar múltiplas</h2>
-      <div style="font-size:12px;color:#9a9aa3;margin-bottom:12px;">Selecione cores de clientes pra exportar todas de uma vez</div>
-      <div id="batchList" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-      <div class="row">
-        <select id="batchFormat" style="flex:1;">
-          <option value="png">PNG (rápido)</option>
-          <option value="webm">WebM (CapCut)</option>
-          <option value="mp4">MP4 (Premiere)</option>
-        </select>
-        <button class="btn btn-webm" id="btnBatchExport" style="flex:1;">Gerar pacote 📦</button>
-      </div>
-      <p id="batchStatus" style="font-size:12px;color:#9a9aa3;margin-top:8px;"></p>
-    </div>
-
-    <div class="section">
-      <h2>Exportar</h2>
-      <div class="row" style="margin-bottom:12px;">
-        <div class="field"><label>Fundo do vídeo animado (pra chroma key)</label>
-          <select id="webmBg">
-            <option value="#00ff00">Verde (recomendado — remove com Croma no CapCut)</option>
-            <option value="#000000">Preto (use modo de mistura "Clarear")</option>
-          </select>
-        </div>
-      </div>
-      <div class="btns">
-        <button class="btn btn-play tooltip" id="btnPlay" data-tip="Space ou Enter">&#9654; Ver animação</button>
-        <button class="btn btn-png tooltip" id="btnPng" data-tip="Ctrl+S">PNG transparente</button>
-        <button class="btn btn-webm tooltip" id="btnWebm" data-tip="CapCut 📱">Vídeo WebM (CapCut)</button>
-        <button class="btn btn-webm tooltip" id="btnMp4" data-tip="Premiere/DaVinci">Vídeo MP4 (Premiere/DaVinci)</button>
-        <button class="btn btn-play tooltip" id="btnZip" data-tip="Premiere/DaVinci">Sequência PNG (Premiere/DaVinci)</button>
-        <button class="btn btn-webm tooltip" id="btnLayers" data-tip="Sincronizar palavra por palavra">Camadas separadas — 1 PNG por palavra (ZIP)</button>
-      </div>
-      <p id="status"></p>
-    </div>
-
-    <div class="section">
-      <h2>Como usar no seu editor</h2>
-      <div class="howto">
-        <strong>PNG:</strong> importe a imagem, arraste pra cima do vídeo como sobreposição e ajuste a duração. Fundo já é transparente.<br>
-        <strong>Vídeo animado (verde):</strong> importe, coloque como sobreposição, toque em <strong>Recortar &gt; Croma</strong> (ou "Chroma key" no PC), selecione o verde e aumente a intensidade. Evite usar verde como cor do texto nesse caso.<br>
-        <strong>Premiere (MP4 verde):</strong> jogue o MP4 numa trilha acima do vídeo e aplique <strong>Ultra Key</strong> (Efeitos &gt; Chave) selecionando o verde com o conta-gotas.<br>
-        <strong>Premiere (sequência PNG):</strong> Arquivo &gt; Importar, selecione o quadro 000 e marque <strong>"Sequência de imagens"</strong> — entra já com transparência, sem chroma key.<br>
-        <strong>DaVinci Resolve (MP4 verde):</strong> arraste pra trilha de cima e aplique o efeito <strong>3D Keyer</strong> (Effects &gt; OpenFX) no verde.<br>
-        <strong>DaVinci Resolve (sequência PNG):</strong> solte a pasta no Media Pool — a sequência entra como um clipe único, já com transparência.<br>
-        <strong>Camadas separadas:</strong> cada palavra vira um PNG independente, na posição exata. Empilhe no CapCut (escala 100%) e ajuste o início de cada camada pra sincronizar com a fala — perfeito pra colocar efeito sonoro palavra por palavra.<br>
-        <strong>Dica:</strong> salve as cores de cada cliente na seção "Clientes" e exporte as variações de uma vez — seu pack pessoal por cliente.
-      </div>
-    </div>
-  </div>
+  </aside>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -779,7 +908,7 @@ const MODELS = [
     { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]}
 ];
 
-const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16' };
+const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16', bpm:0 };
 
 function colorOf(key){
   if (key === 'c1') return state.c1;
@@ -795,6 +924,9 @@ function fontStr(ln, size){
 
 function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
 function easeOutBack(t){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+function easeOutBounce(t){ const n1=7.5625,d1=2.75; if(t<1/d1){return n1*t*t;}else if(t<2/d1){return n1*(t-=1.5/d1)*t+.75;}else if(t<2.5/d1){return n1*(t-=2.25/d1)*t+.9375;}else{return n1*(t-=2.625/d1)*t+.984375;} }
+function easeInOut(t){ return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
+function easeOutElastic(t){ const c4=(2*Math.PI)/3; return t===0?0:t===1?1:Math.pow(2,-10*t)*Math.sin((t*10-0.75)*c4)+1; }
 
 // ── MOTION DESIGN EFFECTS ────────────────────────────────────────────────────
 
@@ -865,7 +997,10 @@ function drawFrame(ctx, t, bg, model, texts, opts){
   const lines = model.lines
     .map((ln, i) => ({ ...ln, txt: texts[i] !== undefined ? texts[i] : (ln.d || ''), ov: ovs[i], idx: i }))
     .filter(ln => !(ln.ov && ln.ov.hide));
-  const lineHs = lines.map(ln => ((ln.rule ? 8 : ln.s * 1.12) + (ln.gap || 0)) * sc);
+  const lineHs = lines.map(ln => {
+    const g = (ln.ov && ln.ov.gap !== null && ln.ov.gap !== undefined) ? ln.ov.gap : (ln.gap || 0);
+    return ((ln.rule ? 8 : ln.s * 1.12) + g) * sc;
+  });
   const totalH = lineHs.reduce((a, b) => a + b, 0);
   let y = H / 2 - totalH / 2 + (opts.offset / 100) * H;
   const n = lines.length, stag = 0.18;
@@ -886,15 +1021,40 @@ function drawFrame(ctx, t, bg, model, texts, opts){
     ctx.translate(W / 2 + (ln.dx || 0) * sc, cy);
     if (ln.rot) ctx.rotate(ln.rot * Math.PI / 180);
 
-    let alpha = 1, scale = 1, dy = 0, txt = ln.txt;
-    if (animName === 'fade'){ alpha = easeOut(p); }
+    const isWordAnim = animName && animName.startsWith('word-');
+    let alpha = 1, scale = 1, dy = 0, dx2 = 0, txt = ln.txt, blur2 = 0, rotAnim = 0;
+    if (isWordAnim){ /* per-word animation handled in drawing section below */ alpha = Math.min(p * 2, 1); }
+    else if (animName === 'reveal'){ /* clip handled in drawing section */ alpha = 1; }
+    else if (animName === 'fade'){ alpha = easeOut(p); }
     else if (animName === 'pop'){ scale = easeOutBack(p); alpha = Math.min(p * 3, 1); }
     else if (animName === 'slide'){ const e = easeOut(p); dy = (1 - e) * 70 * sc; alpha = e; }
+    else if (animName === 'slide-down'){ const e = easeOut(p); dy = -(1 - e) * 70 * sc; alpha = e; }
+    else if (animName === 'slide-left'){ const e = easeOut(p); dx2 = (1 - e) * 120 * sc; alpha = e; }
+    else if (animName === 'slide-right'){ const e = easeOut(p); dx2 = -(1 - e) * 120 * sc; alpha = e; }
+    else if (animName === 'zoom'){ scale = easeInOut(p); alpha = Math.min(p * 2.5, 1); }
+    else if (animName === 'bounce'){ scale = easeOutBounce(p); alpha = Math.min(p * 3, 1); dy = (1 - scale) * 40 * sc; }
+    else if (animName === 'spin-in'){ rotAnim = (1 - easeOutBack(p)) * 90; alpha = easeOut(p); scale = 0.4 + easeOut(p) * 0.6; }
+    else if (animName === 'blur-in'){ alpha = easeOut(p); blur2 = (1 - p) * 18 * sc; }
+    else if (animName === 'elastic'){ scale = easeOutElastic(p); alpha = Math.min(p * 3, 1); }
+    else if (animName === 'glitch-in'){
+      alpha = p > 0.6 ? 1 : (Math.random() > 0.4 ? 1 : 0);
+      dx2 = p < 0.6 ? (Math.random() - 0.5) * 14 * sc : 0;
+      dy = p < 0.6 ? (Math.random() - 0.5) * 8 * sc : 0;
+    }
     else if (animName === 'typewriter'){ txt = ln.txt.slice(0, Math.ceil(ln.txt.length * p)); }
 
+    // Beat sync pulse — applies on top of any animation
+    let beatMul = 1;
+    if (opts.bpm > 0 && opts.wallMs) {
+      const bp = ((opts.wallMs / 1000 * opts.bpm / 60) + i * 0.08) % 1;
+      beatMul = bp < 0.18 ? 1 + 0.07 * Math.sin(bp / 0.18 * Math.PI) : 1;
+    }
+
     ctx.globalAlpha = alpha;
-    ctx.translate(0, dy);
-    ctx.scale(scale, scale);
+    if (blur2 > 0) ctx.filter = `blur(${blur2}px)`;
+    ctx.translate(dx2, dy);
+    if (rotAnim) ctx.rotate(rotAnim * Math.PI / 180);
+    ctx.scale(scale * beatMul, scale * beatMul);
 
     if (ln.rule){
       ctx.fillStyle = colorOf(ln.c);
@@ -903,7 +1063,7 @@ function drawFrame(ctx, t, bg, model, texts, opts){
       return;
     }
 
-    const size = ln.s * sc;
+    const size = ln.s * sc * ((ln.ov && ln.ov.sizeMul) ? ln.ov.sizeMul : 1);
     ctx.font = fontStr(ln, size);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -935,8 +1095,46 @@ function drawFrame(ctx, t, bg, model, texts, opts){
       const segs = _parseHL(txt);
       const hasHL = segs.some(s => s.hi > 0);
 
+      // ── Word-by-word animation ──
+      if (isWordAnim) {
+        const allWords = [];
+        segs.forEach(seg => { seg.t.split(/(\s+)/).forEach(part => { if(part) allWords.push({t:part,hi:seg.hi}); }); });
+        const wN = allWords.length;
+        let totalW = 0;
+        allWords.forEach(w => { totalW += ctx.measureText(w.t).width; });
+        let wx = -totalW / 2;
+        ctx.textAlign = 'left';
+        allWords.forEach((w, wi) => {
+          const wW = ctx.measureText(w.t).width;
+          const rawP = Math.max(0, Math.min(1, (p * (wN + 1) - wi) / 2));
+          const wcol = w.hi===1 ? colorOf('c2') : w.hi===2 ? colorOf('c3') : lineCol;
+          ctx.save();
+          ctx.translate(wx + wW / 2, 0);
+          if (animName === 'word-pop') { const pw = easeOutBack(rawP); ctx.scale(pw, pw); ctx.globalAlpha = Math.min(rawP * 2, 1); }
+          else if (animName === 'word-slide') { const pw = easeOut(rawP); ctx.translate(0, (1-pw)*45*sc); ctx.globalAlpha = pw; }
+          else if (animName === 'word-fade') { ctx.globalAlpha = rawP; }
+          else if (animName === 'word-bounce') { const pw = easeOutBounce(rawP); ctx.scale(pw, pw); ctx.globalAlpha = Math.min(rawP * 2.5, 1); }
+          if (ln.sh) { ctx.fillStyle = colorOf(ln.sh); ctx.fillText(w.t, -wW/2 + size*0.05, size*0.05); }
+          ctx.fillStyle = wcol;
+          ctx.fillText(w.t, -wW/2, 0);
+          ctx.restore();
+          wx += wW;
+        });
+        ctx.textAlign = 'center';
+      // ── Reveal por máscara ──
+      } else if (animName === 'reveal') {
+        const TW = ctx.measureText(txt).width;
+        const revW = TW * easeOut(p);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-TW/2 - 4, -size * 0.9, revW + 8, size * 1.9);
+        ctx.clip();
+        if (ln.sh) { ctx.fillStyle = colorOf(ln.sh); ctx.fillText(txt, size*0.05, size*0.05); }
+        ctx.fillStyle = lineCol;
+        ctx.fillText(txt, 0, 0);
+        ctx.restore();
       // ── Motion Design Effects ──
-      if (ln.ext){
+      } else if (ln.ext){
         // 3D Extrusion
         const extCol = ln.extC ? colorOf(ln.extC) : '#111';
         _drawExt(ctx, txt, lineCol, extCol, Math.round(ln.ext*sc), size*0.04);
@@ -989,26 +1187,39 @@ const pctx = preview.getContext('2d');
 
 function renderPreview(t){
   if (t === undefined) t = 1;
-  drawFrame(pctx, t, '#1c1c1f', state.model, state.texts, state);
+  drawFrame(pctx, t, '#1c1c1f', state.model, state.texts, { ...state, wallMs: performance.now() });
+}
+
+let beatRaf = null;
+function _stopBeatLoop(){ if(beatRaf){ cancelAnimationFrame(beatRaf); beatRaf=null; } }
+function _startBeatLoop(){
+  _stopBeatLoop();
+  if (!state.bpm) return;
+  function btick(){ renderPreview(1); if(state.bpm) beatRaf = requestAnimationFrame(btick); else beatRaf = null; }
+  beatRaf = requestAnimationFrame(btick);
 }
 
 let playRaf = null;
 function playAnim(targetCtx, bg, onDone, holdMs){
   if (playRaf) cancelAnimationFrame(playRaf);
+  _stopBeatLoop();
   const dur = 1400, hold = holdMs || 0;
   const start = performance.now();
   function tick(now){
     const el = now - start;
     const t = Math.min(el / dur, 1);
-    drawFrame(targetCtx, t, bg, state.model, state.texts, state);
+    drawFrame(targetCtx, t, bg, state.model, state.texts, { ...state, wallMs: performance.now() });
     if (el < dur + hold){ playRaf = requestAnimationFrame(tick); }
-    else if (onDone) onDone();
+    else {
+      if (onDone) onDone();
+      if (targetCtx === pctx && state.bpm) _startBeatLoop();
+    }
   }
   playRaf = requestAnimationFrame(tick);
 }
 
 function saveToLocalStorage(){
-  const save = { model: state.model.id, texts: state.texts, c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, lineOv: state.lineOv };
+  const save = { model: state.model.id, texts: state.texts, c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, lineOv: state.lineOv, bpm: state.bpm };
   localStorage.setItem('legendas_save', JSON.stringify(save));
   const ago = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
   document.getElementById('salvoLabel').textContent = '✓ Salvo em ' + ago;
@@ -1030,7 +1241,8 @@ function loadFromLocalStorage(){
     state.scale = save.scale || 1;
     state.offset = save.offset || 0;
     state.fmt = save.fmt || '9x16';
-    state.lineOv = save.lineOv || state.model.lines.map(() => ({ hide: false, sp: null }));
+    state.lineOv = save.lineOv || state.model.lines.map(() => ({ hide: false, sp: null, c: null, sizeMul: null }));
+    state.bpm = save.bpm || 0;
     document.getElementById('c1').value = state.c1;
     document.getElementById('c2').value = state.c2;
     document.getElementById('c3').value = state.c3;
@@ -1041,7 +1253,10 @@ function loadFromLocalStorage(){
     document.getElementById('fmt').value = state.fmt;
     document.getElementById('scaleOut').textContent = (state.scale * 100) + '%';
     document.getElementById('offOut').textContent = state.offset;
+    document.getElementById('bpm').value = state.bpm;
+    document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
     applyFormat();
+    syncFmtTabs();
     setStatus('✓ Rascunho restaurado');
   } catch (e) { }
 }
@@ -1050,11 +1265,19 @@ function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
   state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
-  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null });
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
+
+    // Container da linha
+    const wrapItem = document.createElement('div');
+    wrapItem.className = 'linha-wrap';
+    wrapItem.dataset.lineIdx = String(i);
+
+    // Fileira 1: input + olho + cor
     const row = document.createElement('div');
     row.className = 'linha';
+
     const inp = document.createElement('input');
     inp.type = 'text';
     inp.value = state.texts[i] || '';
@@ -1062,22 +1285,9 @@ function buildTexts(){
     inp.placeholder = 'Linha ' + (i + 1);
     inp.addEventListener('input', () => { state.texts[i] = inp.value; renderPreview(); saveToLocalStorage(); });
     row.appendChild(inp);
-    const spw = document.createElement('div');
-    spw.className = 'spwrap';
-    spw.title = 'Espaço entre letras desta linha';
-    const sp = document.createElement('input');
-    sp.type = 'range'; sp.min = -5; sp.max = 60; sp.step = 1; sp.value = ln.sp || 0;
-    const spLab = document.createElement('span');
-    spLab.textContent = 'letras: ' + (ln.sp || 0);
-    sp.addEventListener('input', () => {
-      state.lineOv[i].sp = Number(sp.value);
-      spLab.textContent = 'letras: ' + sp.value;
-      renderPreview();
-    });
-    spw.appendChild(sp); spw.appendChild(spLab);
-    row.appendChild(spw);
+
     const eye = document.createElement('button');
-    eye.type = 'button'; eye.className = 'eye'; eye.textContent = '👁'; eye.title = 'Ocultar/mostrar esta linha';
+    eye.type = 'button'; eye.className = 'eye'; eye.textContent = '👁'; eye.title = 'Ocultar/mostrar';
     eye.addEventListener('click', () => {
       state.lineOv[i].hide = !state.lineOv[i].hide;
       eye.classList.toggle('off', state.lineOv[i].hide);
@@ -1086,31 +1296,78 @@ function buildTexts(){
       renderPreview();
     });
     row.appendChild(eye);
-    // Color picker por linha
+
     const cp = document.createElement('input');
     cp.type = 'color';
-    cp.title = 'Cor desta linha — substitui a cor do modelo';
     cp.value = state.lineOv[i].c || colorOf(ln.c);
     cp.style.cssText = 'width:28px;height:28px;border-radius:6px;background:#1c1c1f;cursor:pointer;padding:2px;border:1px solid #2e2e35;flex-shrink:0;';
+    cp.title = 'Cor da linha (duplo clique = resetar)';
     cp.addEventListener('input', () => { state.lineOv[i].c = cp.value; renderPreview(); saveToLocalStorage(); });
     cp.addEventListener('dblclick', () => { state.lineOv[i].c = null; cp.value = colorOf(ln.c); renderPreview(); saveToLocalStorage(); });
-    cp.title = 'Cor da linha (duplo clique = resetar)';
     row.appendChild(cp);
-    wrap.appendChild(row);
+    wrapItem.appendChild(row);
+
+    // Fileira 2: sliders (letras / tamanho / espaço entre linhas)
+    const sub = document.createElement('div');
+    sub.className = 'linha-sub';
+
+    // Espaço entre letras
+    const spCtrl = document.createElement('div');
+    spCtrl.className = 'ctrl-mini';
+    spCtrl.title = 'Espaço entre letras';
+    const sp = document.createElement('input');
+    sp.type = 'range'; sp.min = -5; sp.max = 60; sp.step = 1;
+    sp.value = (state.lineOv[i].sp !== null && state.lineOv[i].sp !== undefined) ? state.lineOv[i].sp : (ln.sp || 0);
+    const spLab = document.createElement('span');
+    spLab.textContent = 'letras: ' + sp.value;
+    sp.addEventListener('input', () => { state.lineOv[i].sp = Number(sp.value); spLab.textContent = 'letras: ' + sp.value; renderPreview(); saveToLocalStorage(); });
+    spCtrl.appendChild(sp); spCtrl.appendChild(spLab);
+    sub.appendChild(spCtrl);
+
+    // Tamanho
+    const szCtrl = document.createElement('div');
+    szCtrl.className = 'ctrl-mini';
+    szCtrl.title = 'Tamanho desta linha';
+    const sz = document.createElement('input');
+    sz.type = 'range'; sz.min = 50; sz.max = 200; sz.step = 5;
+    sz.value = Math.round((state.lineOv[i]?.sizeMul || 1) * 100);
+    const szLab = document.createElement('span');
+    szLab.textContent = 'tam: ' + sz.value + '%';
+    sz.addEventListener('input', () => { state.lineOv[i].sizeMul = sz.value / 100; szLab.textContent = 'tam: ' + sz.value + '%'; renderPreview(); saveToLocalStorage(); });
+    szCtrl.appendChild(sz); szCtrl.appendChild(szLab);
+    sub.appendChild(szCtrl);
+
+    // Espaço entre esta linha e a próxima (gap)
+    const gpCtrl = document.createElement('div');
+    gpCtrl.className = 'ctrl-mini';
+    gpCtrl.title = 'Espaço abaixo desta linha (negativo = sobrepõe)';
+    const gp = document.createElement('input');
+    gp.type = 'range'; gp.min = -120; gp.max = 120; gp.step = 2;
+    const initGap = (state.lineOv[i].gap !== null && state.lineOv[i].gap !== undefined) ? state.lineOv[i].gap : (ln.gap || 0);
+    gp.value = initGap;
+    const gpLab = document.createElement('span');
+    gpLab.textContent = 'espaço: ' + initGap;
+    gp.addEventListener('input', () => { state.lineOv[i].gap = Number(gp.value); gpLab.textContent = 'espaço: ' + gp.value; renderPreview(); saveToLocalStorage(); });
+    gpCtrl.appendChild(gp); gpCtrl.appendChild(gpLab);
+    sub.appendChild(gpCtrl);
+
+    wrapItem.appendChild(sub);
+    wrap.appendChild(wrapItem);
   });
 }
 
 let activeCat = 'todos';
 function buildChips(){
-  const wrap = document.getElementById('cats');
+  const wrap = document.getElementById('catList');
+  wrap.innerHTML = '';
   CATS.forEach(cat => {
     const id = cat[0], label = cat[1];
     const b = document.createElement('button');
-    b.className = 'chip' + (id === activeCat ? ' active' : '');
+    b.className = 'cat-btn' + (id === activeCat ? ' active' : '');
     b.textContent = label;
     b.addEventListener('click', () => {
       activeCat = id;
-      document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       buildModels();
     });
@@ -1119,11 +1376,11 @@ function buildChips(){
 }
 
 function buildModels(){
-  const wrap = document.getElementById('models');
+  const wrap = document.getElementById('modelGrid');
   wrap.innerHTML = '';
   MODELS.filter(m => activeCat === 'todos' || m.cat === activeCat).forEach(model => {
     const btn = document.createElement('button');
-    btn.className = 'model-btn' + (model === state.model ? ' active' : '');
+    btn.className = 'model-thumb' + (model === state.model ? ' active' : '');
     const c = document.createElement('canvas');
     c.width = 270; c.height = 480;
     btn.appendChild(c);
@@ -1134,7 +1391,7 @@ function buildModels(){
       state.model = model;
       state.anim = model.anim;
       document.getElementById('anim').value = model.anim;
-      document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.model-thumb').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       buildTexts();
       renderPreview();
@@ -1143,7 +1400,7 @@ function buildModels(){
     wrap.appendChild(btn);
     const tctx = c.getContext('2d');
     tctx.scale(270 / 1080, 480 / 1920);
-    drawFrame(tctx, 1, '#232328', model, model.lines.map(l => l.d || ''), { scale: 1, offset: 0, anim: 'none', fmt: '9x16' });
+    drawFrame(tctx, 1, '#1a1c24', model, model.lines.map(l => l.d || ''), { scale: 1, offset: 0, anim: 'none', fmt: '9x16' });
   });
 }
 
@@ -1265,6 +1522,12 @@ document.getElementById('c2').addEventListener('input', e => { state.c2 = e.targ
 document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); saveToLocalStorage(); });
 document.getElementById('glow').addEventListener('change', e => { state.glow = e.target.checked; renderPreview(); saveToLocalStorage(); });
 document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; playAnim(pctx, '#1c1c1f'); saveToLocalStorage(); });
+document.getElementById('bpm').addEventListener('input', e => {
+  state.bpm = parseInt(e.target.value);
+  document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
+  if (state.bpm > 0) _startBeatLoop(); else { _stopBeatLoop(); renderPreview(); }
+  saveToLocalStorage();
+});
 document.getElementById('scale').addEventListener('input', e => {
   state.scale = e.target.value / 100;
   document.getElementById('scaleOut').textContent = e.target.value + '%';
@@ -1283,8 +1546,26 @@ function applyFormat(){
   preview.style.aspectRatio = F[0] + ' / ' + F[1];
   renderPreview();
   saveToLocalStorage();
+  syncFmtTabs();
+}
+function syncFmtTabs(){
+  document.querySelectorAll('.fmt-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.fmt === state.fmt);
+  });
 }
 document.getElementById('fmt').addEventListener('change', e => { state.fmt = e.target.value; applyFormat(); });
+
+// Format tabs
+document.querySelectorAll('.fmt-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.fmt = btn.dataset.fmt;
+    document.getElementById('fmt').value = state.fmt;
+    document.querySelectorAll('.fmt-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFormat();
+    saveToLocalStorage();
+  });
+});
 
 function loadPresets(){ try { return JSON.parse(localStorage.getItem('legendas_presets')) || []; } catch (e){ return []; } }
 function refreshPresetSel(){
@@ -1374,6 +1655,39 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// Clique no canvas — detecta qual linha foi clicada e foca no painel
+preview.addEventListener('click', e => {
+  const rect = preview.getBoundingClientRect();
+  const scaleY = preview.height / rect.height;
+  const canvasY = (e.clientY - rect.top) * scaleY;
+  const F = dims();
+  const H = F[1];
+  const sc = state.scale;
+  const ovs = state.lineOv || [];
+  const lines = state.model.lines
+    .map((ln, i) => ({ ...ln, ov: ovs[i], modelIdx: i }))
+    .filter(ln => !(ln.ov && ln.ov.hide));
+  const lineHs = lines.map(ln => {
+    const g = (ln.ov && ln.ov.gap !== null && ln.ov.gap !== undefined) ? ln.ov.gap : (ln.gap || 0);
+    return ((ln.rule ? 8 : ln.s * 1.12) + g) * sc;
+  });
+  const totalH = lineHs.reduce((a, b) => a + b, 0);
+  let y = H / 2 - totalH / 2 + (state.offset / 100) * H;
+  let hitIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (canvasY >= y && canvasY <= y + lineHs[i]) { hitIdx = lines[i].modelIdx; break; }
+    y += lineHs[i];
+  }
+  if (hitIdx < 0) return;
+  const el = document.querySelector('.linha-wrap[data-line-idx="' + hitIdx + '"]');
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  el.classList.add('selected');
+  setTimeout(() => el.classList.remove('selected'), 1200);
+  const inp = el.querySelector('input[type=text]');
+  if (inp) inp.focus();
+});
+
 const DIA_MS = 24 * 60 * 60 * 1000;
 let sb = null;
 
@@ -1448,6 +1762,92 @@ function showPaywall(){
     else { document.getElementById('lpErr').textContent = 'Ainda não liberado — chama o criador no WhatsApp.'; }
   });
 }
+// SRT Import
+document.getElementById('btnSRT').addEventListener('click', () => document.getElementById('srtFile').click());
+document.getElementById('srtFile').addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const segs = _parseSRT(ev.target.result);
+    if(!segs.length){ setStatus('SRT sem texto encontrado.'); return; }
+    const n = state.model.lines.filter(l => !l.rule).length;
+    // Fill lines: concatenate SRT segments evenly across model lines
+    const perLine = Math.ceil(segs.length / n);
+    let idx = 0;
+    state.model.lines.forEach((ln, i) => {
+      if(ln.rule) return;
+      const chunk = segs.slice(idx, idx + perLine).join(' ');
+      state.texts[i] = chunk;
+      idx += perLine;
+    });
+    buildTexts();
+    renderPreview();
+    saveToLocalStorage();
+    setStatus('✓ SRT importado — ' + segs.length + ' segmentos distribuídos em ' + n + ' linhas');
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+function _parseSRT(txt){
+  return txt.trim().split(/\n\s*\n/).map(block => {
+    const lines = block.split('\n');
+    // Skip index line and timestamp line
+    return lines.slice(2).join(' ').replace(/<[^>]+>/g,'').replace(/\{[^}]+\}/g,'').trim();
+  }).filter(Boolean);
+}
+
+// Looks save/load
+function _getLooks(){ try{ return JSON.parse(localStorage.getItem('lp_looks')||'[]'); } catch(e){ return []; } }
+function _saveLooks(arr){ localStorage.setItem('lp_looks', JSON.stringify(arr)); }
+function buildLookChips(){
+  const wrap = document.getElementById('lookChips');
+  const looks = _getLooks();
+  wrap.innerHTML = '';
+  looks.forEach(look => {
+    const ch = document.createElement('button');
+    ch.className = 'look-chip';
+    ch.textContent = look.name;
+    ch.title = 'Clique para aplicar "' + look.name + '"';
+    ch.addEventListener('click', () => {
+      const m = MODELS.find(x => x.id === look.model);
+      if(m){ state.model = m; }
+      if(look.c1) state.c1 = look.c1;
+      if(look.c2) state.c2 = look.c2;
+      if(look.c3) state.c3 = look.c3;
+      if(look.anim) state.anim = look.anim;
+      if(look.glow !== undefined) state.glow = look.glow;
+      if(look.bpm !== undefined) state.bpm = look.bpm;
+      document.getElementById('c1').value = state.c1;
+      document.getElementById('c2').value = state.c2;
+      document.getElementById('c3').value = state.c3;
+      document.getElementById('anim').value = state.anim;
+      document.getElementById('glow').checked = state.glow;
+      document.getElementById('bpm').value = state.bpm;
+      document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
+      buildTexts(); playAnim(pctx, '#1c1c1f'); saveToLocalStorage();
+      if(state.bpm > 0) _startBeatLoop(); else _stopBeatLoop();
+      document.getElementById('lookName').value = look.name;
+      setStatus('✓ Look "' + look.name + '" aplicado');
+    });
+    wrap.appendChild(ch);
+  });
+}
+document.getElementById('btnSaveLook').addEventListener('click', () => {
+  const name = document.getElementById('lookName').value.trim();
+  if(!name){ setStatus('Digite um nome para o look.'); return; }
+  const looks = _getLooks().filter(l => l.name !== name);
+  looks.push({ name, model: state.model.id, c1: state.c1, c2: state.c2, c3: state.c3, anim: state.anim, glow: state.glow, bpm: state.bpm });
+  _saveLooks(looks); buildLookChips();
+  setStatus('✓ Look "' + name + '" salvo!');
+});
+document.getElementById('btnDelLook').addEventListener('click', () => {
+  const name = document.getElementById('lookName').value.trim();
+  if(!name){ setStatus('Digite o nome do look a excluir.'); return; }
+  _saveLooks(_getLooks().filter(l => l.name !== name)); buildLookChips();
+  setStatus('Look excluído.');
+});
+buildLookChips();
+
 authCheck();
 
 // Registrar service worker pra PWA

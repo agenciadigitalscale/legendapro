@@ -1,0 +1,35 @@
+name: Deploy LegendaPro
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: legendapro
+          directory: .
+          productionBranch: main
+
+      - name: Notify Deployment
+        if: success()
+        run: |
+          echo "✅ LegendaPro deployed successfully!"
+          echo "🌐 Live at: https://legendapro.pages.dev"

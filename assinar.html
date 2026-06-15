@@ -60,6 +60,15 @@
   .badge { display: inline-block; font-size: 10px; font-weight: 800; background: rgba(0,255,163,.2); color: #00ffa3; padding: 3px 8px; border-radius: 999px; margin-bottom: 8px; }
   .mp-wrapper { position: relative; }
   .mp-wrapper::before { content: '✓ RECOMENDADO'; position: absolute; top: -10px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: #00d9ff; letter-spacing: 1px; }
+
+  /* ── PLAN TOGGLE ── */
+  .plan-toggle { display: flex; background: #16181d; border: 1px solid #262b34; border-radius: 12px; padding: 4px; margin: 14px 0 20px; }
+  .plan-tab { flex: 1; font-family: inherit; font-size: 13px; font-weight: 700; background: transparent; border: none; border-radius: 9px; padding: 9px 12px; cursor: pointer; color: #6f7482; transition: background .15s, color .15s; position: relative; }
+  .plan-tab.active { background: #1e2228; color: #eef1f4; }
+  .plan-tab .economia-tag { display: block; font-size: 9px; font-weight: 800; color: #00ffa3; margin-top: 2px; }
+  .plan-content { display: none; }
+  .plan-content.active { display: block; }
+  .economia-badge { display: inline-block; background: rgba(0,255,163,.15); border: 1px solid rgba(0,255,163,.35); color: #00ffa3; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 6px; margin: 4px 0 16px; }
 </style>
 </head>
 <body>
@@ -67,40 +76,89 @@
 <div class="glow glow-2"></div>
 <div class="card">
   <div class="logo">Legenda<span>Pro</span></div>
-  <div class="preco">R$ 37,99<small>/mês</small></div>
-  <p class="sub">Escolha como pagar:</p>
+  <p class="sub" style="margin:6px 0 0;">Escolha o seu plano:</p>
 
-  <div class="mp-wrapper" style="padding:4px 0 20px;">
-    <a class="wa" style="margin:0;" href="https://link.mercadopago.com.br/legendasproks">💳 Assinar com cartão — renovação automática</a>
-    <p style="font-size:11px;color:#00ffa3;margin:6px 0 0;font-weight:700;">seguro · sem precisar lembrar de pagar</p>
+  <!-- TOGGLE MENSAL / ANUAL -->
+  <div class="plan-toggle">
+    <button class="plan-tab active" id="tabMensal" onclick="setPlan('mensal')">
+      Mensal
+      <span class="economia-tag">R$ 59,90/mês</span>
+    </button>
+    <button class="plan-tab" id="tabAnual" onclick="setPlan('anual')">
+      Anual 🏆
+      <span class="economia-tag" style="color:#00ffa3;">R$ 479,90 · 4 meses grátis</span>
+    </button>
   </div>
 
-  <div style="display:flex;align-items:center;gap:10px;margin:20px 0 16px;">
-    <div style="flex:1;border-top:1px solid #262b34;"></div>
-    <span style="font-size:12px;color:#5d6671;">ou pague com PIX</span>
-    <div style="flex:1;border-top:1px solid #262b34;"></div>
+  <!-- ── PLANO MENSAL ── -->
+  <div class="plan-content active" id="planMensal">
+    <div class="preco">R$ 59,90<small>/mês</small></div>
+
+    <div class="mp-wrapper" style="padding:14px 0 20px;">
+      <a class="wa" style="margin:0;" href="https://link.mercadopago.com.br/legendasproks">💳 Assinar com cartão — renovação automática</a>
+      <p style="font-size:11px;color:#00ffa3;margin:6px 0 0;font-weight:700;">seguro · sem precisar lembrar de pagar todo mês</p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 16px;">
+      <div style="flex:1;border-top:1px solid #262b34;"></div>
+      <span style="font-size:12px;color:#5d6671;">ou pague com PIX</span>
+      <div style="flex:1;border-top:1px solid #262b34;"></div>
+    </div>
+
+    <div class="qrbox" id="qrMensal"></div>
+    <p class="nome"><b>KAIQUE STEFHANO SENA SANTOS</b><br>CNPJ: 58.867.806/0001-61 · Valor: R$ 59,90</p>
+
+    <h3>PIX copia e cola</h3>
+    <div class="copy-row">
+      <textarea id="copiaecola" readonly></textarea>
+      <button type="button" data-copy="copiaecola">Copiar</button>
+    </div>
+    <h3>Ou use a chave PIX (CNPJ)</h3>
+    <div class="copy-row">
+      <input id="chave" readonly value="58867806000161">
+      <button type="button" data-copy="chave">Copiar</button>
+    </div>
+    <p class="ok-msg" id="okmsg"></p>
   </div>
 
-  <div class="qrbox" id="qr"></div>
-  <p class="nome"><b>KAIQUE STEFHANO SENA SANTOS</b><br>CNPJ: 58.867.806/0001-61 · Valor fixo: R$ 37,99</p>
+  <!-- ── PLANO ANUAL ── -->
+  <div class="plan-content" id="planAnual">
+    <div class="preco" style="background:linear-gradient(90deg,#00ffa3,#00d9ff);-webkit-background-clip:text;background-clip:text;color:transparent;">R$ 479,90<small>/ano</small></div>
+    <div class="economia-badge">🎉 Você economiza R$ 238,90 — 4 meses grátis!</div>
+    <p style="font-size:12px;color:#8a93a0;margin-bottom:16px;">Equivale a <b style="color:#00ffa3;">R$ 39,99/mês</b> · 1 pagamento · 12 meses de acesso</p>
 
-  <h3>PIX copia e cola</h3>
-  <div class="copy-row">
-    <textarea id="copiaecola" readonly></textarea>
-    <button type="button" data-copy="copiaecola">Copiar</button>
-  </div>
+    <div class="mp-wrapper" style="padding:4px 0 20px;">
+      <a class="wa" style="margin:0;background:linear-gradient(90deg,#00ffa3,#00d9ff);" href="https://wa.me/5511997295407?text=Oi%20Kaique!%20Quero%20assinar%20o%20plano%20anual%20do%20LegendaPro%20por%20R%24%20479%2C90">💬 Assinar anual via WhatsApp</a>
+      <p style="font-size:11px;color:#00ffa3;margin:6px 0 0;font-weight:700;">atendimento rápido · acesso liberado na hora</p>
+    </div>
 
-  <h3>Ou use a chave PIX (CNPJ)</h3>
-  <div class="copy-row">
-    <input id="chave" readonly value="58867806000161">
-    <button type="button" data-copy="chave">Copiar</button>
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 16px;">
+      <div style="flex:1;border-top:1px solid #262b34;"></div>
+      <span style="font-size:12px;color:#5d6671;">ou pague com PIX direto</span>
+      <div style="flex:1;border-top:1px solid #262b34;"></div>
+    </div>
+
+    <div class="qrbox" id="qrAnual"></div>
+    <p class="nome"><b>KAIQUE STEFHANO SENA SANTOS</b><br>CNPJ: 58.867.806/0001-61 · Valor: R$ 479,90</p>
+
+    <h3>PIX copia e cola</h3>
+    <div class="copy-row">
+      <textarea id="copiaecola2" readonly></textarea>
+      <button type="button" data-copy="copiaecola2">Copiar</button>
+    </div>
+    <h3>Ou use a chave PIX (CNPJ)</h3>
+    <div class="copy-row">
+      <input id="chave2" readonly value="58867806000161">
+      <button type="button" data-copy="chave2">Copiar</button>
+    </div>
+    <p class="ok-msg" id="okmsg2"></p>
   </div>
-  <p class="ok-msg" id="okmsg"></p>
 
   <div class="passos">
-    <p><b>💳 Cartão (Mercado Pago):</b> assinatura automática, renova todo mês sem você fazer nada.</p>
-    <p><b>📱 PIX:</b> pague de uma vez — mande o comprovante pra liberarmos seu acesso na hora.</p>
-    <p style="margin-top:10px;"><b>Em dúvida?</b> Chama no WhatsApp! A gente tira todas as dúvidas em 5 minutos.</p>
+    <p><b>💳 Cartão (Mensal):</b> renovação automática todo mês via Mercado Pago.</p>
+    <p><b>🏆 Anual (PIX ou WA):</b> 1 pagamento de R$ 479,90 = 12 meses. Economiza R$ 238.</p>
+    <p><b>📱 PIX:</b> mande o comprovante pelo WhatsApp — liberamos o acesso na hora.</p>
+    <p style="margin-top:10px;"><b>Em dúvida?</b> Chama no WhatsApp! A gente resolve em 5 minutos.</p>
   </div>
 
   <a class="wa" href="https://wa.me/5511997295407?text=Oi%20Kaique!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20LegendaPro">Falar no WhatsApp</a>
@@ -143,17 +201,35 @@ function pixPayload(chave, nome, cidade, valor, txid){
   return p;
 }
 
-const payload = pixPayload('58867806000161', 'KAIQUE STEFHANO SENA', 'SAO PAULO', '37.99', 'LEGENDAPRO37');
-document.getElementById('copiaecola').value = payload;
-new QRCode(document.getElementById('qr'), { text: payload, width: 210, height: 210, correctLevel: QRCode.CorrectLevel.M });
+// PIX mensal R$ 59,90
+const payloadMensal = pixPayload('58867806000161', 'KAIQUE STEFHANO SENA', 'SAO PAULO', '59.90', 'LEGENDAPRO59');
+document.getElementById('copiaecola').value = payloadMensal;
+new QRCode(document.getElementById('qrMensal'), { text: payloadMensal, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+
+// PIX anual R$ 479,90
+const payloadAnual = pixPayload('58867806000161', 'KAIQUE STEFHANO SENA', 'SAO PAULO', '479.90', 'LEGENDAPRO479');
+document.getElementById('copiaecola2').value = payloadAnual;
+new QRCode(document.getElementById('qrAnual'), { text: payloadAnual, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+
+// Toggle de planos
+function setPlan(plano){
+  document.getElementById('planMensal').classList.toggle('active', plano === 'mensal');
+  document.getElementById('planAnual').classList.toggle('active', plano === 'anual');
+  document.getElementById('tabMensal').classList.toggle('active', plano === 'mensal');
+  document.getElementById('tabAnual').classList.toggle('active', plano === 'anual');
+}
+
+// Detecta ?plano=anual na URL
+if (location.search.includes('plano=anual')) setPlan('anual');
 
 document.querySelectorAll('button[data-copy]').forEach(b => {
   b.addEventListener('click', () => {
     const el = document.getElementById(b.getAttribute('data-copy'));
     el.select();
+    const okId = b.closest('#planAnual') ? 'okmsg2' : 'okmsg';
     navigator.clipboard.writeText(el.value).then(() => {
-      document.getElementById('okmsg').textContent = 'Copiado! Cole no app do seu banco.';
-      setTimeout(() => { document.getElementById('okmsg').textContent = ''; }, 3000);
+      document.getElementById(okId).textContent = 'Copiado! Cole no app do seu banco.';
+      setTimeout(() => { document.getElementById(okId).textContent = ''; }, 3000);
     });
   });
 });

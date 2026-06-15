@@ -204,7 +204,12 @@ const SOUND_LIBRARY_CSS = `
 .slib-head h3 { margin:0; font-size:13px; font-weight:800; color:#eef1f4; }
 .slib-head p { margin:0; font-size:10px; color:#6f7482; }
 .slib-dl-all { background:linear-gradient(90deg,#00d9ff,#00ffa3); color:#04151c; border:none; border-radius:8px; font-family:inherit; font-weight:800; font-size:11px; padding:6px 12px; cursor:pointer; white-space:nowrap; }
-.slib-tabs { display:flex; gap:5px; padding:10px 12px 0; overflow-x:auto; border-bottom:1px solid #23272f; scrollbar-width:none; }
+.slib-tabs-wrap { position:relative; border-bottom:1px solid #23272f; }
+.slib-tabs-arrow { position:absolute; top:0; bottom:0; width:28px; display:flex; align-items:center; justify-content:center; background:linear-gradient(90deg,#0e1117 60%,transparent); border:none; color:#7a8494; font-size:14px; cursor:pointer; z-index:2; transition:color .15s; padding:0; }
+.slib-tabs-arrow:hover { color:#00d9ff; }
+.slib-tabs-arrow.right { right:0; background:linear-gradient(270deg,#0e1117 60%,transparent); }
+.slib-tabs { display:flex; gap:5px; padding:10px 30px 0; overflow-x:auto; scrollbar-width:none; cursor:grab; user-select:none; }
+.slib-tabs.dragging { cursor:grabbing; }
 .slib-tabs::-webkit-scrollbar { display:none; }
 .slib-tab { background:transparent; border:1px solid #2a2f38; color:#7a8494; padding:5px 10px; border-radius:6px; font-size:10px; font-weight:700; cursor:pointer; white-space:nowrap; font-family:inherit; transition:all .15s; }
 .slib-tab:hover { border-color:#00d9ff; color:#00d9ff; }
@@ -245,10 +250,14 @@ function initSoundLibrary() {
       <div><h3>🎵 SFX Library</h3><p>${allIds.length} efeitos sonoros — preview + download WAV</p></div>
       <button class="slib-dl-all" id="slibDlAll">⬇ Pack Completo</button>
     </div>
-    <div class="slib-tabs" id="slibTabs">
-      ${Object.entries(SOUND_LIBRARY).map(([key, cat], i) =>
-        `<button class="slib-tab${i===0?' active':''}" data-cat="${key}">${cat.name}</button>`
-      ).join('')}
+    <div class="slib-tabs-wrap">
+      <button class="slib-tabs-arrow left" id="slibArrowL">‹</button>
+      <div class="slib-tabs" id="slibTabs">
+        ${Object.entries(SOUND_LIBRARY).map(([key, cat], i) =>
+          `<button class="slib-tab${i===0?' active':''}" data-cat="${key}">${cat.name}</button>`
+        ).join('')}
+      </div>
+      <button class="slib-tabs-arrow right" id="slibArrowR">›</button>
     </div>
     <div class="slib-cat-info" id="slibCatInfo"></div>
     <div class="slib-grid" id="slibGrid"></div>
@@ -265,6 +274,34 @@ function initSoundLibrary() {
       renderEffects(tab.dataset.cat);
     });
   });
+
+  // ── Drag-to-scroll nas abas ───────────────────────────────
+  const tabs = document.getElementById('slibTabs');
+  let isDragging = false, startX = 0, scrollStart = 0, didDrag = false;
+
+  tabs.addEventListener('mousedown', e => {
+    isDragging = true; didDrag = false;
+    startX = e.pageX; scrollStart = tabs.scrollLeft;
+    tabs.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.pageX - startX;
+    if (Math.abs(dx) > 4) didDrag = true;
+    tabs.scrollLeft = scrollStart - dx;
+  });
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    tabs.classList.remove('dragging');
+  });
+  // Impede que clique num tab dispare quando foi arrastar
+  tabs.addEventListener('click', e => { if (didDrag) { e.stopPropagation(); didDrag = false; } }, true);
+
+  // ── Botões de seta ────────────────────────────────────────
+  const arrowL = document.getElementById('slibArrowL');
+  const arrowR = document.getElementById('slibArrowR');
+  arrowL.addEventListener('click', () => { tabs.scrollBy({ left: -200, behavior: 'smooth' }); });
+  arrowR.addEventListener('click', () => { tabs.scrollBy({ left: 200, behavior: 'smooth' }); });
 
   document.getElementById('slibDlAll').addEventListener('click', async () => {
     const btn = document.getElementById('slibDlAll');
