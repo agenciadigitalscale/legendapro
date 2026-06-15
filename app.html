@@ -128,8 +128,12 @@ select.si:focus{border-color:var(--cy);}
 .tool-row{display:flex;flex-direction:column;gap:7px;margin-bottom:11px;}
 
 /* ── FONT CHIPS ── */
-.font-row{display:flex;gap:5px;margin-top:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
-.font-row::-webkit-scrollbar{display:none;}
+.font-row-wrap{position:relative;margin-top:6px;}
+.font-row-wrap::after{content:'';position:absolute;right:0;top:0;bottom:6px;width:28px;background:linear-gradient(to right,transparent,var(--s1));pointer-events:none;border-radius:0 6px 6px 0;}
+.font-row{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;}
+.font-row::-webkit-scrollbar{height:3px;}
+.font-row::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.font-row::-webkit-scrollbar-track{background:transparent;}
 .font-chip{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--bd);background:var(--s2);color:var(--tx2);white-space:nowrap;transition:border-color .12s,color .12s,background .12s;flex-shrink:0;}
 .font-chip:hover{border-color:var(--bd2);color:var(--tx);}
 .font-chip.active{border-color:var(--cy);color:var(--cy);background:var(--cy10);}
@@ -1464,6 +1468,8 @@ function buildTexts(){
     wrapItem.appendChild(styleRow);
 
     // Fileira 4: seletor de fonte
+    const fontWrap = document.createElement('div');
+    fontWrap.className = 'font-row-wrap';
     const fontRow = document.createElement('div');
     fontRow.className = 'font-row';
 
@@ -1497,7 +1503,8 @@ function buildTexts(){
       fontRow.appendChild(chip);
     });
 
-    wrapItem.appendChild(fontRow);
+    fontWrap.appendChild(fontRow);
+    wrapItem.appendChild(fontWrap);
     wrap.appendChild(wrapItem);
   });
 }
