@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%2308090c' width='192' height='192'/><text x='96' y='120' font-size='80' font-weight='800' font-family='Anton' text-anchor='middle' fill='%2300d9ff'>LP</text></svg>">
 <title>LegendaPro — Legendas dinâmicas pra CapCut, Premiere e DaVinci</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Inter:wght@400;700;800&family=Lora:ital,wght@0,700;1,700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&family=Nunito:wght@400;700;800&family=Oswald:wght@400;700&family=Outfit:wght@400;700;800&family=Pacifico&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Poppins:wght@400;700;800&family=Raleway:wght@400;700;800&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0a0b0e; --s1:#111318; --s2:#161920; --s3:#1c2030;
@@ -126,6 +126,13 @@ select.si:focus{border-color:var(--cy);}
 .tool-btn:hover{border-color:var(--bd2);background:var(--s3);}
 .tool-btn .arr{margin-left:auto;color:var(--tx3);font-size:11px;}
 .tool-row{display:flex;flex-direction:column;gap:7px;margin-bottom:11px;}
+
+/* ── FONT CHIPS ── */
+.font-row{display:flex;gap:5px;margin-top:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.font-row::-webkit-scrollbar{display:none;}
+.font-chip{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--bd);background:var(--s2);color:var(--tx2);white-space:nowrap;transition:border-color .12s,color .12s,background .12s;flex-shrink:0;}
+.font-chip:hover{border-color:var(--bd2);color:var(--tx);}
+.font-chip.active{border-color:var(--cy);color:var(--cy);background:var(--cy10);}
 
 /* ── LOOK CHIPS ── */
 .look-chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px;}
@@ -912,6 +919,25 @@ const MODELS = [
     { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]}
 ];
 
+const FONTS = [
+  { f:'Anton',            l:'Anton' },
+  { f:'Archivo Black',    l:'Archivo' },
+  { f:'Bebas Neue',       l:'Bebas' },
+  { f:'Oswald',           l:'Oswald' },
+  { f:'Roboto Condensed', l:'Roboto C.' },
+  { f:'Montserrat',       l:'Montserrat' },
+  { f:'Poppins',          l:'Poppins' },
+  { f:'Inter',            l:'Inter' },
+  { f:'Nunito',           l:'Nunito' },
+  { f:'Outfit',           l:'Outfit' },
+  { f:'Raleway',          l:'Raleway' },
+  { f:'Playfair Display', l:'Playfair' },
+  { f:'Lora',             l:'Lora' },
+  { f:'Caveat',           l:'Caveat' },
+  { f:'Dancing Script',   l:'Dancing' },
+  { f:'Pacifico',         l:'Pacifico' },
+];
+
 const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16', bpm:0, _srtSegs:[] };
 
 function colorOf(key){
@@ -923,7 +949,8 @@ function colorOf(key){
 }
 
 function fontStr(ln, size){
-  return (ln.it ? 'italic ' : '') + (ln.w || 400) + ' ' + size + 'px "' + ln.f + '"';
+  const fam = (ln.ov && ln.ov.font) ? ln.ov.font : ln.f;
+  return (ln.it ? 'italic ' : '') + (ln.w || 400) + ' ' + size + 'px "' + fam + '"';
 }
 
 function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
@@ -1269,7 +1296,7 @@ function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
   state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
-  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null });
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null, font: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
 
@@ -1356,6 +1383,42 @@ function buildTexts(){
     sub.appendChild(gpCtrl);
 
     wrapItem.appendChild(sub);
+
+    // Fileira 3: seletor de fonte
+    const fontRow = document.createElement('div');
+    fontRow.className = 'font-row';
+
+    // Chip "Padrão" (reseta para a fonte do modelo)
+    const defChip = document.createElement('button');
+    defChip.type = 'button';
+    defChip.className = 'font-chip' + (!state.lineOv[i].font ? ' active' : '');
+    defChip.textContent = 'Padrão';
+    defChip.title = 'Usar fonte do modelo (' + ln.f + ')';
+    defChip.addEventListener('click', () => {
+      state.lineOv[i].font = null;
+      fontRow.querySelectorAll('.font-chip').forEach(c => c.classList.remove('active'));
+      defChip.classList.add('active');
+      renderPreview(); saveToLocalStorage();
+    });
+    fontRow.appendChild(defChip);
+
+    FONTS.forEach(fnt => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'font-chip' + (state.lineOv[i].font === fnt.f ? ' active' : '');
+      chip.textContent = fnt.l;
+      chip.style.fontFamily = '"' + fnt.f + '"';
+      chip.title = fnt.f;
+      chip.addEventListener('click', () => {
+        state.lineOv[i].font = fnt.f;
+        fontRow.querySelectorAll('.font-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderPreview(); saveToLocalStorage();
+      });
+      fontRow.appendChild(chip);
+    });
+
+    wrapItem.appendChild(fontRow);
     wrap.appendChild(wrapItem);
   });
 }
