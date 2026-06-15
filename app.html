@@ -621,7 +621,87 @@ const MODELS = [
   { id:'cascata1', name:'Cascata colorida', cat:'geral', anim:'slide', lines:[
     { f:'Anton', s:180, c:'c1', d:'A', gap:-40 },
     { f:'Anton', s:180, c:'c2', d:'B', gap:-40 },
-    { f:'Anton', s:180, c:'c3', d:'C', gap:12 } ]}
+    { f:'Anton', s:180, c:'c3', d:'C', gap:12 } ]},
+
+  { id:'retro2', name:'VHS Retro 90s', cat:'geral', anim:'pop', lines:[
+    { f:'Bebas Neue', s:64, c:'c2', sp:20, d:'◄◄ DE VOLTA AOS' },
+    { f:'Anton', s:195, c:'c1', sh:'c2', d:'ANOS 90', gap:-6 },
+    { f:'Montserrat', s:36, w:400, sp:12, c:'c1', d:'só quem viveu entende', gap:26 } ]},
+
+  { id:'meme1', name:'Meme clássico', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:145, c:'c1', sh:'dark', d:'QUANDO VOCÊ' },
+    { f:'Anton', s:145, c:'c2', sh:'dark', d:'DESCOBRE', gap:-14 },
+    { f:'Anton', s:145, c:'c1', sh:'dark', d:'A VERDADE', gap:-14 } ]},
+
+  { id:'citacao1', name:'Citação em destaque', cat:'editorial', anim:'typewriter', lines:[
+    { f:'Playfair Display', s:104, it:1, w:700, c:'c1', d:'a mudança' },
+    { f:'Playfair Display', s:104, it:1, w:700, c:'c2', d:'começa', gap:-14 },
+    { f:'Playfair Display', s:104, it:1, w:700, c:'c1', d:'em você', gap:-14 },
+    { rule:1, c:'c2', gap:28 },
+    { f:'Montserrat', s:36, w:400, sp:12, c:'c2', d:'— provérbio', gap:20 } ]},
+
+  { id:'passo1', name:'Tutorial passo', cat:'corp', anim:'slide', lines:[
+    { f:'Montserrat', s:40, w:800, sp:18, box:{ bg:'c2', fg:'dark' }, d:'PASSO 01' },
+    { f:'Archivo Black', s:120, c:'c1', d:'Configure', gap:20 },
+    { f:'Montserrat', s:50, it:1, w:400, c:'c1', d:'do jeito certo', gap:8 } ]},
+
+  { id:'placar1', name:'Placar / Contagem', cat:'gancho', anim:'pop', lines:[
+    { f:'Montserrat', s:50, w:700, sp:10, c:'c1', d:'JÁ SÃO' },
+    { f:'Anton', s:285, c:'c2', d:'10K', gap:-10 },
+    { f:'Montserrat', s:50, w:800, c:'c1', d:'seguidores!', gap:10 } ]},
+
+  { id:'noticia1', name:'Urgência / notícia', cat:'gancho', anim:'pop', lines:[
+    { f:'Montserrat', s:44, w:800, sp:4, box:{ bg:'c2', fg:'dark' }, d:'⚠ ATENÇÃO' },
+    { f:'Archivo Black', s:106, c:'c1', d:'ISSO MUDA', gap:28 },
+    { f:'Archivo Black', s:106, c:'c2', d:'TUDO', gap:-14 } ]},
+
+  { id:'fashion1', name:'Moda editorial', cat:'editorial', anim:'fade', lines:[
+    { f:'Montserrat', s:36, w:400, sp:30, c:'c1', d:'NOVA TEMPORADA' },
+    { f:'Playfair Display', s:155, it:1, w:800, c:'c2', d:'fashion', gap:6 },
+    { rule:1, c:'c1', gap:24 },
+    { f:'Montserrat', s:38, w:700, sp:18, c:'c1', d:'PRIMAVERA · VERÃO', gap:22 } ]},
+
+  { id:'desafio1', name:'Desafio hashtag', cat:'cta', anim:'pop', lines:[
+    { f:'Bebas Neue', s:88, c:'c2', d:'#PARTICIPE' },
+    { f:'Anton', s:165, c:'c1', d:'DO DESAFIO', gap:-8 },
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c2', fg:'dark' }, d:'MARCA UM AMIGO', gap:36 } ]},
+
+  { id:'chef1', name:'Chef premium', cat:'comida', anim:'fade', lines:[
+    { f:'Playfair Display', s:48, it:1, w:400, c:'c2', d:'receita da casa' },
+    { f:'Anton', s:160, c:'c1', d:'BACALHAU', gap:6 },
+    { rule:1, c:'c2', gap:28 },
+    { f:'Montserrat', s:42, w:400, sp:12, c:'c1', d:'por Chef Ricardo', gap:20 } ]},
+
+  { id:'resumo1', name:'Resumo / Recap', cat:'corp', anim:'slide', lines:[
+    { f:'Montserrat', s:40, w:800, sp:16, c:'c2', d:'EM RESUMO' },
+    { f:'Bebas Neue', s:148, c:'c1', d:'3 PONTOS', gap:4 },
+    { f:'Montserrat', s:52, w:400, it:1, c:'c1', d:'que você não pode esquecer', gap:14 } ]},
+
+  { id:'barra1', name:'Entre barras', cat:'editorial', anim:'fade', lines:[
+    { rule:1, c:'c2', gap:28 },
+    { f:'Montserrat', s:42, w:400, sp:20, c:'c1', d:'O FUTURO É' },
+    { f:'Archivo Black', s:148, c:'c2', d:'AGORA', gap:4 },
+    { rule:1, c:'c2', gap:28 } ]},
+
+  { id:'caixa3', name:'Box triplo', cat:'promo', anim:'pop', lines:[
+    { f:'Montserrat', s:64, w:800, box:{ bg:'c1', fg:'dark' }, rot:-2, d:'FRETE GRÁTIS' },
+    { f:'Montserrat', s:64, w:800, box:{ bg:'c2', fg:'dark' }, rot:2, d:'SEM MÍNIMO', gap:18 },
+    { f:'Montserrat', s:64, w:800, box:{ bg:'c3', fg:'dark' }, rot:-1, d:'HOJE APENAS', gap:18 } ]},
+
+  { id:'confissao1', name:'Confissão relatable', cat:'gancho', anim:'typewriter', lines:[
+    { f:'Caveat', s:130, w:700, c:'c2', rot:-3, d:'confissão:' },
+    { f:'Montserrat', s:76, w:800, c:'c1', d:'eu também', gap:-14 },
+    { f:'Montserrat', s:76, w:800, c:'c2', d:'fiz isso errado', gap:-6 } ]},
+
+  { id:'motivacao1', name:'Motivacional', cat:'gancho', anim:'pop', lines:[
+    { f:'Bebas Neue', s:92, c:'c1', sp:8, d:'VOCÊ É CAPAZ' },
+    { f:'Anton', s:240, c:'c2', d:'DE MAIS', gap:-16 },
+    { f:'Bebas Neue', s:92, c:'c1', sp:8, d:'DO QUE IMAGINA', gap:-16 } ]},
+
+  { id:'produto1', name:'Produto em destaque', cat:'promo', anim:'slide', lines:[
+    { f:'Montserrat', s:44, w:400, sp:14, c:'c1', d:'conheça o novo' },
+    { f:'Archivo Black', s:140, c:'c2', d:'PRODUTO', gap:8 },
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c1', fg:'dark' }, d:'SAIBA MAIS ↓', gap:40 } ]}
 ];
 
 const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16' };

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bem-vindo ao LegendaPro Pro!</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --cy:#00d9ff; --mint:#00ffa3; --bg:#08090c; --card:#101216; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Montserrat',sans-serif; background:var(--bg); color:#eef1f4; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .glow { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; opacity:.14; }
+  .glow-1 { width:500px;height:500px;background:var(--cy);top:-160px;right:-120px; }
+  .glow-2 { width:400px;height:400px;background:#2563eb;bottom:-160px;left:-120px; }
+  .wrap { max-width:520px; width:100%; position:relative; z-index:1; }
+
+  .badge {
+    width:80px; height:80px; margin:0 auto 24px;
+    background:linear-gradient(135deg,var(--cy),var(--mint));
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:38px;
+    box-shadow:0 0 40px rgba(0,217,255,.35);
+    animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+
+  h1 { font-family:'Archivo Black',sans-serif; font-size:clamp(26px,5vw,36px); text-align:center; margin-bottom:8px; }
+  h1 span { background:linear-gradient(90deg,var(--cy),var(--mint)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { text-align:center; color:#8a93a0; font-size:15px; margin-bottom:40px; }
+
+  .steps { display:flex; flex-direction:column; gap:14px; margin-bottom:36px; }
+  .step {
+    display:flex; gap:18px; align-items:flex-start;
+    background:var(--card); border:1px solid #1d2228; border-radius:16px; padding:20px 22px;
+    opacity:0; transform:translateY(20px);
+    animation:slideUp .4s ease forwards;
+  }
+  .step:nth-child(1){ animation-delay:.1s; }
+  .step:nth-child(2){ animation-delay:.2s; }
+  .step:nth-child(3){ animation-delay:.3s; }
+  @keyframes slideUp { to{opacity:1;transform:translateY(0)} }
+
+  .step-n {
+    min-width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg,var(--cy),var(--mint));
+    color:#04151c; font-weight:800; font-size:18px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .step-body h3 { font-size:15px; font-weight:800; margin-bottom:4px; }
+  .step-body p { font-size:13px; color:#8a93a0; line-height:1.6; }
+  .step-body code {
+    display:inline-block; background:#13161c; border:1px solid #2a2f38;
+    border-radius:6px; padding:2px 8px; font-size:12px; color:var(--cy);
+    font-family:monospace; margin-top:6px;
+  }
+
+  .cta {
+    display:block; width:100%; text-align:center; text-decoration:none;
+    background:linear-gradient(90deg,var(--cy),var(--mint)); color:#04151c;
+    font-weight:800; font-size:17px; padding:18px 32px; border-radius:14px;
+    transition:transform .15s, box-shadow .2s;
+    animation:slideUp .4s .5s ease forwards; opacity:0;
+  }
+  .cta:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(0,217,255,.35); }
+
+  .tip {
+    margin-top:20px; padding:14px 18px;
+    background:#0d0f13; border:1px solid #1d2228; border-radius:12px;
+    font-size:13px; color:#6f7482; line-height:1.7; text-align:center;
+    animation:slideUp .4s .6s ease forwards; opacity:0;
+  }
+  .tip strong { color:#eef1f4; }
+
+  .logo { text-align:center; font-size:18px; font-weight:800; margin-bottom:32px; }
+  .logo span { background:linear-gradient(90deg,var(--cy),var(--mint)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+</style>
+</head>
+<body>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="wrap">
+  <div class="logo">Legenda<span>Pro</span></div>
+
+  <div class="badge">✓</div>
+  <h1>Bem-vindo ao <span>Pro!</span></h1>
+  <p class="sub">Seu acesso está ativo. Siga os 3 passos abaixo e crie sua primeira legenda em menos de 2 minutos.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <h3>Escolha um modelo</h3>
+        <p>São <strong>80+ modelos</strong> organizados por categoria — gancho, editorial, promo, restaurante e mais. Clique em qualquer um pra ver o preview ao vivo.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <h3>Digite o texto de cada linha</h3>
+        <p>Cada modelo tem de 2 a 5 linhas. Edite o texto, ajuste cores e animação. Ou use a <strong>transcrição automática por IA</strong> — sobe o áudio e as linhas são preenchidas sozinhas.</p>
+        <code>🎤 Seção "Transcrever Áudio" no app</code>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <h3>Exporte e arraste pro editor</h3>
+        <p><strong>CapCut:</strong> exporte WebM com transparência — arraste direto na timeline.<br>
+        <strong>Premiere / DaVinci:</strong> exporte MP4 com fundo verde — aplique chroma key.<br>
+        Ou baixe a <strong>sequência PNG</strong> pra máximo controle.</p>
+      </div>
+    </div>
+  </div>
+
+  <a class="cta" href="app.html">Abrir o LegendaPro →</a>
+
+  <p class="tip">
+    <strong>Dica bônus:</strong> a seção <strong>🎵 Efeitos Sonoros</strong> tem 80+ sons em WAV pra baixar e sincronizar com a legenda no editor. Preview na hora, tudo gerado no navegador — sem precisar de plugin.
+  </p>
+</div>
+</body>
+</html>
