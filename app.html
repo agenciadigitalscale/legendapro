@@ -169,6 +169,12 @@ select.si:focus{border-color:var(--cy);}
 .sfx-bar-lbl{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--tx3);}
 .sfx-bar-name{font-weight:700;color:var(--cy);flex:1;}
 .sfx-clr{font-size:10px;background:transparent;border:1px solid var(--bd2);color:var(--tx3);border-radius:4px;padding:2px 7px;cursor:pointer;font-family:inherit;}
+.sfx-line-row{display:flex;gap:5px;margin-top:4px;align-items:center;}
+.sfx-line-sel{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx2);font-family:inherit;font-size:10px;padding:5px 7px;outline:none;cursor:pointer;min-width:0;}
+.sfx-line-sel:focus{border-color:var(--cy);}
+.sfx-line-sel.has-sfx{border-color:rgba(0,217,255,.5);color:var(--cy);}
+.sfx-line-play{flex:0 0 26px;height:26px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;cursor:pointer;font-size:11px;color:var(--tx3);}
+.sfx-line-play:hover{border-color:var(--cy);color:var(--cy);}
 
 /* ── EXPORT ── */
 .exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
@@ -540,7 +546,8 @@ const CATS = [
   ['comida', 'Restaurantes'],
   ['corp', 'Empresas & indústria'],
   ['cta', 'CTA & engajamento'],
-  ['motion', '✨ Motion Design']
+  ['motion', '✨ Motion Design'],
+  ['capcut', '🎬 Estilo CapCut']
 ];
 const MODELS = [
   { id:'mix', name:'Mix clássico', cat:'geral', anim:'fade', lines:[
@@ -929,7 +936,89 @@ const MODELS = [
   { id:'grd-ocean', name:'Degradê Oceano', cat:'motion', anim:'fade', lines:[
     { f:'Montserrat', s:42, w:400, sp:20, c:'c1', d:'PROFUNDIDADE' },
     { f:'Bebas Neue', s:158, grd:['#0072ff','#00d9ff','#00ffa3'], grdDir:'v', d:'OCEANO', gap:4 },
-    { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]}
+    { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]},
+
+  // ── ESTILO CAPCUT ────────────────────────────────────────────────────────────
+  { id:'cc-chapter', name:'Capítulo / Série', cat:'capcut', anim:'pop', lines:[
+    { f:'Montserrat', s:46, w:800, sp:8, box:{ bg:'c2', fg:'dark' }, d:'CAPÍTULO 01' },
+    { f:'Bebas Neue', s:215, c:'c1', d:'INÍCIO', gap:20 },
+    { f:'Montserrat', s:40, w:400, sp:12, c:'c1', d:'começa aqui', gap:12 } ]},
+
+  { id:'cc-vlog', name:'Day in my Life', cat:'capcut', anim:'typewriter', lines:[
+    { f:'Montserrat', s:46, w:400, sp:18, c:'c1', d:'dia na' },
+    { f:'Caveat', s:200, w:700, c:'c2', rot:-4, d:'minha vida', gap:-16 },
+    { f:'Montserrat', s:42, w:800, c:'c1', d:'começa AGORA', gap:16 } ]},
+
+  { id:'cc-travel', name:'Destino / Travel', cat:'capcut', anim:'slide', lines:[
+    { f:'Montserrat', s:34, w:400, sp:24, c:'c2', d:'DESTINO' },
+    { f:'Playfair Display', s:168, it:1, w:800, c:'c1', d:'São Paulo', gap:4 },
+    { rule:1, c:'c1', gap:18 },
+    { f:'Montserrat', s:34, w:400, sp:14, c:'c1', d:'BRASIL · 2025', gap:16 } ]},
+
+  { id:'cc-lowerthird', name:'Lower Third / Nome', cat:'capcut', anim:'reveal', lines:[
+    { rule:1, c:'c2', gap:18 },
+    { f:'Bebas Neue', s:135, c:'c1', sp:4, d:'KAIQUE SENA', gap:6 },
+    { f:'Montserrat', s:40, w:400, sp:20, c:'c2', d:'CRIADOR DE CONTEÚDO', gap:8 },
+    { rule:1, c:'c2', gap:14 } ]},
+
+  { id:'cc-sport', name:'Workout / Sport', cat:'capcut', anim:'pop', lines:[
+    { f:'Archivo Black', s:195, c:'c1', d:'TREINO' },
+    { f:'Archivo Black', s:195, c:'c2', d:'DO DIA', gap:-32 },
+    { f:'Montserrat', s:42, w:700, sp:10, c:'c1', d:'no pain no gain', gap:18 } ]},
+
+  { id:'cc-routine', name:'Rotina / Tutorial', cat:'capcut', anim:'fade', lines:[
+    { f:'Montserrat', s:38, w:400, sp:18, c:'c2', d:'minha rotina de' },
+    { f:'Playfair Display', s:178, it:1, w:800, c:'c1', d:'beleza', gap:4 },
+    { f:'Montserrat', s:40, w:800, c:'c1', d:'revelada ✨', gap:18 } ]},
+
+  { id:'cc-hookbox', name:'Hook em destaque', cat:'capcut', anim:'pop', lines:[
+    { f:'Montserrat', s:62, w:800, box:{ bg:'c2', fg:'dark' }, rot:-2, d:'O SEGREDO QUE' },
+    { f:'Montserrat', s:62, w:800, box:{ bg:'c1', fg:'dark' }, rot:1, d:'NINGUÉM TE CONTA', gap:14 } ]},
+
+  { id:'cc-hello', name:'Saudação / Data', cat:'capcut', anim:'typewriter', lines:[
+    { f:'Caveat', s:148, w:700, c:'c2', rot:-4, d:'olá,' },
+    { f:'Bebas Neue', s:200, c:'c1', sp:2, d:'SEGUNDA', gap:-22 },
+    { f:'Montserrat', s:44, w:800, c:'c1', d:'bora lá! ☀️', gap:16 } ]},
+
+  { id:'cc-outdoor', name:'Outdoor / Aventura', cat:'capcut', anim:'pop', lines:[
+    { f:'Archivo Black', s:240, c:'c1', d:'REAL' },
+    { f:'Playfair Display', s:108, it:1, w:700, c:'c2', d:'adventure', gap:-36 } ]},
+
+  { id:'cc-modern', name:'Modern Titles', cat:'capcut', anim:'reveal', lines:[
+    { rule:1, c:'c2', gap:22 },
+    { f:'Montserrat', s:112, w:800, c:'c1', d:'O NOVO', gap:14 },
+    { rule:1, c:'c2', gap:20 } ]},
+
+  { id:'cc-unbreak', name:'Palavra Épica', cat:'capcut', anim:'pop', lines:[
+    { f:'Bebas Neue', s:88, c:'c2', sp:16, d:'ABSOLUTAMENTE' },
+    { f:'Anton', s:285, c:'c1', sh:'c2', d:'NADA', gap:-16 },
+    { f:'Bebas Neue', s:68, w:400, sp:22, c:'c1', d:'vai te parar', gap:12 } ]},
+
+  { id:'cc-podcast', name:'Podcast / Creator Card', cat:'capcut', anim:'slide', lines:[
+    { f:'Montserrat', s:36, w:400, sp:22, c:'c2', d:'EPISÓDIO 01' },
+    { f:'Bebas Neue', s:148, c:'c1', sp:3, d:'KAIQUE SENA', gap:4 },
+    { f:'Montserrat', s:44, w:700, box:{ bg:'c2', fg:'dark' }, d:'EDITOR DE VÍDEO', gap:30 } ]},
+
+  { id:'cc-secret', name:'Secret Hook Box', cat:'capcut', anim:'pop', lines:[
+    { f:'Montserrat', s:48, w:800, sp:4, box:{ bg:'c1', fg:'dark' }, d:'🔑 SECRET HOOKS' },
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c2', fg:'dark' }, d:'YOU SHOULD TRY', gap:14 } ]},
+
+  { id:'cc-editorial', name:'Editorial Clean', cat:'capcut', anim:'fade', lines:[
+    { f:'Montserrat', s:32, w:400, sp:30, c:'c2', d:'NOVA TEMPORADA' },
+    { rule:1, c:'c2', gap:20 },
+    { f:'Playfair Display', s:155, it:1, w:800, c:'c1', d:'fashion', gap:6 },
+    { rule:1, c:'c1', gap:22 },
+    { f:'Montserrat', s:32, w:700, sp:18, c:'c1', d:'PRIMAVERA · VERÃO', gap:20 } ]},
+
+  { id:'cc-numero', name:'Número Grande + Data', cat:'capcut', anim:'pop', lines:[
+    { f:'Anton', s:340, c:'c1', d:'03', gap:-30 },
+    { f:'Bebas Neue', s:105, c:'c2', sp:12, d:'MARÇO', gap:-22 },
+    { f:'Montserrat', s:36, w:400, sp:16, c:'c1', d:'acompanha o diário', gap:14 } ]},
+
+  { id:'cc-makeup', name:'Makeup / Beauty', cat:'capcut', anim:'fade', lines:[
+    { f:'Playfair Display', s:56, it:1, w:400, c:'c2', d:'tutorial de' },
+    { f:'Archivo Black', s:160, c:'c1', d:'MAKEUP', gap:4 },
+    { f:'Caveat', s:95, w:700, c:'c2', rot:-3, d:'pra iniciantes', gap:8 } ]}
 ];
 
 const FONTS = [
@@ -952,6 +1041,17 @@ const FONTS = [
 ];
 
 const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16', bpm:0, _srtSegs:[] };
+
+function sfxNameFor(id){
+  if (!id || !window.SOUND_LIBRARY) return id || '';
+  for (const cat of Object.values(window.SOUND_LIBRARY)){
+    const eff = cat.effects.find(e => e.id === id);
+    if (eff) return eff.name;
+  }
+  return id;
+}
+
+let _sfxTimers = [];
 
 function colorOf(key){
   if (key === 'c1') return state.c1;
@@ -1250,8 +1350,27 @@ let playRaf = null;
 function playAnim(targetCtx, bg, onDone, holdMs){
   if (playRaf) cancelAnimationFrame(playRaf);
   _stopBeatLoop();
+  _sfxTimers.forEach(clearTimeout); _sfxTimers = [];
   const dur = 1400, hold = holdMs || 0;
   const start = performance.now();
+
+  // Dispara SFX de cada linha no momento em que ela entra na animação
+  if (targetCtx === pctx && state.anim !== 'none'){
+    const visLines = state.model.lines
+      .map((ln, i) => ({ ln, i }))
+      .filter(({ ln, i }) => !(state.lineOv[i] && state.lineOv[i].hide));
+    const nVis = visLines.length;
+    const stag = 0.18;
+    visLines.forEach(({ ln, i }, vi) => {
+      if (ln.rule) return;
+      const sfxId = state.lineOv[i] && state.lineOv[i].sfx;
+      if (!sfxId) return;
+      const tAppear = nVis > 1 ? vi * stag / (1 + (nVis - 1) * stag) : 0;
+      const delay = Math.max(40, Math.round(tAppear * dur) + 40);
+      _sfxTimers.push(setTimeout(() => { if (typeof playSound !== 'undefined') playSound(sfxId); }, delay));
+    });
+  }
+
   function tick(now){
     const el = now - start;
     const t = Math.min(el / dur, 1);
@@ -1349,7 +1468,7 @@ function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
   state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
-  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null, font: null, it: null, bold: null, u: null });
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null, font: null, it: null, bold: null, u: null, sfx: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
 
@@ -1507,6 +1626,41 @@ function buildTexts(){
 
     fontWrap.appendChild(fontRow);
     wrapItem.appendChild(fontWrap);
+
+    // SFX por linha
+    const sfxRow = document.createElement('div');
+    sfxRow.className = 'sfx-line-row';
+    const sfxSel = document.createElement('select');
+    sfxSel.className = 'sfx-line-sel' + (state.lineOv[i].sfx ? ' has-sfx' : '');
+    sfxSel.title = 'SFX desta linha — toca quando ela aparece na animação';
+    const optNone = document.createElement('option');
+    optNone.value = ''; optNone.textContent = '🔇 Sem SFX nesta linha';
+    sfxSel.appendChild(optNone);
+    if (window.SOUND_LIBRARY){
+      Object.values(window.SOUND_LIBRARY).forEach(cat => {
+        const grp = document.createElement('optgroup');
+        grp.label = cat.name;
+        cat.effects.forEach(eff => {
+          const o = document.createElement('option');
+          o.value = eff.id; o.textContent = eff.name;
+          grp.appendChild(o);
+        });
+        sfxSel.appendChild(grp);
+      });
+    }
+    sfxSel.value = state.lineOv[i].sfx || '';
+    sfxSel.addEventListener('change', () => {
+      state.lineOv[i].sfx = sfxSel.value || null;
+      sfxSel.classList.toggle('has-sfx', !!state.lineOv[i].sfx);
+      saveToLocalStorage();
+    });
+    const sfxPv = document.createElement('button');
+    sfxPv.type = 'button'; sfxPv.className = 'sfx-line-play';
+    sfxPv.textContent = '▶'; sfxPv.title = 'Preview do SFX';
+    sfxPv.addEventListener('click', () => { if (sfxSel.value && typeof playSound !== 'undefined') playSound(sfxSel.value); });
+    sfxRow.appendChild(sfxSel); sfxRow.appendChild(sfxPv);
+    wrapItem.appendChild(sfxRow);
+
     wrap.appendChild(wrapItem);
   });
 }
@@ -1619,7 +1773,7 @@ function exportVideo(kind, btnId){
   const c = document.createElement('canvas');
   c.width = F[0]; c.height = F[1];
   const cctx = c.getContext('2d');
-  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8000000 });
+  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
   const chunks = [];
   rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
   rec.onstop = () => {
@@ -2039,7 +2193,7 @@ function _recordSegment(bg, texts, durationMs, mime){
     const c = document.createElement('canvas');
     c.width = F[0]; c.height = F[1];
     const cctx = c.getContext('2d');
-    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8000000 });
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
     const chunks = [];
     rec.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
     rec.onstop = () => resolve(new Blob(chunks, { type: mime.split(';')[0] }));
