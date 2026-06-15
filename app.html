@@ -206,6 +206,7 @@
 
     <div class="section">
       <h2>Texto</h2>
+      <p style="font-size:11px;color:#4a505c;margin-bottom:10px;">Use <code style="background:#16181d;border:1px solid #2a2f38;border-radius:4px;padding:1px 6px;color:#00d9ff;">*palavra*</code> pra destacar em ciano · <code style="background:#16181d;border:1px solid #2a2f38;border-radius:4px;padding:1px 6px;color:#00ffa3;">~palavra~</code> em verde · 🎨 = cor da linha · duplo clique = resetar</p>
       <div class="texts" id="texts"></div>
     </div>
 
@@ -270,12 +271,12 @@
       <!-- Chave API -->
       <div style="margin-bottom:12px;">
         <div style="display:flex;gap:6px;align-items:center;">
-          <input type="password" id="transcribeApiKey" placeholder="Cole sua chave API aqui (sk-ant-... ou sk-...)"
+          <input type="password" id="transcribeApiKey" placeholder="Cole sua chave OpenAI aqui (sk-...)"
             style="flex:1;background:#13161c;border:1px solid #2a2f38;border-radius:8px;color:#eef1f4;font-family:inherit;font-size:12px;padding:9px 12px;outline:none;">
           <button onclick="(function(){var k=document.getElementById('transcribeApiKey').value.trim();if(k){localStorage.setItem('lp_api_key',k);document.getElementById('transcribeMsg').textContent='✓ Chave salva';document.getElementById('transcribeApiKey').value='';document.getElementById('transcribeKeyHint').textContent='Chave salva ✓';}})();"
             style="background:#1e2228;border:1px solid #2a2f38;color:#00d9ff;font-family:inherit;font-size:12px;font-weight:700;border-radius:8px;padding:9px 14px;cursor:pointer;white-space:nowrap;">Salvar</button>
         </div>
-        <p id="transcribeKeyHint" style="font-size:11px;color:#4a505c;margin-top:5px;">Anthropic (sk-ant-...) ou OpenAI (sk-...). Salva só no seu navegador, nunca enviada a nós.</p>
+        <p id="transcribeKeyHint" style="font-size:11px;color:#4a505c;margin-top:5px;">Chave OpenAI (Whisper). Crie em <strong style="color:#6f7482;">platform.openai.com</strong> → API Keys. Salva só no seu browser, nunca enviada a nós.</p>
       </div>
 
       <div class="row" style="flex-direction:column;gap:10px;">
@@ -385,7 +386,8 @@ const CATS = [
   ['promo', 'Promoção & varejo'],
   ['comida', 'Restaurantes'],
   ['corp', 'Empresas & indústria'],
-  ['cta', 'CTA & engajamento']
+  ['cta', 'CTA & engajamento'],
+  ['motion', '✨ Motion Design']
 ];
 const MODELS = [
   { id:'mix', name:'Mix clássico', cat:'geral', anim:'fade', lines:[
@@ -713,7 +715,68 @@ const MODELS = [
   { id:'produto1', name:'Produto em destaque', cat:'promo', anim:'slide', lines:[
     { f:'Montserrat', s:44, w:400, sp:14, c:'c1', d:'conheça o novo' },
     { f:'Archivo Black', s:140, c:'c2', d:'PRODUTO', gap:8 },
-    { f:'Montserrat', s:48, w:800, box:{ bg:'c1', fg:'dark' }, d:'SAIBA MAIS ↓', gap:40 } ]}
+    { f:'Montserrat', s:48, w:800, box:{ bg:'c1', fg:'dark' }, d:'SAIBA MAIS ↓', gap:40 } ]},
+
+  // ── MOTION DESIGN ────────────────────────────────────────────────────────────
+  { id:'grd-fire', name:'Degradê Fogo', cat:'motion', anim:'pop', lines:[
+    { f:'Anton', s:60, c:'c1', sp:14, d:'É AGORA OU NUNCA' },
+    { f:'Bebas Neue', s:200, grd:['#ff6b00','#ffcc00','#ff2200'], grdDir:'v', d:'AGORA', gap:-8 },
+    { f:'Montserrat', s:50, w:800, c:'c1', d:'não perde isso', gap:16 } ]},
+
+  { id:'grd-galaxy', name:'Degradê Galáxia', cat:'motion', anim:'fade', lines:[
+    { f:'Montserrat', s:42, w:400, sp:20, c:'c1', d:'O UNIVERSO DE' },
+    { f:'Archivo Black', s:145, grd:['#a855f7','#00d9ff','#00ffa3'], grdDir:'d', d:'POSSIBILIDADES', gap:8 },
+    { rule:1, c:'c2', gap:28 } ]},
+
+  { id:'grd-gold', name:'Degradê Ouro', cat:'motion', anim:'pop', lines:[
+    { f:'Montserrat', s:46, w:400, sp:18, c:'c1', d:'EXCLUSIVO' },
+    { f:'Anton', s:185, grd:['#f5d020','#f0c040','#c8a000','#f5d020'], grdDir:'h', d:'PREMIUM', gap:6 },
+    { f:'Montserrat', s:44, w:400, sp:14, c:'c1', d:'seleto para poucos', gap:22 } ]},
+
+  { id:'grd-neon-h', name:'Degradê Neon', cat:'motion', anim:'pop', lines:[
+    { f:'Bebas Neue', s:90, c:'c1', sp:10, d:'SEM FILTRO' },
+    { f:'Anton', s:175, grd:['#00d9ff','#a855f7','#ff2d78'], grdDir:'h', d:'VERDADE', gap:-4 },
+    { f:'Montserrat', s:46, it:1, w:400, c:'c1', d:'que ninguém te conta', gap:22 } ]},
+
+  { id:'neon-glow1', name:'Neon Glow Ciano', cat:'motion', anim:'pop', lines:[
+    { f:'Bebas Neue', s:78, c:'c1', sp:12, d:'PRESTA ATENÇÃO' },
+    { f:'Anton', s:188, c:'c2', neon:3, d:'AQUI', gap:-6 },
+    { f:'Montserrat', s:48, w:800, c:'c1', d:'isso vai mudar tudo', gap:22 } ]},
+
+  { id:'neon-glow2', name:'Neon Glow Roxo', cat:'motion', anim:'fade', lines:[
+    { f:'Montserrat', s:44, w:400, sp:18, c:'c1', d:'MOTION DESIGN' },
+    { f:'Archivo Black', s:152, c:'c1', neon:4, d:'VIRAL', gap:6 },
+    { f:'Bebas Neue', s:70, c:'c2', sp:8, d:'no seu vídeo', gap:18 } ]},
+
+  { id:'ext-3d1', name:'3D Extrude Branco', cat:'motion', anim:'pop', lines:[
+    { f:'Bebas Neue', s:70, c:'c1', sp:8, d:'OLHA ISSO' },
+    { f:'Anton', s:205, c:'c1', ext:8, extC:'c2', d:'3D', gap:-10 },
+    { f:'Montserrat', s:50, w:800, box:{ bg:'c2', fg:'dark' }, d:'NO CAPCUT', gap:36 } ]},
+
+  { id:'ext-3d2', name:'3D Extrude Ciano', cat:'motion', anim:'pop', lines:[
+    { f:'Montserrat', s:40, w:400, sp:22, c:'c1', d:'EXPERIÊNCIA' },
+    { f:'Bebas Neue', s:188, c:'c2', ext:10, extC:'c1', d:'PRO', gap:4 },
+    { f:'Montserrat', s:52, w:800, c:'c1', d:'de verdade', gap:16 } ]},
+
+  { id:'glitch1', name:'Glitch RGB', cat:'motion', anim:'pop', lines:[
+    { f:'Bebas Neue', s:70, c:'c1', sp:12, d:'REALIDADE' },
+    { f:'Anton', s:186, c:'c1', glitch:1, d:'CHOCANTE', gap:-6 },
+    { f:'Montserrat', s:46, w:800, c:'c1', d:'você precisa ver isso', gap:22 } ]},
+
+  { id:'glitch2', name:'Glitch Minimal', cat:'motion', anim:'pop', lines:[
+    { f:'Montserrat', s:52, w:800, c:'c2', glitch:1, d:'ERRO 404' },
+    { f:'Anton', s:166, c:'c1', d:'VERDADE', gap:10 },
+    { f:'Montserrat', s:42, w:400, sp:14, c:'c1', d:'não encontrada', gap:16 } ]},
+
+  { id:'grd-sunset', name:'Degradê Pôr do Sol', cat:'motion', anim:'fade', lines:[
+    { f:'Playfair Display', s:54, it:1, w:700, c:'c1', d:'fim de tarde' },
+    { f:'Archivo Black', s:140, grd:['#ff6b35','#f7931e','#ffcd3c'], grdDir:'v', d:'DOURADO', gap:6 },
+    { rule:1, c:'c2', gap:24 } ]},
+
+  { id:'grd-ocean', name:'Degradê Oceano', cat:'motion', anim:'fade', lines:[
+    { f:'Montserrat', s:42, w:400, sp:20, c:'c1', d:'PROFUNDIDADE' },
+    { f:'Bebas Neue', s:158, grd:['#0072ff','#00d9ff','#00ffa3'], grdDir:'v', d:'OCEANO', gap:4 },
+    { f:'Montserrat', s:40, it:1, w:400, c:'c1', d:'sem limites', gap:20 } ]}
 ];
 
 const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16' };
@@ -732,6 +795,64 @@ function fontStr(ln, size){
 
 function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
 function easeOutBack(t){ const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
+
+// ── MOTION DESIGN EFFECTS ────────────────────────────────────────────────────
+
+// Cria gradiente de texto para um conjunto de cores
+function _makeGrd(ctx, txt, size, colors, dir){
+  const m = ctx.measureText(txt);
+  const w = m.width, h = size;
+  let g;
+  if(dir==='v')      g = ctx.createLinearGradient(0,-h/2,0,h/2);
+  else if(dir==='d') g = ctx.createLinearGradient(-w/2,-h/2,w/2,h/2);
+  else               g = ctx.createLinearGradient(-w/2,0,w/2,0);
+  colors.forEach((c,i) => g.addColorStop(i/(colors.length-1), c));
+  return g;
+}
+
+// Renderiza neon glow (múltiplas camadas de sombra)
+function _applyNeon(ctx, txt, glowColor, size, layers){
+  const steps = layers || 3;
+  for(let i=steps;i>0;i--){
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur  = (size * 0.4) * (i/steps);
+    ctx.fillText(txt, 0, 0);
+  }
+  ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+}
+
+// Renderiza extrusão 3D (fake depth)
+function _drawExt(ctx, txt, col, extCol, depth, yOff){
+  for(let i=depth;i>0;i--){
+    ctx.fillStyle = extCol;
+    ctx.fillText(txt, i*0.7, yOff + i*0.7);
+  }
+  ctx.fillStyle = col;
+  ctx.fillText(txt, 0, yOff);
+}
+
+// Efeito glitch RGB split
+function _drawGlitch(ctx, txt, col, size, yOff){
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.fillStyle = '#ff003c'; ctx.fillText(txt, -size*0.03, yOff);
+  ctx.fillStyle = '#00ffff'; ctx.fillText(txt,  size*0.03, yOff);
+  ctx.restore();
+  ctx.fillStyle = col; ctx.fillText(txt, 0, yOff);
+}
+
+// Destaque de palavras: *texto* = c2 (ciano), ~texto~ = c3 (verde)
+function _parseHL(txt){
+  const segs=[]; const re=/(\*([^*]+)\*|~([^~]+)~)/g;
+  let last=0, m;
+  while((m=re.exec(txt))!==null){
+    if(m.index>last) segs.push({t:txt.slice(last,m.index),hi:0});
+    segs.push(m[2]?{t:m[2],hi:1}:{t:m[3],hi:2});
+    last=m.index+m[0].length;
+  }
+  if(last<txt.length) segs.push({t:txt.slice(last),hi:0});
+  return segs.length?segs:[{t:txt,hi:0}];
+}
 
 function drawFrame(ctx, t, bg, model, texts, opts){
   const F = FORMATS[opts.fmt] || FORMATS['9x16'];
@@ -792,6 +913,8 @@ function drawFrame(ctx, t, bg, model, texts, opts){
       ctx.shadowColor = 'rgba(0,0,0,0.55)';
       ctx.shadowBlur = size * 0.18;
     }
+    // Cor de linha: override do lineOv ou cor do modelo
+    const lineCol = (ln.ov && ln.ov.c) ? ln.ov.c : colorOf(ln.c);
 
     if (ln.box){
       const m = ctx.measureText(txt);
@@ -806,22 +929,54 @@ function drawFrame(ctx, t, bg, model, texts, opts){
       ctx.fillText(txt, 0, size * 0.04);
     } else if (ln.stroke){
       ctx.lineWidth = Math.max(2, size * 0.04);
-      ctx.strokeStyle = colorOf(ln.c);
+      ctx.strokeStyle = lineCol;
       ctx.strokeText(txt, 0, 0);
     } else {
-      if (ln.sh){
-        ctx.fillStyle = colorOf(ln.sh);
-        ctx.fillText(txt, size * 0.05, size * 0.05);
-      }
-      ctx.fillStyle = colorOf(ln.c);
-      ctx.fillText(txt, 0, 0);
-      if (ln.st){
-        const m = ctx.measureText(txt);
-        ctx.fillRect(-m.width / 2 - size * 0.06, -size * 0.05, m.width + size * 0.12, size * 0.09);
-      }
-      if (ln.u){
-        const m = ctx.measureText(txt);
-        ctx.fillRect(-m.width / 2, size * 0.52, m.width, size * 0.08);
+      const segs = _parseHL(txt);
+      const hasHL = segs.some(s => s.hi > 0);
+
+      // ── Motion Design Effects ──
+      if (ln.ext){
+        // 3D Extrusion
+        const extCol = ln.extC ? colorOf(ln.extC) : '#111';
+        _drawExt(ctx, txt, lineCol, extCol, Math.round(ln.ext*sc), size*0.04);
+      } else if (ln.glitch){
+        // Glitch RGB Split
+        _drawGlitch(ctx, txt, lineCol, size, size*0.04);
+      } else if (ln.grd){
+        // Degradê de cores
+        const grdColors = ln.grd.map(c => colorOf(c));
+        const dir = ln.grdDir || 'h';
+        if (ln.neon){ _applyNeon(ctx, txt, grdColors[0], size, ln.neon); }
+        ctx.fillStyle = _makeGrd(ctx, txt, size, grdColors, dir);
+        ctx.fillText(txt, 0, size*0.04);
+      } else if (ln.neon){
+        // Neon Glow
+        const neonCol = (ln.ov && ln.ov.c) ? ln.ov.c : colorOf(ln.c || 'c2');
+        _applyNeon(ctx, txt, neonCol, size, ln.neon);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(txt, 0, size*0.04);
+      } else if (!hasHL){
+        // Renderização normal
+        if (ln.sh){ ctx.fillStyle = colorOf(ln.sh); ctx.fillText(txt, size*0.05, size*0.05); }
+        ctx.fillStyle = lineCol;
+        ctx.fillText(txt, 0, 0);
+        if (ln.st){ const m = ctx.measureText(txt); ctx.fillRect(-m.width/2 - size*0.06, -size*0.05, m.width + size*0.12, size*0.09); }
+        if (ln.u){ const m = ctx.measureText(txt); ctx.fillRect(-m.width/2, size*0.52, m.width, size*0.08); }
+      } else {
+        // Palavra por palavra com highlight (*texto* = ciano, ~texto~ = verde)
+        let totalW = 0;
+        segs.forEach(s => { totalW += ctx.measureText(s.t).width; });
+        let x = -totalW / 2;
+        ctx.textAlign = 'left';
+        segs.forEach(s => {
+          const col = s.hi===1 ? colorOf('c2') : s.hi===2 ? colorOf('c3') : lineCol;
+          if (ln.sh){ ctx.fillStyle = colorOf(ln.sh); ctx.fillText(s.t, x+size*0.05, size*0.05); }
+          ctx.fillStyle = col;
+          ctx.fillText(s.t, x, 0);
+          x += ctx.measureText(s.t).width;
+        });
+        ctx.textAlign = 'center';
       }
     }
     ctx.restore();
@@ -895,7 +1050,7 @@ function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
   state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
-  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null });
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
     const row = document.createElement('div');
@@ -931,6 +1086,16 @@ function buildTexts(){
       renderPreview();
     });
     row.appendChild(eye);
+    // Color picker por linha
+    const cp = document.createElement('input');
+    cp.type = 'color';
+    cp.title = 'Cor desta linha — substitui a cor do modelo';
+    cp.value = state.lineOv[i].c || colorOf(ln.c);
+    cp.style.cssText = 'width:28px;height:28px;border-radius:6px;background:#1c1c1f;cursor:pointer;padding:2px;border:1px solid #2e2e35;flex-shrink:0;';
+    cp.addEventListener('input', () => { state.lineOv[i].c = cp.value; renderPreview(); saveToLocalStorage(); });
+    cp.addEventListener('dblclick', () => { state.lineOv[i].c = null; cp.value = colorOf(ln.c); renderPreview(); saveToLocalStorage(); });
+    cp.title = 'Cor da linha (duplo clique = resetar)';
+    row.appendChild(cp);
     wrap.appendChild(row);
   });
 }
@@ -1331,28 +1496,8 @@ if ('serviceWorker' in navigator) {
   }
 
   async function _transcribeAnthropic(file, apiKey) {
-    const b64 = await _toBase64(file);
-    const mt = file.type || 'audio/mpeg';
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 4096,
-        messages: [{ role: 'user', content: [
-          { type: 'document', source: { type: 'base64', media_type: mt, data: b64 } },
-          { type: 'text', text: 'Transcreva exatamente o que é dito neste áudio em português brasileiro. Retorne APENAS o texto transcrito, sem explicações, sem introdução, sem pontuação desnecessária.' }
-        ]}]
-      })
-    });
-    if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
-    const d = await r.json();
-    return d.content[0].text;
+    // Anthropic não suporta áudio diretamente — converte via Whisper com chave OpenAI
+    throw new Error('A API da Anthropic não suporta transcrição de áudio. Para transcrever, use uma chave OpenAI (começa com sk- sem "ant"). Crie uma em platform.openai.com — custa menos de R$0,02 por áudio.');
   }
 
   async function _transcribeOpenAI(file, apiKey) {

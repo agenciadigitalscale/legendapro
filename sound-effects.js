@@ -707,6 +707,141 @@ const SFX_GEN = {
     return out;
   },
 
+  // ── CLIQUES E TIQUES ──
+  'click-soft': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.04); const f = _filt(ctx, 'highpass', 2500, 2);
+    const g = _env(ctx, t, 0.001, 0, 0.035, 0.28);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.04); return g;
+  },
+  'click-hard': (ctx, t = 0) => {
+    const o = _osc(ctx, 'square', 1800); const f = _filt(ctx, 'lowpass', 3000, 1);
+    const g = _env(ctx, t, 0.001, 0.002, 0.03, 0.3);
+    _chain(o, f, g); o.start(t); o.stop(t + 0.04); return g;
+  },
+  'click-mouse': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.05); const f = _filt(ctx, 'bandpass', 1800, 3);
+    const g = _env(ctx, t, 0.001, 0, 0.04, 0.22);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.05); return g;
+  },
+  'tick-clock': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 2200);
+    const g = _env(ctx, t, 0.001, 0.003, 0.018, 0.18);
+    _chain(o, g); o.start(t); o.stop(t + 0.025); return g;
+  },
+  'type-key': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.06); const f = _filt(ctx, 'bandpass', 900, 2.5);
+    const g = _env(ctx, t, 0.001, 0, 0.05, 0.2);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.06); return g;
+  },
+  'switch-toggle': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 600); o.frequency.linearRampToValueAtTime(400, t + 0.04);
+    const g = _env(ctx, t, 0.001, 0, 0.05, 0.25);
+    _chain(o, g); o.start(t); o.stop(t + 0.07); return g;
+  },
+  'button-press': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.08); const f = _filt(ctx, 'lowpass', 600, 1);
+    const g = _env(ctx, t, 0.001, 0, 0.07, 0.3);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.08); return g;
+  },
+
+  // ── RISERS / BUILD-UP ──
+  'riser-short': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.85); const f = _filt(ctx, 'bandpass', 180, 0.9);
+    f.frequency.exponentialRampToValueAtTime(7000, t + 0.75);
+    const g = _env(ctx, t, 0.08, 0, 0.6, 0.38);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.85); return g;
+  },
+  'riser-long': (ctx, t = 0) => {
+    const src = _noise(ctx, 2.2); const f = _filt(ctx, 'bandpass', 80, 0.8);
+    f.frequency.exponentialRampToValueAtTime(9000, t + 2.0);
+    const g = _env(ctx, t, 0.25, 0, 1.5, 0.4);
+    _chain(src, f, g); src.start(t); src.stop(t + 2.2); return g;
+  },
+  'riser-cinematic': (ctx, t = 0) => {
+    const out = ctx.createGain(); out.gain.value = 1;
+    const src = _noise(ctx, 1.5); const f = _filt(ctx, 'bandpass', 100, 0.7);
+    f.frequency.exponentialRampToValueAtTime(8000, t + 1.3);
+    const gN = _env(ctx, t, 0.15, 0, 1.0, 0.35);
+    const o = _osc(ctx, 'sawtooth', 40); o.frequency.exponentialRampToValueAtTime(300, t + 1.5);
+    const gO = _env(ctx, t, 0.1, 0, 1.1, 0.25); const fO = _filt(ctx, 'lowpass', 500, 1);
+    _chain(src, f, gN, out); _chain(o, fO, gO, out);
+    src.start(t); src.stop(t + 1.5); o.start(t); o.stop(t + 1.5); return out;
+  },
+  'build-tension': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sawtooth', 60); o.frequency.exponentialRampToValueAtTime(450, t + 1.0);
+    const f = _filt(ctx, 'lowpass', 900, 1.5);
+    const g = _env(ctx, t, 0.1, 0, 0.75, 0.2);
+    _chain(o, f, g); o.start(t); o.stop(t + 1.0); return g;
+  },
+  'riser-hit': (ctx, t = 0) => {
+    const out = ctx.createGain(); out.gain.value = 1;
+    const src = _noise(ctx, 0.6); const f = _filt(ctx, 'bandpass', 200, 0.8);
+    f.frequency.exponentialRampToValueAtTime(5000, t + 0.5);
+    const gN = _env(ctx, t, 0.05, 0, 0.4, 0.3);
+    const hit = _osc(ctx, 'sine', 60); hit.frequency.exponentialRampToValueAtTime(30, t + 0.08);
+    const gH = _env(ctx, t + 0.5, 0.001, 0, 0.15, 0.55);
+    _chain(src, f, gN, out); _chain(hit, gH, out);
+    src.start(t); src.stop(t + 0.6); hit.start(t + 0.5); hit.stop(t + 0.65); return out;
+  },
+
+  // ── POPS VARIADOS ──
+  'pop-cork': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 320); o.frequency.exponentialRampToValueAtTime(100, t + 0.07);
+    const src = _noise(ctx, 0.1); const f = _filt(ctx, 'bandpass', 600, 1.5);
+    const gO = _env(ctx, t, 0.001, 0, 0.1, 0.45); const gN = _env(ctx, t, 0.001, 0, 0.08, 0.2);
+    const out = ctx.createGain();
+    _chain(o, gO, out); _chain(src, f, gN, out);
+    o.start(t); o.stop(t + 0.15); src.start(t); src.stop(t + 0.1); return out;
+  },
+  'pop-bubble': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 900); o.frequency.exponentialRampToValueAtTime(220, t + 0.045);
+    const g = _env(ctx, t, 0.001, 0, 0.05, 0.35);
+    _chain(o, g); o.start(t); o.stop(t + 0.08); return g;
+  },
+  'pop-candy': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 1200); o.frequency.exponentialRampToValueAtTime(300, t + 0.035);
+    const g = _env(ctx, t, 0.001, 0, 0.04, 0.3);
+    _chain(o, g); o.start(t); o.stop(t + 0.06); return g;
+  },
+  'pop-deep': (ctx, t = 0) => {
+    const o = _osc(ctx, 'sine', 200); o.frequency.exponentialRampToValueAtTime(50, t + 0.1);
+    const g = _env(ctx, t, 0.001, 0, 0.15, 0.5);
+    _chain(o, g); o.start(t); o.stop(t + 0.18); return g;
+  },
+
+  // ── WHOOSHES EXTRAS ──
+  'whoosh-soft': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.55); const f = _filt(ctx, 'bandpass', 300, 0.5);
+    f.frequency.exponentialRampToValueAtTime(2500, t + 0.4);
+    const g = _env(ctx, t, 0.04, 0, 0.4, 0.28);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.55); return g;
+  },
+  'whoosh-heavy': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.65); const f = _filt(ctx, 'lowpass', 800, 0.8);
+    f.frequency.exponentialRampToValueAtTime(5000, t + 0.45);
+    const g = _env(ctx, t, 0.02, 0, 0.5, 0.55);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.65); return g;
+  },
+  'whoosh-wind': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.9); const f = _filt(ctx, 'bandpass', 500, 0.4);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.4, t + 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.9); return g;
+  },
+  'whoosh-zip': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.18); const f = _filt(ctx, 'bandpass', 2000, 2);
+    f.frequency.exponentialRampToValueAtTime(8000, t + 0.1);
+    const g = _env(ctx, t, 0.001, 0, 0.16, 0.45);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.18); return g;
+  },
+  'whoosh-air': (ctx, t = 0) => {
+    const src = _noise(ctx, 0.7); const f = _filt(ctx, 'highpass', 1200, 0.5);
+    f.frequency.exponentialRampToValueAtTime(4000, t + 0.5);
+    const g = _env(ctx, t, 0.03, 0, 0.55, 0.35);
+    _chain(src, f, g); src.start(t); src.stop(t + 0.7); return g;
+  },
+
   // ── ANIMAÇÕES (compatibilidade com versão anterior) ──
   'fade': (ctx, t = 0) => SFX_GEN['sweep-up'](ctx, t),
   'pop': (ctx, t = 0) => SFX_GEN['transition-pop'](ctx, t),
@@ -742,6 +877,11 @@ const SFX_DUR = {
   'typing-key':0.06,'glass-clink':0.6,'glass-break':0.55,'paper-rustle':0.5,
   'water-drip':0.18,'water-splash':0.55,'wind-breeze':1.6,'camera-shutter':0.12,
   'fade':0.5,'pop':0.15,'slide':0.5,'typewriter':0.06,
+  'click-soft':0.05,'click-hard':0.05,'click-mouse':0.06,'tick-clock':0.03,
+  'type-key':0.07,'switch-toggle':0.08,'button-press':0.09,
+  'riser-short':0.9,'riser-long':2.3,'riser-cinematic':1.6,'build-tension':1.1,'riser-hit':0.7,
+  'pop-cork':0.18,'pop-bubble':0.1,'pop-candy':0.07,'pop-deep':0.2,
+  'whoosh-soft':0.6,'whoosh-heavy':0.7,'whoosh-wind':0.95,'whoosh-zip':0.2,'whoosh-air':0.75,
 };
 
 // ─── PLAYBACK ────────────────────────────────────────────────────────────────

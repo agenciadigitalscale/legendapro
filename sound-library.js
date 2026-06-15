@@ -144,6 +144,56 @@ const SOUND_LIBRARY = {
       { id: 'wind-breeze',       name: 'Brisa de Vento',     desc: 'Vento suave' },
       { id: 'camera-shutter',    name: 'Obturador Camera',   desc: 'Clique de foto' },
     ]
+  },
+  clicks: {
+    name: '🖱️ Cliques & Tiques', desc: 'UI, botões, teclado',
+    effects: [
+      { id: 'click-soft',        name: 'Click Suave',        desc: 'Click UI leve' },
+      { id: 'click-hard',        name: 'Click Forte',        desc: 'Botão pressionado' },
+      { id: 'click-mouse',       name: 'Click Mouse',        desc: 'Mouse clicando' },
+      { id: 'tick-clock',        name: 'Tique Relógio',      desc: 'Tick seco de relógio' },
+      { id: 'type-key',          name: 'Tecla Mecânica',     desc: 'Teclado mecânico' },
+      { id: 'switch-toggle',     name: 'Toggle Switch',      desc: 'Interruptor on/off' },
+      { id: 'button-press',      name: 'Botão Pressionar',   desc: 'Botão físico' },
+    ]
+  },
+  risers: {
+    name: '📈 Risers & Build-up', desc: 'Crescendos, tensão, construção',
+    effects: [
+      { id: 'riser-short',       name: 'Riser Curto',        desc: 'Build de 0.8s' },
+      { id: 'riser-long',        name: 'Riser Longo',        desc: 'Build épico de 2s' },
+      { id: 'riser-cinematic',   name: 'Riser Cinemático',   desc: 'Crescendo de trailer' },
+      { id: 'riser-hit',         name: 'Riser + Impacto',    desc: 'Sobe e bate' },
+      { id: 'build-tension',     name: 'Build Tensão',       desc: 'Criação de suspense' },
+      { id: 'tension-rise',      name: 'Tensão Rise',        desc: 'Subida de tensão' },
+    ]
+  },
+  pops: {
+    name: '🫧 Pops & Bubbles', desc: 'Pops de todo tipo',
+    effects: [
+      { id: 'transition-pop',    name: 'Pop Transição',      desc: 'Pop de entrada' },
+      { id: 'pop-cork',          name: 'Pop Rolha',          desc: 'Garrafa abrindo' },
+      { id: 'pop-bubble',        name: 'Pop Bolha',          desc: 'Bolha estourando' },
+      { id: 'pop-candy',         name: 'Pop Doce',           desc: 'Pop agudo e rápido' },
+      { id: 'pop-deep',          name: 'Pop Grave',          desc: 'Pop baixo e profundo' },
+      { id: 'cartoon-pop',       name: 'Pop Cartoon',        desc: 'Pop cômico' },
+    ]
+  },
+  whooshes: {
+    name: '💨 Whooshes & Sweeps', desc: 'Todos os whooshes',
+    effects: [
+      { id: 'whoosh-forward',    name: 'Whoosh Frente',      desc: 'Varrido pra frente' },
+      { id: 'whoosh-reverse',    name: 'Whoosh Reverso',     desc: 'Varrido de volta' },
+      { id: 'whoosh-soft',       name: 'Whoosh Suave',       desc: 'Vento leve' },
+      { id: 'whoosh-heavy',      name: 'Whoosh Pesado',      desc: 'Arrasto de ar denso' },
+      { id: 'whoosh-wind',       name: 'Whoosh Vento',       desc: 'Rajada de vento' },
+      { id: 'whoosh-zip',        name: 'Whoosh Zip',         desc: 'Passagem ultra-rápida' },
+      { id: 'whoosh-air',        name: 'Whoosh Ar',          desc: 'Cortada de ar' },
+      { id: 'whoosh-fast',       name: 'Whoosh Rápido',      desc: 'Varrido de alta velocidade' },
+      { id: 'sweep-up',          name: 'Sweep Subindo',      desc: 'Tom subindo' },
+      { id: 'sweep-down',        name: 'Sweep Descendo',     desc: 'Tom descendo' },
+      { id: 'synth-whoosh',      name: 'Synth Whoosh',       desc: 'Whoosh eletrônico' },
+    ]
   }
 };
 
