@@ -215,6 +215,30 @@ select.si:focus{border-color:var(--cy);}
 .howto-body.open{display:block;}
 .howto-body strong{color:var(--tx);}
 
+/* ── SYNC GUIDE ── */
+.sync-guide-toggle{width:100%;font-family:inherit;font-size:10px;font-weight:700;color:var(--cy);background:rgba(0,217,255,.06);border:1px solid rgba(0,217,255,.2);border-radius:7px;padding:8px 12px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:background .12s;}
+.sync-guide-toggle:hover{background:rgba(0,217,255,.12);}
+.sgt-arr{font-size:9px;color:var(--tx3);}
+#syncGuideBody{background:var(--s2);border:1px solid rgba(0,217,255,.15);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.sync-step{display:flex;gap:10px;margin-bottom:9px;font-size:11px;color:var(--tx2);line-height:1.6;}
+.sync-step-last{margin-bottom:6px;}
+.sync-step strong{color:var(--tx);}
+.sync-step em{color:var(--cy);font-style:normal;}
+.sync-num{flex:0 0 22px;height:22px;background:var(--cy);color:#04151c;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.sync-tip{font-size:10px;color:var(--tx3);line-height:1.7;padding-top:6px;border-top:1px solid var(--bd);}
+
+/* ── SYNC FULL GUIDE (bottom section) ── */
+.sync-full-toggle{width:100%;font-family:inherit;font-size:11px;font-weight:700;color:var(--tx3);background:transparent;border:none;border-top:1px solid var(--bd);padding:10px 14px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.sync-full-toggle:hover{color:var(--cy);}
+.sync-full-body{font-size:11px;color:var(--tx2);padding:0 14px 14px;display:none;border-top:1px solid var(--bd);}
+.sync-full-body.open{display:block;}
+.sync-full-step{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);}
+.sync-full-step:last-child{border-bottom:none;}
+.sync-full-num{flex:0 0 26px;height:26px;background:var(--cy);color:#04151c;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sync-full-step strong{color:var(--tx);display:block;margin-bottom:2px;}
+.sync-full-step em{color:var(--cy);font-style:normal;}
+.sync-full-step code{background:var(--s3);border:1px solid var(--bd);border-radius:3px;padding:1px 5px;font-size:10px;}
+
 /* ── HIDDEN LEGACY ── */
 .chips,.models,.app,.controls,.preview-col,.section,.row,.field{display:none!important;}
 
@@ -375,7 +399,7 @@ select.si:focus{border-color:var(--cy);}
       <div class="panel-hd"><span class="ico">🛠️</span> Ferramentas</div>
       <div class="panel-body">
 
-        <!-- SRT Import -->
+        <!-- SRT Import + guia de sync -->
         <div class="tool-row">
           <button class="tool-btn" id="btnSRT">
             <span>📄</span> Importar arquivo SRT
@@ -386,6 +410,17 @@ select.si:focus{border-color:var(--cy);}
             <span>🎬</span> Exportar pacote SRT sincronizado
             <span class="arr" id="srtPackInfo" style="color:var(--cy);font-size:10px;"></span>
           </button>
+        </div>
+        <button class="sync-guide-toggle" onclick="var b=document.getElementById('syncGuideBody');var open=b.style.display!=='none';b.style.display=open?'none':'block';this.querySelector('.sgt-arr').textContent=open?'▼':'▲';">
+          🎙 Como sincronizar com a fala <span class="sgt-arr">▼</span>
+        </button>
+        <div id="syncGuideBody" style="display:none;">
+          <div class="sync-step"><span class="sync-num">1</span><div><strong>Gere o SRT no CapCut</strong><br>Texto → Reconhecimento de voz → aguarda gerar → toca no arquivo de legenda → Exportar → <em>.srt</em></div></div>
+          <div class="sync-step"><span class="sync-num">2</span><div><strong>Importe o SRT aqui</strong><br>Clique em "Importar arquivo SRT" acima. O app distribui os textos automaticamente nos campos.</div></div>
+          <div class="sync-step"><span class="sync-num">3</span><div><strong>Configure o visual</strong><br>Escolha o modelo, cores e — novidade — atribua um <em>SFX</em> pra cada linha lá embaixo nos campos de texto.</div></div>
+          <div class="sync-step"><span class="sync-num">4</span><div><strong>Exporte o pacote</strong><br>Clique em "Exportar pacote SRT sincronizado". Gera um <em>WebM por legenda</em>, cada um com a duração exata da fala.</div></div>
+          <div class="sync-step sync-step-last"><span class="sync-num">5</span><div><strong>Volte pro CapCut</strong><br>Importe todos os WebMs como sobreposição. Sobreposição → Croma → verde. Posicione na timeline usando o SRT original como referência de tempo.</div></div>
+          <p class="sync-tip">💡 Dica: no CapCut você também pode usar o SRT como referência de tempo e arrastar cada WebM pra cima da fala correspondente.</p>
         </div>
 
         <!-- Looks -->
@@ -520,6 +555,58 @@ select.si:focus{border-color:var(--cy);}
       <strong>ZIP PNG (Premiere):</strong> Arquivo → Importar → "Sequência de imagens".<br>
       <strong>DaVinci:</strong> MP4 verde + 3D Keyer, ou ZIP no Media Pool.<br>
       <strong>Camadas:</strong> cada palavra = 1 PNG. Empilhe no CapCut e sincronize com a fala.
+    </div>
+
+    <!-- GUIA DE SINCRONIZAÇÃO COM A FALA -->
+    <button class="sync-full-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.sfull-arr').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+      🎙 Sincronizar legenda com a fala <span class="sfull-arr">▼</span>
+    </button>
+    <div class="sync-full-body">
+      <p style="font-size:10px;color:var(--tx3);padding:8px 0 4px;line-height:1.7;">Fluxo completo para a legenda dinâmica entrar <strong style="color:var(--tx);">no tempo exato</strong> de cada fala:</p>
+
+      <div class="sync-full-step">
+        <span class="sync-full-num">1</span>
+        <div>
+          <strong>Gere o SRT no CapCut</strong>
+          Texto → <em>Reconhecimento de voz</em> → aguarda processar → toca no ícone de legenda na timeline → <em>Exportar</em> → salva o arquivo <code>.srt</code>
+        </div>
+      </div>
+
+      <div class="sync-full-step">
+        <span class="sync-full-num">2</span>
+        <div>
+          <strong>Importe o SRT aqui</strong>
+          Em Ferramentas → <em>Importar arquivo SRT</em>. O app distribui os textos automaticamente e fica pronto pra exportar.
+        </div>
+      </div>
+
+      <div class="sync-full-step">
+        <span class="sync-full-num">3</span>
+        <div>
+          <strong>Configure visual + SFX</strong>
+          Escolha o modelo e as cores. Em cada campo de texto aparece um seletor <em>🔇 Sem SFX</em> — escolha um som pra cada linha. Ele toca quando a linha entra na animação.
+        </div>
+      </div>
+
+      <div class="sync-full-step">
+        <span class="sync-full-num">4</span>
+        <div>
+          <strong>Exporte o pacote sincronizado</strong>
+          Clique em <em>Exportar pacote SRT sincronizado</em>. Gera um <code>.zip</code> com um WebM por legenda, cada um com a duração exata da fala original.
+        </div>
+      </div>
+
+      <div class="sync-full-step">
+        <span class="sync-full-num">5</span>
+        <div>
+          <strong>Monte no CapCut</strong>
+          Importe todos os WebMs. Sobreposição → <em>Croma</em> → seleciona o verde. Posicione cada clipe na timeline no tempo exato da fala usando o SRT original como guia.
+        </div>
+      </div>
+
+      <p style="font-size:10px;color:var(--tx3);margin-top:8px;line-height:1.7;">
+        💡 <strong style="color:var(--tx);">Alternativa rápida:</strong> use <em>Camadas (ZIP)</em> — exporta 1 PNG por palavra já posicionado. Empilhe no CapCut e arraste cada um até a palavra na fala.
+      </p>
     </div>
 
   </aside>
