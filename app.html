@@ -1925,23 +1925,32 @@ async function _encodeAlphaWebm(lineIdx){
   const animDur = 1400;
   const stFr = lineIdx != null ? Object.assign({}, state, { onlyLine: lineIdx }) : state;
 
+  // hardwareAcceleration:'prefer-software' é necessário: GPUs geralmente não suportam VP9 alpha
+  const cfg = { codec: 'vp09.00.10.08', width: W, height: H, bitrate: 8_000_000, alpha: 'keep', hardwareAcceleration: 'prefer-software' };
+  const support = await VideoEncoder.isConfigSupported(cfg);
+  if (!support.supported)
+    throw new Error('VP9 com alpha não é suportado neste navegador. Use o Chrome desktop atualizado.');
+
   const target = new ArrayBufferTarget();
   const muxer = new Muxer({
     target,
     video: { codec: 'V_VP9', width: W, height: H, frameRate: fps, alpha: true },
     firstTimestampBehavior: 'offset'
   });
+
+  let encoderError = null;
   const encoder = new VideoEncoder({
     output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-    error: (e) => { throw e; }
+    error: (e) => { encoderError = e; }
   });
-  encoder.configure({ codec: 'vp09.00.10.08', width: W, height: H, bitrate: 14_000_000, alpha: 'keep' });
+  encoder.configure(cfg);
 
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const cctx = c.getContext('2d', { alpha: true });
 
   for (let i = 0; i < nFrames; i++){
+    if (encoderError) throw encoderError;
     const elapsed = (i / fps) * 1000;
     const t = Math.min(elapsed / animDur, 1);
     drawFrame(cctx, t, null, state.model, state.texts, stFr);
@@ -1957,6 +1966,7 @@ async function _encodeAlphaWebm(lineIdx){
       await new Promise(r => setTimeout(r, 0));
     }
   }
+  if (encoderError) throw encoderError;
   await encoder.flush();
   encoder.close();
   muxer.finalize();
