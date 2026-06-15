@@ -216,14 +216,18 @@
         <div class="field"><label>Cor de destaque</label><input type="color" id="c2" value="#00d9ff"></div>
         <div class="field"><label>Cor extra</label><input type="color" id="c3" value="#00ffa3"></div>
         <div class="field"><label>Sombra no texto</label><input type="checkbox" id="glow" style="width:22px;height:22px;accent-color:#00d9ff;margin-top:5px;"></div>
-        <div class="field"><label>Efeito sonoro</label>
-          <select id="soundEffect">
-            <option value="fade">Suave (fade)</option>
-            <option value="pop">Impacto (pop)</option>
-            <option value="slide">Desliza (slide)</option>
-            <option value="typewriter">Máquina de escrever</option>
+        <div class="field" style="flex:1;min-width:160px;">
+          <label>Efeito sonoro</label>
+          <select id="soundEffect" style="display:none;">
             <option value="none">Nenhum</option>
+            <option value="fade">Suave</option>
+            <option value="pop">Impacto</option>
+            <option value="slide">Slide</option>
+            <option value="typewriter">Máquina</option>
           </select>
+          <div id="sfxSelectedBox" style="background:#16181d;border:1px solid #2e2e35;border-radius:8px;padding:8px 11px;font-size:12px;color:#cfd6dd;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;" onclick="toggleSFXLibrary()">
+            <span id="sfxSelectedName">🔇 Nenhum</span><span style="color:#00d9ff;font-size:10px;">▼ biblioteca</span>
+          </div>
         </div>
         <div class="field"><label>Formato</label>
           <select id="fmt">
@@ -246,6 +250,11 @@
         <div class="field"><label>Tamanho: <span id="scaleOut">100%</span></label><input type="range" id="scale" min="50" max="150" value="100" step="1"></div>
         <div class="field"><label>Posição vertical: <span id="offOut">0</span></label><input type="range" id="offset" min="-35" max="35" value="0" step="1"></div>
       </div>
+    </div>
+
+    <!-- SFX LIBRARY PANEL -->
+    <div id="sfxLibraryPanel" style="display:none;background:#0d0e12;border:1px solid #1e2228;border-radius:14px;margin-bottom:18px;overflow:hidden;">
+      <div id="soundLibraryContainer"></div>
     </div>
 
     <div class="section">
@@ -324,6 +333,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="lp-config.js"></script>
 <script src="sound-effects.js"></script>
+<script src="sound-library.js"></script>
 <script>
 const FORMATS = {
   '9x16': [1080, 1920],
@@ -1167,5 +1177,42 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script src="cloud-features.js"></script>
+<script>
+// SFX Library toggle
+let _sfxLibOpen = false;
+function toggleSFXLibrary() {
+  _sfxLibOpen = !_sfxLibOpen;
+  const panel = document.getElementById('sfxLibraryPanel');
+  panel.style.display = _sfxLibOpen ? 'block' : 'none';
+  if (_sfxLibOpen && !panel.dataset.init) {
+    initSoundLibrary();
+    panel.dataset.init = '1';
+    // Marca o som atualmente selecionado
+    const cur = document.getElementById('soundEffect').value;
+    if (cur && cur !== 'none') {
+      const card = document.getElementById('sfxcard-' + cur);
+      if (card) card.classList.add('selected');
+    }
+  }
+}
+// Atualiza label quando som é selecionado pela biblioteca
+const _origSelectSFX = window.selectSoundEffect;
+window.selectSoundEffect = function(id, name) {
+  _origSelectSFX && _origSelectSFX(id, name);
+  const label = document.getElementById('sfxSelectedName');
+  if (label) label.textContent = id === 'none' ? '🔇 Nenhum' : '🎵 ' + name;
+  // Sincroniza select hidden
+  const sel = document.getElementById('soundEffect');
+  if (sel) { let opt = sel.querySelector('[value="'+id+'"]'); if (!opt){ opt = document.createElement('option'); opt.value=id; sel.appendChild(opt); } sel.value = id; }
+};
+// Inicializa label com valor padrão
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('soundEffect');
+  if (sel && sel.value && sel.value !== 'none') {
+    const label = document.getElementById('sfxSelectedName');
+    if (label) label.textContent = '🎵 ' + sel.options[sel.selectedIndex]?.text;
+  }
+});
+</script>
 </body>
 </html>
