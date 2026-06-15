@@ -51,11 +51,13 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);mi
 .cat-btn:hover{background:var(--s2);color:var(--tx);}
 .cat-btn.active{background:var(--cy10);color:var(--cy);font-weight:700;}
 .model-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;}
-.model-thumb{background:var(--s2);border:2px solid transparent;border-radius:9px;padding:6px;cursor:pointer;text-align:center;color:var(--tx2);font-family:inherit;transition:border-color .12s,background .12s;}
-.model-thumb:hover{border-color:var(--bd2);background:var(--s3);}
+.model-thumb{background:var(--s2);border:2px solid transparent;border-radius:9px;padding:6px;cursor:pointer;text-align:center;color:var(--tx2);font-family:inherit;transition:border-color .15s,background .15s,box-shadow .15s;position:relative;}
+.model-thumb:hover{border-color:var(--cy);background:var(--s3);box-shadow:0 0 0 3px rgba(0,217,255,.1);}
 .model-thumb.active{border-color:var(--cy);color:var(--tx);background:#0b1f2b;}
-.model-thumb canvas{width:100%;border-radius:6px;display:block;background:#1a1c24;}
+.model-thumb canvas{width:100%;border-radius:6px;display:block;background:#1a1c24;transition:opacity .1s;}
 .model-thumb p{font-size:10px;margin-top:5px;line-height:1.3;color:inherit;}
+.model-thumb::after{content:'▶';position:absolute;top:8px;right:8px;font-size:8px;color:var(--cy);opacity:0;transition:opacity .15s;pointer-events:none;}
+.model-thumb:hover::after{opacity:.7;}
 
 /* ── CENTER PREVIEW ── */
 .preview-center{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:hidden;}
@@ -1531,29 +1533,53 @@ function buildChips(){
 function buildModels(){
   const wrap = document.getElementById('modelGrid');
   wrap.innerHTML = '';
+  const thumbTexts = m => m.lines.map(l => l.d || '');
+  const thumbOpts  = m => ({ scale:1, offset:0, anim: m.anim, fmt:'9x16', lineOv:[] });
+
   MODELS.filter(m => activeCat === 'todos' || m.cat === activeCat).forEach(model => {
     const btn = document.createElement('button');
     btn.className = 'model-thumb' + (model === state.model ? ' active' : '');
+    btn.title = model.name + ' — passe o mouse pra animar';
+
     const c = document.createElement('canvas');
     c.width = 270; c.height = 480;
     btn.appendChild(c);
-    const p = document.createElement('p');
-    p.textContent = model.name;
-    btn.appendChild(p);
+
+    const lbl = document.createElement('p');
+    lbl.textContent = model.name;
+    btn.appendChild(lbl);
+
     btn.addEventListener('click', () => {
       state.model = model;
       state.anim = model.anim;
       document.getElementById('anim').value = model.anim;
       document.querySelectorAll('.model-thumb').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      buildTexts();
-      renderPreview();
-      playAnim(pctx, '#1c1c1f');
+      buildTexts(); renderPreview(); playAnim(pctx, '#1c1c1f');
     });
+
     wrap.appendChild(btn);
+
     const tctx = c.getContext('2d');
     tctx.scale(270 / 1080, 480 / 1920);
-    drawFrame(tctx, 1, '#1a1c24', model, model.lines.map(l => l.d || ''), { scale: 1, offset: 0, anim: 'none', fmt: '9x16' });
+    drawFrame(tctx, 1, '#1a1c24', model, thumbTexts(model), { scale:1, offset:0, anim:'none', fmt:'9x16', lineOv:[] });
+
+    // ── Hover animation ──
+    let _raf = null;
+    btn.addEventListener('mouseenter', () => {
+      if (_raf) cancelAnimationFrame(_raf);
+      const dur = 1400, start = performance.now();
+      function tick(now){
+        const t = Math.min((now - start) / dur, 1);
+        drawFrame(tctx, t, '#1a1c24', model, thumbTexts(model), thumbOpts(model));
+        _raf = t < 1 ? requestAnimationFrame(tick) : null;
+      }
+      _raf = requestAnimationFrame(tick);
+    });
+    btn.addEventListener('mouseleave', () => {
+      if (_raf){ cancelAnimationFrame(_raf); _raf = null; }
+      drawFrame(tctx, 1, '#1a1c24', model, thumbTexts(model), { scale:1, offset:0, anim:'none', fmt:'9x16', lineOv:[] });
+    });
   });
 }
 
