@@ -134,6 +134,13 @@ select.si:focus{border-color:var(--cy);}
 .font-chip:hover{border-color:var(--bd2);color:var(--tx);}
 .font-chip.active{border-color:var(--cy);color:var(--cy);background:var(--cy10);}
 
+/* ── STYLE TOGGLES (I / B / U) ── */
+.style-tog{display:flex;gap:4px;margin-top:5px;}
+.tog-btn{flex:0 0 30px;height:30px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;cursor:pointer;font-size:13px;font-weight:800;color:var(--tx3);transition:border-color .12s,color .12s,background .12s;line-height:1;}
+.tog-btn:hover{border-color:var(--bd2);color:var(--tx);}
+.tog-btn.on{border-color:var(--cy);color:var(--cy);background:var(--cy10);}
+.tog-sep{width:1px;background:var(--bd);margin:4px 2px;}
+
 /* ── LOOK CHIPS ── */
 .look-chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px;}
 .look-chip{font-family:inherit;font-size:10px;font-weight:700;padding:4px 9px;border-radius:4px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:border-color .12s,color .12s;}
@@ -949,8 +956,10 @@ function colorOf(key){
 }
 
 function fontStr(ln, size){
-  const fam = (ln.ov && ln.ov.font) ? ln.ov.font : ln.f;
-  return (ln.it ? 'italic ' : '') + (ln.w || 400) + ' ' + size + 'px "' + fam + '"';
+  const fam    = (ln.ov && ln.ov.font)                          ? ln.ov.font  : ln.f;
+  const italic = (ln.ov && ln.ov.it  !== null && ln.ov.it  !== undefined) ? ln.ov.it  : ln.it;
+  const weight = (ln.ov && ln.ov.bold !== null && ln.ov.bold !== undefined) ? (ln.ov.bold ? 800 : 400) : (ln.w || 400);
+  return (italic ? 'italic ' : '') + weight + ' ' + size + 'px "' + fam + '"';
 }
 
 function easeOut(t){ return 1 - Math.pow(1 - t, 2); }
@@ -1191,7 +1200,8 @@ function drawFrame(ctx, t, bg, model, texts, opts){
         ctx.fillStyle = lineCol;
         ctx.fillText(txt, 0, 0);
         if (ln.st){ const m = ctx.measureText(txt); ctx.fillRect(-m.width/2 - size*0.06, -size*0.05, m.width + size*0.12, size*0.09); }
-        if (ln.u){ const m = ctx.measureText(txt); ctx.fillRect(-m.width/2, size*0.52, m.width, size*0.08); }
+        const _u = (ln.ov && ln.ov.u !== null && ln.ov.u !== undefined) ? ln.ov.u : ln.u;
+        if (_u){ const m = ctx.measureText(txt); ctx.fillRect(-m.width/2, size*0.52, m.width, size*0.08); }
       } else {
         // Palavra por palavra com highlight (*texto* = ciano, ~texto~ = verde)
         let totalW = 0;
@@ -1249,7 +1259,44 @@ function playAnim(targetCtx, bg, onDone, holdMs){
   playRaf = requestAnimationFrame(tick);
 }
 
+// ── UNDO (Ctrl+Z) ──────────────────────────────────────
+const _hist = [];
+const _MAX_HIST = 25;
+function _snap(){ return JSON.stringify({ model: state.model.id, texts: [...state.texts], lineOv: JSON.parse(JSON.stringify(state.lineOv)), c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, bpm: state.bpm }); }
+function pushHistory(){ const s = _snap(); if (_hist[_hist.length-1] === s) return; _hist.push(s); if (_hist.length > _MAX_HIST) _hist.shift(); }
+function undoState(){
+  if (_hist.length < 2){ setStatus('Nada pra desfazer.'); return; }
+  _hist.pop();
+  const prev = JSON.parse(_hist[_hist.length-1]);
+  const m = MODELS.find(x => x.id === prev.model); if (m) state.model = m;
+  state.texts = prev.texts; state.lineOv = prev.lineOv;
+  state.c1 = prev.c1; state.c2 = prev.c2; state.c3 = prev.c3;
+  state.glow = prev.glow; state.anim = prev.anim;
+  state.scale = prev.scale; state.offset = prev.offset; state.fmt = prev.fmt; state.bpm = prev.bpm;
+  document.getElementById('c1').value = state.c1;
+  document.getElementById('c2').value = state.c2;
+  document.getElementById('c3').value = state.c3;
+  document.getElementById('glow').checked = state.glow;
+  document.getElementById('anim').value = state.anim;
+  document.getElementById('scale').value = Math.round(state.scale * 100);
+  document.getElementById('scaleOut').textContent = Math.round(state.scale * 100) + '%';
+  document.getElementById('offset').value = state.offset;
+  document.getElementById('offOut').textContent = state.offset;
+  document.getElementById('bpm').value = state.bpm;
+  document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
+  document.querySelectorAll('.fmt-tab').forEach(b => b.classList.toggle('active', b.dataset.fmt === state.fmt));
+  buildTexts(); renderPreview();
+  setStatus('↩ Desfeito (Ctrl+Z)');
+}
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !e.target.matches('input,textarea,select')) {
+    e.preventDefault(); undoState();
+  }
+});
+// ────────────────────────────────────────────────────────
+
 function saveToLocalStorage(){
+  pushHistory();
   const save = { model: state.model.id, texts: state.texts, c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, lineOv: state.lineOv, bpm: state.bpm };
   localStorage.setItem('legendas_save', JSON.stringify(save));
   const ago = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
@@ -1296,7 +1343,7 @@ function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
   state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
-  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null, font: null });
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null, c: null, sizeMul: null, gap: null, font: null, it: null, bold: null, u: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
 
@@ -1384,7 +1431,39 @@ function buildTexts(){
 
     wrapItem.appendChild(sub);
 
-    // Fileira 3: seletor de fonte
+    // Fileira 3: toggles de estilo (I / B / U)
+    const styleRow = document.createElement('div');
+    styleRow.className = 'style-tog';
+
+    function makeTog(label, title, key, isActive, onToggle){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tog-btn' + (isActive ? ' on' : '');
+      b.innerHTML = label; b.title = title;
+      b.addEventListener('click', () => {
+        const next = onToggle();
+        b.classList.toggle('on', !!next);
+        pushHistory(); renderPreview(); saveToLocalStorage();
+      });
+      return b;
+    }
+
+    styleRow.appendChild(makeTog('<i>I</i>', 'Itálico', 'it',
+      state.lineOv[i].it,
+      () => { state.lineOv[i].it = state.lineOv[i].it ? null : true; return state.lineOv[i].it; }
+    ));
+    styleRow.appendChild(makeTog('<b>B</b>', 'Negrito', 'bold',
+      state.lineOv[i].bold,
+      () => { state.lineOv[i].bold = state.lineOv[i].bold ? null : true; return state.lineOv[i].bold; }
+    ));
+    styleRow.appendChild(makeTog('<u>U</u>', 'Sublinhado', 'u',
+      state.lineOv[i].u,
+      () => { state.lineOv[i].u = state.lineOv[i].u ? null : true; return state.lineOv[i].u; }
+    ));
+
+    wrapItem.appendChild(styleRow);
+
+    // Fileira 4: seletor de fonte
     const fontRow = document.createElement('div');
     fontRow.className = 'font-row';
 
