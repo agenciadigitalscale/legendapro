@@ -1,67 +1,60 @@
-// LegendaPro Service Worker
-// Permite usar offline (com funcionalidades limitadas)
+// LegendaPro Service Worker — network-first para o app, cache-first para fontes
 
-const CACHE_NAME = 'legendapro-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/app.html',
-  '/login.html',
-  '/dashboard.html',
-  '/lp-config.js',
-  '/sound-effects.js',
-  '/cloud-features.js',
-  'https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
-];
+const CACHE_NAME = 'legendapro-v3';
+const FONT_CACHE = 'legendapro-fonts-v1';
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache).catch(() => {
-        // Ignora erros de cache (alguns assets podem não estar disponíveis)
-        return true;
-      });
-    })
+const APP_FILES = ['/', '/index.html', '/app.html', '/login.html', '/assinar.html', '/lp-config.js', '/sound-library.js'];
+const FONT_ORIGINS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(c => c.addAll(APP_FILES).catch(() => {}))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys
+        .filter(k => k !== CACHE_NAME && k !== FONT_CACHE)
+        .map(k => caches.delete(k))
+      )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) return response;
-      
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200) return response;
-        
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache).catch(() => {});
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+
+  // Fontes e CDN: cache-first (raramente mudam)
+  if (FONT_ORIGINS.some(o => url.hostname.includes(o))) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(res => {
+          const clone = res.clone();
+          caches.open(FONT_CACHE).then(c => c.put(e.request, clone).catch(() => {}));
+          return res;
         });
-        return response;
-      }).catch(() => {
-        // Offline fallback
-        return caches.match('/app.html');
-      });
-    })
+      })
+    );
+    return;
+  }
+
+  // App (HTML, JS, etc): network-first — sempre busca versão mais recente
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone).catch(() => {}));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then(cached => cached || caches.match('/app.html')))
   );
 });
