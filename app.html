@@ -1903,36 +1903,80 @@ function exportVideo(kind, btnId){
   requestAnimationFrame(tick);
 }
 
-function exportVideoAlpha(){
+/* WebM com alpha real via WebCodecs API (Chrome 94+).
+   canvas.captureStream() + MediaRecorder não preserva alfa — composta contra o fundo da página.
+   VideoEncoder com alpha:'keep' + webm-muxer resolve isso. */
+let _webmMuxerMod = null;
+async function _loadMuxer(){
+  if (!_webmMuxerMod)
+    _webmMuxerMod = await import('https://cdn.jsdelivr.net/npm/webm-muxer/build/webm-muxer.mjs');
+  return _webmMuxerMod;
+}
+
+async function _encodeAlphaWebm(lineIdx){
+  if (!('VideoEncoder' in window))
+    throw new Error('Atualize o Chrome para a versão 94+ para usar WebM transparente.');
+  const { Muxer, ArrayBufferTarget } = await _loadMuxer();
+  const F = dims();
+  const W = F[0], H = F[1];
+  const total = getExpDur();
+  const fps = 30;
+  const nFrames = Math.ceil(fps * total / 1000);
+  const animDur = 1400;
+  const stFr = lineIdx != null ? Object.assign({}, state, { onlyLine: lineIdx }) : state;
+
+  const target = new ArrayBufferTarget();
+  const muxer = new Muxer({
+    target,
+    video: { codec: 'V_VP9', width: W, height: H, frameRate: fps, alpha: true },
+    firstTimestampBehavior: 'offset'
+  });
+  const encoder = new VideoEncoder({
+    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+    error: (e) => { throw e; }
+  });
+  encoder.configure({ codec: 'vp09.00.10.08', width: W, height: H, bitrate: 14_000_000, alpha: 'keep' });
+
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const cctx = c.getContext('2d', { alpha: true });
+
+  for (let i = 0; i < nFrames; i++){
+    const elapsed = (i / fps) * 1000;
+    const t = Math.min(elapsed / animDur, 1);
+    drawFrame(cctx, t, null, state.model, state.texts, stFr);
+    const bmp = await createImageBitmap(c);
+    const ts = Math.round(elapsed * 1000);
+    const dur = Math.round(1000000 / fps);
+    const frame = new VideoFrame(bmp, { timestamp: ts, duration: dur, alpha: 'keep' });
+    encoder.encode(frame, { keyFrame: i % (fps * 2) === 0 });
+    frame.close();
+    bmp.close();
+    if (i % 10 === 0){
+      setStatus('Codificando frame ' + (i + 1) + '/' + nFrames + '...');
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+  await encoder.flush();
+  encoder.close();
+  muxer.finalize();
+  return new Blob([target.buffer], { type: 'video/webm' });
+}
+
+async function exportVideoAlpha(){
   const btn = document.getElementById('btnAlpha');
-  const mimes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
-  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
-  if (!mime){ setStatus('Seu navegador não suporta WebM com alfa — use Chrome ou Edge atualizado.'); return; }
   btn.disabled = true;
   const total = getExpDur();
   setStatus('Gerando WebM transparente (' + (total/1000).toFixed(1) + 's)...');
-  const F = dims();
-  const c = document.createElement('canvas');
-  c.width = F[0]; c.height = F[1];
-  const cctx = c.getContext('2d');
-  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
-  const chunks = [];
-  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-  rec.onstop = () => {
-    download(new Blob(chunks, { type: 'video/webm' }), 'legenda-' + state.model.id + '-alpha.webm');
-    setStatus('WebM Alpha baixado! No CapCut: sobreposição — sem croma key, o fundo já é transparente.');
-    btn.disabled = false;
-  };
-  rec.start();
-  const dur = 1400, start = performance.now();
-  function tick(now){
-    const el = now - start;
-    const t = Math.min(el / dur, 1);
-    drawFrame(cctx, t, null, state.model, state.texts, state);
-    if (el < total) requestAnimationFrame(tick);
-    else rec.stop();
+  try {
+    const blob = await _encodeAlphaWebm(null);
+    download(blob, 'legenda-' + state.model.id + '-alpha.webm');
+    setStatus('WebM Alpha pronto! No CapCut: sobreposição — sem croma key, fundo já transparente.');
+  } catch(e){
+    setStatus('Erro: ' + (e.message || e) + ' — atualize o Chrome para v94+.');
+    console.error(e);
   }
-  requestAnimationFrame(tick);
+  btn.disabled = false;
 }
 
 async function exportZip(){
@@ -1990,60 +2034,38 @@ async function exportLayers(){
 async function exportLayersWebm(){
   const btn = document.getElementById('btnLayersWebm');
   btn.disabled = true;
-  const mimes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
-  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
-  if (!mime){ setStatus('Seu navegador não suporta WebM — use Chrome ou Edge.'); btn.disabled = false; return; }
-  const total = getExpDur();
-  const zip = new JSZip();
-  let n = 0;
-  for (let i = 0; i < state.model.lines.length; i++){
-    const ln = state.model.lines[i];
-    if (ln.rule) continue;
-    if (state.lineOv[i] && state.lineOv[i].hide) continue;
-    n++;
-    setStatus('Gerando camada ' + n + ' animada (' + (total/1000).toFixed(1) + 's)...');
-    const blob = await _recordLineWebm(mime, i, total);
-    const slug = (state.texts[i] || 'linha').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'linha';
-    zip.file('camada-' + String(n).padStart(2, '0') + '-' + slug + '.webm', blob);
+  try {
+    const zip = new JSZip();
+    let n = 0;
+    for (let i = 0; i < state.model.lines.length; i++){
+      const ln = state.model.lines[i];
+      if (ln.rule) continue;
+      if (state.lineOv[i] && state.lineOv[i].hide) continue;
+      n++;
+      setStatus('Camada ' + n + '...');
+      const blob = await _encodeAlphaWebm(i);
+      const slug = (state.texts[i] || 'linha').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'linha';
+      zip.file('camada-' + String(n).padStart(2, '0') + '-' + slug + '.webm', blob);
+    }
+    if (n === 0){ setStatus('Nenhuma linha visível pra exportar.'); btn.disabled = false; return; }
+    zip.file('LEIA-ME.txt',
+      'CAMADAS WebM ANIMADAS - LegendaPro\r\n\r\n' +
+      'Cada arquivo tem UMA linha da legenda, animada, com fundo TRANSPARENTE (VP9 alfa real).\r\n\r\n' +
+      'NO CAPCUT (PC):\r\n' +
+      '1. Importe todos os WebMs pelo painel de midia\r\n' +
+      '2. Arraste cada um para a timeline como SOBREPOSICAO\r\n' +
+      '3. NAO precisa de Croma - fundo ja e transparente\r\n' +
+      '4. Posicione cada clipe no instante certo da fala\r\n' +
+      '5. Aplique efeitos extras do CapCut em cima se quiser\r\n\r\n' +
+      'Ordem dos arquivos (01, 02...) = ordem das linhas da legenda.');
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    download(zipBlob, 'camadas-webm-' + state.model.id + '.zip');
+    setStatus('Camadas WebM prontas! ' + n + ' animações — arraste como sobreposição no CapCut, sem croma key.');
+  } catch(e){
+    setStatus('Erro: ' + (e.message || e) + ' — atualize o Chrome para v94+.');
+    console.error(e);
   }
-  if (n === 0){ setStatus('Nenhuma linha visível pra exportar.'); btn.disabled = false; return; }
-  zip.file('LEIA-ME.txt',
-    'CAMADAS WebM ANIMADAS — LegendaPro\r\n\r\n' +
-    'Cada arquivo tem UMA linha da legenda, animada, com fundo TRANSPARENTE (VP9 alfa).\r\n' +
-    'Sem croma key — arraste direto no CapCut como sobreposição.\r\n\r\n' +
-    'NO CAPCUT (PC):\r\n' +
-    '1. Importe todos os WebMs pelo painel de mídia\r\n' +
-    '2. Arraste cada um para a timeline como SOBREPOSIÇÃO\r\n' +
-    '3. NÃO precisa de Croma — o fundo já é transparente\r\n' +
-    '4. Posicione cada clipe no instante certo da fala\r\n' +
-    '5. Aplique animação de entrada/saída extra do CapCut se quiser\r\n\r\n' +
-    'Dica: a ordem dos arquivos (01, 02...) é a ordem das linhas da legenda.');
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
-  download(zipBlob, 'camadas-webm-' + state.model.id + '.zip');
-  setStatus('Camadas WebM prontas! ' + n + ' animações — arraste como sobreposição no CapCut, sem croma key.');
   btn.disabled = false;
-}
-
-function _recordLineWebm(mime, lineIdx, total){
-  return new Promise(resolve => {
-    const F = dims();
-    const c = document.createElement('canvas');
-    c.width = F[0]; c.height = F[1];
-    const cctx = c.getContext('2d');
-    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
-    const chunks = [];
-    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-    rec.onstop = () => resolve(new Blob(chunks, { type: 'video/webm' }));
-    rec.start();
-    const dur = 1400, start0 = performance.now();
-    (function tick(now){
-      const el = now - start0;
-      const t = Math.min(el / dur, 1);
-      drawFrame(cctx, t, null, state.model, state.texts, Object.assign({}, state, { onlyLine: lineIdx }));
-      if (el < total) requestAnimationFrame(tick);
-      else rec.stop();
-    })(performance.now());
-  });
 }
 
 function setStatus(msg){ document.getElementById('status').textContent = msg; }
