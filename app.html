@@ -188,8 +188,15 @@ select.si:focus{border-color:var(--cy);}
 .exp-btn.ewebm{background:linear-gradient(135deg,#00d9ff,#0099cc);color:#04151c;}
 .exp-btn.emp4{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
 .exp-btn.ezip{background:var(--s3);color:var(--tx);border:1px solid var(--bd2);}
-.exp-btn.elayers{grid-column:1/-1;background:var(--s3);color:var(--tx);border:1px solid var(--bd2);flex-direction:row;justify-content:center;padding:9px 10px;}
-.exp-bg-row{margin-bottom:8px;}
+.exp-btn.elayers{background:var(--s3);color:var(--tx);border:1px solid var(--bd2);flex-direction:row;justify-content:center;padding:9px 10px;}
+.exp-btn.ealpha{background:linear-gradient(135deg,#00ffa3,#00d9ff);color:#04151c;}
+.exp-btn.elaywebm{grid-column:1/-1;background:linear-gradient(135deg,#070d1a,#0b1a30);color:var(--cy);border:1px solid rgba(0,217,255,.35);flex-direction:row;justify-content:center;padding:9px 10px;}
+.exp-dur-row{margin-bottom:8px;}
+.exp-dur-row .ldur{font-size:10px;color:var(--tx2);display:block;margin-bottom:3px;}
+.exp-dur-row .ldur em{color:var(--cy);font-style:normal;font-weight:700;}
+.exp-dur-row input[type=range]{width:100%;accent-color:var(--cy);}
+.exp-bg-row{margin-top:8px;margin-bottom:0;}
+.exp-bg-note{font-size:9px;color:var(--tx3);margin-top:3px;}
 #status{font-size:11px;color:var(--cy);margin-top:7px;min-height:14px;display:block;}
 #salvoLabel{font-size:10px;color:var(--tx3);}
 
@@ -503,28 +510,39 @@ select.si:focus{border-color:var(--cy);}
     <div class="panel">
       <div class="panel-hd"><span class="ico">📤</span> Exportar</div>
       <div class="panel-body">
-        <div class="exp-bg-row">
-          <select id="webmBg" class="si">
-            <option value="#00ff00">Fundo verde — chroma key (CapCut / Premiere)</option>
-            <option value="#000000">Fundo preto — modo "Clarear"</option>
-          </select>
+        <div class="exp-dur-row">
+          <span class="ldur">Duração na tela — <em id="durOut">4,0s</em></span>
+          <input type="range" id="expDur" min="1" max="10" value="4" step="0.5">
         </div>
         <div class="exp-grid">
           <button class="exp-btn epng tooltip" id="btnPng" data-tip="Ctrl+S">
             <span class="ei">🖼</span><span class="el">PNG</span><span class="es">transparente</span>
           </button>
-          <button class="exp-btn ewebm tooltip" id="btnWebm" data-tip="CapCut 📱">
-            <span class="ei">🎬</span><span class="el">WebM</span><span class="es">CapCut</span>
+          <button class="exp-btn ealpha tooltip" id="btnAlpha" data-tip="sem croma key ✨">
+            <span class="ei">✨</span><span class="el">WebM Alpha</span><span class="es">transparente</span>
+          </button>
+          <button class="exp-btn ewebm tooltip" id="btnWebm" data-tip="fundo verde — croma">
+            <span class="ei">🎬</span><span class="el">WebM verde</span><span class="es">croma key</span>
           </button>
           <button class="exp-btn emp4 tooltip" id="btnMp4" data-tip="Premiere/DaVinci">
             <span class="ei">🎥</span><span class="el">MP4</span><span class="es">Premiere</span>
           </button>
           <button class="exp-btn ezip tooltip" id="btnZip" data-tip="sequência PNG">
-            <span class="ei">📦</span><span class="el">ZIP</span><span class="es">sequência</span>
+            <span class="ei">📦</span><span class="el">ZIP PNG</span><span class="es">sequência</span>
           </button>
           <button class="exp-btn elayers tooltip" id="btnLayers" data-tip="1 PNG por palavra">
-            <span class="ei">🗂</span><span class="el">Camadas — 1 PNG por palavra (ZIP)</span>
+            <span class="ei">🗂</span><span class="el">Camadas PNG</span><span class="es">1 PNG / linha</span>
           </button>
+          <button class="exp-btn elaywebm tooltip" id="btnLayersWebm" data-tip="1 WebM animado por linha">
+            <span class="ei">🎞</span><span class="el">Camadas WebM — 1 animação por linha (ZIP)</span>
+          </button>
+        </div>
+        <div class="exp-bg-row">
+          <select id="webmBg" class="si">
+            <option value="#00ff00">Fundo verde — croma key (WebM verde / MP4)</option>
+            <option value="#000000">Fundo preto — modo "Clarear"</option>
+          </select>
+          <p class="exp-bg-note">WebM Alpha e Camadas WebM têm fundo transparente automaticamente</p>
         </div>
         <p id="status"></p>
       </div>
@@ -1841,6 +1859,8 @@ function exportPNG(){
   setStatus('PNG baixado! Fundo transparente, ' + F[0] + '×' + F[1] + '.');
 }
 
+function getExpDur(){ return Math.round((parseFloat(document.getElementById('expDur').value) || 4) * 1000); }
+
 function exportVideo(kind, btnId){
   const btn = document.getElementById(btnId);
   const mimes = kind === 'mp4'
@@ -1854,7 +1874,8 @@ function exportVideo(kind, btnId){
     return;
   }
   btn.disabled = true;
-  setStatus('Gravando vídeo animado (4s)...');
+  const total = getExpDur();
+  setStatus('Gravando vídeo animado (' + (total/1000).toFixed(1) + 's)...');
   const bg = document.getElementById('webmBg').value;
   const F = dims();
   const c = document.createElement('canvas');
@@ -1867,16 +1888,47 @@ function exportVideo(kind, btnId){
     download(new Blob(chunks, { type: mime.split(';')[0] }), 'legenda-' + state.model.id + '-' + state.fmt + '.' + kind);
     setStatus(kind === 'mp4'
       ? 'MP4 baixado! Premiere: Ultra Key na cor ' + (bg === '#00ff00' ? 'verde' : 'preta') + '. DaVinci: efeito 3D Keyer.'
-      : 'WebM baixado! No CapCut: sobreposição + Croma pra remover o fundo ' + (bg === '#00ff00' ? 'verde' : 'preto') + '.');
+      : 'WebM verde baixado! No CapCut: sobreposição + Croma pra remover o fundo ' + (bg === '#00ff00' ? 'verde' : 'preto') + '.');
     btn.disabled = false;
   };
   rec.start();
-  const dur = 1400, total = 4000;
-  const start = performance.now();
+  const dur = 1400, start = performance.now();
   function tick(now){
     const el = now - start;
     const t = Math.min(el / dur, 1);
     drawFrame(cctx, t, bg, state.model, state.texts, state);
+    if (el < total) requestAnimationFrame(tick);
+    else rec.stop();
+  }
+  requestAnimationFrame(tick);
+}
+
+function exportVideoAlpha(){
+  const btn = document.getElementById('btnAlpha');
+  const mimes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
+  if (!mime){ setStatus('Seu navegador não suporta WebM com alfa — use Chrome ou Edge atualizado.'); return; }
+  btn.disabled = true;
+  const total = getExpDur();
+  setStatus('Gerando WebM transparente (' + (total/1000).toFixed(1) + 's)...');
+  const F = dims();
+  const c = document.createElement('canvas');
+  c.width = F[0]; c.height = F[1];
+  const cctx = c.getContext('2d');
+  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    download(new Blob(chunks, { type: 'video/webm' }), 'legenda-' + state.model.id + '-alpha.webm');
+    setStatus('WebM Alpha baixado! No CapCut: sobreposição — sem croma key, o fundo já é transparente.');
+    btn.disabled = false;
+  };
+  rec.start();
+  const dur = 1400, start = performance.now();
+  function tick(now){
+    const el = now - start;
+    const t = Math.min(el / dur, 1);
+    drawFrame(cctx, t, null, state.model, state.texts, state);
     if (el < total) requestAnimationFrame(tick);
     else rec.stop();
   }
@@ -1933,6 +1985,65 @@ async function exportLayers(){
   download(blob, 'legenda-' + state.model.id + '-camadas.zip');
   setStatus('Camadas baixadas! Cada palavra entra na hora da fala — e com efeito sonoro. 🎬');
   btn.disabled = false;
+}
+
+async function exportLayersWebm(){
+  const btn = document.getElementById('btnLayersWebm');
+  btn.disabled = true;
+  const mimes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  const mime = mimes.find(m => MediaRecorder.isTypeSupported(m));
+  if (!mime){ setStatus('Seu navegador não suporta WebM — use Chrome ou Edge.'); btn.disabled = false; return; }
+  const total = getExpDur();
+  const zip = new JSZip();
+  let n = 0;
+  for (let i = 0; i < state.model.lines.length; i++){
+    const ln = state.model.lines[i];
+    if (ln.rule) continue;
+    if (state.lineOv[i] && state.lineOv[i].hide) continue;
+    n++;
+    setStatus('Gerando camada ' + n + ' animada (' + (total/1000).toFixed(1) + 's)...');
+    const blob = await _recordLineWebm(mime, i, total);
+    const slug = (state.texts[i] || 'linha').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24) || 'linha';
+    zip.file('camada-' + String(n).padStart(2, '0') + '-' + slug + '.webm', blob);
+  }
+  if (n === 0){ setStatus('Nenhuma linha visível pra exportar.'); btn.disabled = false; return; }
+  zip.file('LEIA-ME.txt',
+    'CAMADAS WebM ANIMADAS — LegendaPro\r\n\r\n' +
+    'Cada arquivo tem UMA linha da legenda, animada, com fundo TRANSPARENTE (VP9 alfa).\r\n' +
+    'Sem croma key — arraste direto no CapCut como sobreposição.\r\n\r\n' +
+    'NO CAPCUT (PC):\r\n' +
+    '1. Importe todos os WebMs pelo painel de mídia\r\n' +
+    '2. Arraste cada um para a timeline como SOBREPOSIÇÃO\r\n' +
+    '3. NÃO precisa de Croma — o fundo já é transparente\r\n' +
+    '4. Posicione cada clipe no instante certo da fala\r\n' +
+    '5. Aplique animação de entrada/saída extra do CapCut se quiser\r\n\r\n' +
+    'Dica: a ordem dos arquivos (01, 02...) é a ordem das linhas da legenda.');
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  download(zipBlob, 'camadas-webm-' + state.model.id + '.zip');
+  setStatus('Camadas WebM prontas! ' + n + ' animações — arraste como sobreposição no CapCut, sem croma key.');
+  btn.disabled = false;
+}
+
+function _recordLineWebm(mime, lineIdx, total){
+  return new Promise(resolve => {
+    const F = dims();
+    const c = document.createElement('canvas');
+    c.width = F[0]; c.height = F[1];
+    const cctx = c.getContext('2d');
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14000000 });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = () => resolve(new Blob(chunks, { type: 'video/webm' }));
+    rec.start();
+    const dur = 1400, start0 = performance.now();
+    (function tick(now){
+      const el = now - start0;
+      const t = Math.min(el / dur, 1);
+      drawFrame(cctx, t, null, state.model, state.texts, Object.assign({}, state, { onlyLine: lineIdx }));
+      if (el < total) requestAnimationFrame(tick);
+      else rec.stop();
+    })(performance.now());
+  });
 }
 
 function setStatus(msg){ document.getElementById('status').textContent = msg; }
@@ -2037,10 +2148,16 @@ document.getElementById('btnDelPreset').addEventListener('click', () => {
 
 document.getElementById('btnPlay').addEventListener('click', () => playAnim(pctx, '#1c1c1f'));
 document.getElementById('btnPng').addEventListener('click', exportPNG);
+document.getElementById('btnAlpha').addEventListener('click', exportVideoAlpha);
 document.getElementById('btnWebm').addEventListener('click', () => exportVideo('webm', 'btnWebm'));
 document.getElementById('btnMp4').addEventListener('click', () => exportVideo('mp4', 'btnMp4'));
 document.getElementById('btnZip').addEventListener('click', exportZip);
 document.getElementById('btnLayers').addEventListener('click', exportLayers);
+document.getElementById('btnLayersWebm').addEventListener('click', exportLayersWebm);
+document.getElementById('expDur').addEventListener('input', () => {
+  const v = parseFloat(document.getElementById('expDur').value);
+  document.getElementById('durOut').textContent = v.toFixed(1).replace('.', ',') + 's';
+});
 
 const FONT_LOADS = [
   '92px "Archivo Black"', 'italic 800 92px "Playfair Display"', 'italic 700 92px "Playfair Display"', '700 92px "Playfair Display"',
