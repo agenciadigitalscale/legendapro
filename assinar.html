@@ -104,9 +104,23 @@
   </div>
 
   <a class="wa" href="https://wa.me/5511997295407?text=Oi%20Kaique!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20LegendaPro">Falar no WhatsApp</a>
+  <!-- Verificação automática de acesso Pro -->
+  <div id="secVerificar" style="display:none;margin-top:24px;">
+    <div id="boxPro" style="display:none;background:rgba(0,255,163,.08);border:1px solid rgba(0,255,163,.3);border-radius:14px;padding:20px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:6px;">✓</div>
+      <div style="font-weight:800;color:#00ffa3;font-size:16px;margin-bottom:4px;">Você já tem acesso Pro!</div>
+      <div style="font-size:13px;color:#8a93a0;margin-bottom:14px;">Seu pagamento foi confirmado automaticamente.</div>
+      <a href="app.html" style="display:inline-block;background:linear-gradient(90deg,#00d9ff,#00ffa3);color:#04151c;font-weight:800;font-size:14px;border-radius:10px;padding:10px 28px;text-decoration:none;">Ir pro app →</a>
+    </div>
+    <button id="btnVerificar" style="width:100%;background:transparent;border:1px solid #2a2f38;color:#eef1f4;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s;">Já paguei — verificar meu acesso</button>
+    <p id="msgVerificar" style="font-size:12px;color:#8a93a0;margin-top:8px;min-height:16px;"></p>
+  </div>
+
   <a class="volta" href="app.html">← voltar pro app</a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lp-config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 function tlv(id, v){ return id + String(v.length).padStart(2, '0') + v; }
@@ -143,6 +157,39 @@ document.querySelectorAll('button[data-copy]').forEach(b => {
     });
   });
 });
+
+// Verificação automática de status Pro
+(async () => {
+  if (!window.LP_CONFIGURADO()) return;
+  const sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+  const { data: { session } } = await sb.auth.getSession();
+
+  document.getElementById('secVerificar').style.display = 'block';
+
+  async function checarPro() {
+    if (!session) { location.href = 'login.html'; return; }
+    const { data: prof } = await sb.from('profiles').select('is_pro,is_admin').eq('id', session.user.id).single();
+    if (prof && (prof.is_pro || prof.is_admin)) {
+      document.getElementById('boxPro').style.display = 'block';
+      document.getElementById('btnVerificar').style.display = 'none';
+      document.getElementById('msgVerificar').textContent = '';
+    } else {
+      document.getElementById('msgVerificar').textContent = 'Pagamento ainda não confirmado. Aguarde alguns segundos e tente novamente.';
+    }
+  }
+
+  // Checa automaticamente ao carregar (se veio de redirect do MP)
+  if (location.search.includes('payment') || location.search.includes('status')) checarPro();
+
+  document.getElementById('btnVerificar').addEventListener('click', async () => {
+    const btn = document.getElementById('btnVerificar');
+    btn.disabled = true;
+    btn.textContent = 'Verificando...';
+    document.getElementById('msgVerificar').textContent = '';
+    await checarPro();
+    if (btn.isConnected) { btn.disabled = false; btn.textContent = 'Já paguei — verificar meu acesso'; }
+  });
+})();
 </script>
 </body>
 </html>
