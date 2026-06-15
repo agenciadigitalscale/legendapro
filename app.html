@@ -216,19 +216,6 @@
         <div class="field"><label>Cor de destaque</label><input type="color" id="c2" value="#00d9ff"></div>
         <div class="field"><label>Cor extra</label><input type="color" id="c3" value="#00ffa3"></div>
         <div class="field"><label>Sombra no texto</label><input type="checkbox" id="glow" style="width:22px;height:22px;accent-color:#00d9ff;margin-top:5px;"></div>
-        <div class="field" style="flex:1;min-width:160px;">
-          <label>Efeito sonoro</label>
-          <select id="soundEffect" style="display:none;">
-            <option value="none">Nenhum</option>
-            <option value="fade">Suave</option>
-            <option value="pop">Impacto</option>
-            <option value="slide">Slide</option>
-            <option value="typewriter">Máquina</option>
-          </select>
-          <div id="sfxSelectedBox" style="background:#16181d;border:1px solid #2e2e35;border-radius:8px;padding:8px 11px;font-size:12px;color:#cfd6dd;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;" onclick="toggleSFXLibrary()">
-            <span id="sfxSelectedName">🔇 Nenhum</span><span style="color:#00d9ff;font-size:10px;">▼ biblioteca</span>
-          </div>
-        </div>
         <div class="field"><label>Formato</label>
           <select id="fmt">
             <option value="9x16">Vertical 9:16 (Reels/TikTok)</option>
@@ -252,8 +239,16 @@
       </div>
     </div>
 
-    <!-- SFX LIBRARY PANEL -->
-    <div id="sfxLibraryPanel" style="display:none;background:#0d0e12;border:1px solid #1e2228;border-radius:14px;margin-bottom:18px;overflow:hidden;">
+    <!-- ── SEÇÃO EFEITOS SONOROS ── -->
+    <div class="section" id="sfxSection">
+      <h2>🎵 Efeitos Sonoros</h2>
+      <p style="font-size:13px;color:#8a93a0;margin:8px 0 16px;">80+ sons em WAV prontos — preview na hora, download individual ou pack ZIP completo. Arraste pro CapCut, Premiere ou DaVinci junto com a legenda.</p>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;background:#13161c;border:1px solid #1e2228;border-radius:10px;padding:10px 14px;">
+        <span style="font-size:12px;color:#6f7482;font-weight:700;letter-spacing:1px;">SOM ATIVO:</span>
+        <span id="sfxSelectedName" style="font-size:13px;font-weight:700;color:#00d9ff;">🔇 Nenhum</span>
+        <button onclick="window.selectSoundEffect && window.selectSoundEffect('none','Nenhum')" style="margin-left:auto;font-size:11px;background:transparent;border:1px solid #2a2f38;color:#6f7482;border-radius:6px;padding:4px 10px;cursor:pointer;">✕ limpar</button>
+      </div>
+      <select id="soundEffect" style="display:none;"><option value="none">Nenhum</option></select>
       <div id="soundLibraryContainer"></div>
     </div>
 
@@ -264,6 +259,35 @@
         <div class="field"><label>Nome do cliente</label><input type="text" id="presetName" placeholder="ex: Restaurante do Zé" style="background:#1c1c1f;border:1px solid #2e2e35;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;padding:9px 10px;width:190px;outline:none;"></div>
         <button class="btn btn-play" id="btnSavePreset" style="align-self:flex-end;">Salvar cores</button>
         <button class="btn btn-play" id="btnDelPreset" style="align-self:flex-end;">Excluir</button>
+      </div>
+    </div>
+
+    <!-- TRANSCRIÇÃO AUTOMÁTICA -->
+    <div class="section" id="transcribeSection">
+      <h2>🎤 Transcrever Áudio</h2>
+      <p style="font-size:13px;color:#8a93a0;margin-bottom:14px;">Sobe o áudio/vídeo → IA preenche as linhas automaticamente. Formatos: mp3, mp4, wav, m4a (até 25MB)</p>
+      <div class="row" style="flex-direction:column;gap:10px;">
+        <label id="transcribeDropzone" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#13161c;border:2px dashed #2a2f38;border-radius:12px;padding:20px;cursor:pointer;transition:border-color .15s;text-align:center;flex-direction:column;">
+          <span style="font-size:28px;">🎵</span>
+          <span id="transcribeFileName" style="font-size:13px;color:#8a93a0;">Clique ou arraste o arquivo aqui</span>
+          <input type="file" id="transcribeFile" accept="audio/*,video/mp4,video/webm" style="display:none;">
+        </label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="transcribeLines" style="background:#16181d;border:1px solid #2e2e35;border-radius:8px;color:#eef1f4;font-family:inherit;font-size:13px;padding:9px 10px;outline:none;">
+            <option value="5">5 palavras/linha</option>
+            <option value="4">4 palavras/linha</option>
+            <option value="6">6 palavras/linha</option>
+            <option value="3">3 palavras/linha</option>
+          </select>
+          <button class="btn btn-play" id="btnTranscribe" style="flex:1;" disabled>🎤 Transcrever</button>
+        </div>
+        <div id="transcribeProgress" style="display:none;font-size:12px;color:#00d9ff;text-align:center;padding:8px;">Transcrevendo com IA...</div>
+        <div id="transcribeResult" style="display:none;">
+          <div style="font-size:11px;color:#8a93a0;margin-bottom:6px;font-weight:700;letter-spacing:1px;">LINHAS DETECTADAS — clique pra editar</div>
+          <div id="transcribeLines_out" style="display:flex;flex-direction:column;gap:6px;"></div>
+          <button class="btn btn-play" id="btnApplyTranscription" style="width:100%;margin-top:10px;background:linear-gradient(90deg,#00d9ff,#00ffa3);color:#04151c;">✓ Usar essas linhas na legenda</button>
+        </div>
+        <p id="transcribeMsg" style="font-size:12px;color:#ff6b6b;min-height:16px;"></p>
       </div>
     </div>
 
@@ -1178,40 +1202,111 @@ if ('serviceWorker' in navigator) {
 </script>
 <script src="cloud-features.js"></script>
 <script>
-// SFX Library toggle
-let _sfxLibOpen = false;
-function toggleSFXLibrary() {
-  _sfxLibOpen = !_sfxLibOpen;
-  const panel = document.getElementById('sfxLibraryPanel');
-  panel.style.display = _sfxLibOpen ? 'block' : 'none';
-  if (_sfxLibOpen && !panel.dataset.init) {
-    initSoundLibrary();
-    panel.dataset.init = '1';
-    // Marca o som atualmente selecionado
-    const cur = document.getElementById('soundEffect').value;
-    if (cur && cur !== 'none') {
-      const card = document.getElementById('sfxcard-' + cur);
-      if (card) card.classList.add('selected');
-    }
+// ── TRANSCRIÇÃO AUTOMÁTICA ──
+(function() {
+  const fileInput = document.getElementById('transcribeFile');
+  const dropzone = document.getElementById('transcribeDropzone');
+  const btnTranscribe = document.getElementById('btnTranscribe');
+  const fileName = document.getElementById('transcribeFileName');
+  let selectedFile = null;
+
+  function setFile(f) {
+    selectedFile = f;
+    fileName.textContent = f ? f.name + ' (' + (f.size/1024/1024).toFixed(1) + 'MB)' : 'Clique ou arraste o arquivo aqui';
+    btnTranscribe.disabled = !f;
+    if (f) dropzone.style.borderColor = '#00d9ff';
   }
-}
+
+  fileInput.addEventListener('change', () => setFile(fileInput.files[0] || null));
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.borderColor = '#00ffa3'; });
+  dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = selectedFile ? '#00d9ff' : '#2a2f38'; });
+  dropzone.addEventListener('drop', e => { e.preventDefault(); setFile(e.dataTransfer.files[0] || null); });
+
+  btnTranscribe.addEventListener('click', async () => {
+    if (!selectedFile || !window.LP_CONFIGURADO()) return;
+    const wordsPerLine = parseInt(document.getElementById('transcribeLines').value, 10);
+    const msg = document.getElementById('transcribeMsg');
+    const prog = document.getElementById('transcribeProgress');
+    const result = document.getElementById('transcribeResult');
+    const linesOut = document.getElementById('transcribeLines_out');
+
+    btnTranscribe.disabled = true;
+    prog.style.display = 'block';
+    result.style.display = 'none';
+    msg.textContent = '';
+
+    try {
+      const sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { msg.textContent = 'Faça login para usar a transcrição.'; return; }
+
+      const form = new FormData();
+      form.append('audio', selectedFile, selectedFile.name);
+      form.append('words_per_line', wordsPerLine);
+
+      const res = await fetch(window.LP_SUPABASE_URL.replace('.supabase.co', '.supabase.co/functions/v1') + '/transcribe', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + session.access_token },
+        body: form,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === 'pro_required') msg.textContent = 'Transcrição disponível pra usuários Pro.';
+        else if (data.error === 'openai_not_configured') msg.textContent = 'IA de transcrição ainda não configurada pelo admin.';
+        else msg.textContent = 'Erro: ' + (data.error || res.status);
+        return;
+      }
+
+      // Divide em linhas com o tamanho escolhido
+      const words = data.text.trim().split(/\s+/).filter(Boolean);
+      const lines = [];
+      for (let i = 0; i < words.length; i += wordsPerLine) {
+        const chunk = words.slice(i, i + wordsPerLine).join(' ');
+        if (chunk) lines.push(chunk);
+      }
+
+      linesOut.innerHTML = lines.map((l, i) => `
+        <input type="text" class="transcribe-line" data-idx="${i}" value="${l.replace(/"/g, '&quot;')}"
+          style="width:100%;background:#16181d;border:1px solid #2e2e35;border-radius:8px;color:#eef1f4;font-family:inherit;font-size:13px;padding:9px 10px;outline:none;">
+      `).join('');
+
+      result.style.display = 'block';
+      setStatus('✓ ' + lines.length + ' linhas detectadas — revise e aplique');
+
+    } catch (e) {
+      msg.textContent = 'Erro de conexão: ' + e.message;
+    } finally {
+      prog.style.display = 'none';
+      btnTranscribe.disabled = false;
+    }
+  });
+
+  document.getElementById('btnApplyTranscription').addEventListener('click', () => {
+    const inputs = document.querySelectorAll('.transcribe-line');
+    const lines = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+    if (!lines.length) return;
+    state.texts = lines;
+    buildTexts();
+    renderPreview();
+    setStatus('✓ ' + lines.length + ' linhas aplicadas à legenda!');
+    document.getElementById('transcribeResult').style.display = 'none';
+  });
+})();
+
 // Atualiza label quando som é selecionado pela biblioteca
 const _origSelectSFX = window.selectSoundEffect;
 window.selectSoundEffect = function(id, name) {
   _origSelectSFX && _origSelectSFX(id, name);
   const label = document.getElementById('sfxSelectedName');
   if (label) label.textContent = id === 'none' ? '🔇 Nenhum' : '🎵 ' + name;
-  // Sincroniza select hidden
   const sel = document.getElementById('soundEffect');
   if (sel) { let opt = sel.querySelector('[value="'+id+'"]'); if (!opt){ opt = document.createElement('option'); opt.value=id; sel.appendChild(opt); } sel.value = id; }
 };
-// Inicializa label com valor padrão
+// Inicializa biblioteca SFX ao carregar
 document.addEventListener('DOMContentLoaded', () => {
-  const sel = document.getElementById('soundEffect');
-  if (sel && sel.value && sel.value !== 'none') {
-    const label = document.getElementById('sfxSelectedName');
-    if (label) label.textContent = '🎵 ' + sel.options[sel.selectedIndex]?.text;
-  }
+  if (typeof initSoundLibrary === 'function') initSoundLibrary();
 });
 </script>
 </body>
