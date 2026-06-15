@@ -34,6 +34,16 @@
   }
   button.tog:hover { border-color: #00ffa3; }
   #estado { padding: 60px 20px; text-align: center; color: #8a93a0; font-size: 15px; line-height: 1.7; }
+  .filtros { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .filtros input, .filtros select { background: #101216; border: 1px solid #20252e; border-radius: 10px; color: #eef1f4; font-family: inherit; font-size: 13px; padding: 10px 12px; outline: none; }
+  .filtros input { flex: 1; min-width: 200px; }
+  .filtros button { background: transparent; border: 1px solid #2a2f38; color: #eef1f4; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 700; font-size: 12px; transition: border-color .15s; }
+  .filtros button:hover { border-color: #00ffa3; }
+  .chart { display: flex; gap: 12px; margin-bottom: 20px; align-items: flex-end; }
+  .bar { flex: 1; background: #101216; border: 1px solid #20252e; border-radius: 8px; padding: 12px 8px; text-align: center; position: relative; min-height: 80px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .bar .val { font-size: 22px; font-weight: 800; color: #00d9ff; }
+  .bar .lbl { font-size: 11px; color: #8a93a0; margin-top: 8px; }
+  .aviso { background: rgba(255,179,60,.12); border: 1px solid rgba(255,179,60,.3); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #ffb33c; }
 </style>
 </head>
 <body>
@@ -50,8 +60,25 @@
       <div class="stat"><div class="v" id="stTeste">0</div><div class="l">em teste grátis</div></div>
       <div class="stat"><div class="v" id="stExp">0</div><div class="l">teste expirado</div></div>
     </div>
+    <div class="chart" id="receita" style="display:none;margin-bottom:20px;">
+      <div class="bar"><div class="val" id="recMes">R$ 0</div><div class="lbl">este mês</div></div>
+      <div class="bar"><div class="val" id="recTotal">R$ 0</div><div class="lbl">total (Pro)</div></div>
+      <div class="bar"><div class="val" id="expSem">0</div><div class="lbl">expiram em 7 dias</div></div>
+    </div>
+    <div id="avisos"></div>
+    <div class="filtros">
+      <input type="text" id="busca" placeholder="Buscar por e-mail..." style="flex:1;">
+      <select id="filtroStatus" style="min-width:150px;">
+        <option value="">Todos os status</option>
+        <option value="pro">Pro</option>
+        <option value="teste">Teste ativo</option>
+        <option value="expirado">Teste expirado</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button id="btnCsv">📥 Exportar CSV</button>
+    </div>
     <table>
-      <thead><tr><th>E-mail</th><th>Criado em</th><th>Status</th><th>Ação</th></tr></thead>
+      <thead><tr><th>E-mail</th><th>Criado em</th><th>Vencimento</th><th>Status</th><th>Dias</th><th>Ação</th></tr></thead>
       <tbody id="linhas"></tbody>
     </table>
   </div>
@@ -62,6 +89,7 @@
 <script>
 const DIA = 86400000;
 let sb = null;
+let allPerfis = [];
 
 async function init(){
   const estado = document.getElementById('estado');
@@ -72,27 +100,128 @@ async function init(){
   const { data: eu } = await sb.from('profiles').select('is_admin').eq('id', session.user.id).single();
   if (!eu || !eu.is_admin){ estado.textContent = 'Acesso restrito ao criador. Essa área não é pra você. 😉'; return; }
   await carregar();
+  document.getElementById('busca').addEventListener('input', filtrar);
+  document.getElementById('filtroStatus').addEventListener('change', filtrar);
+  document.getElementById('btnCsv').addEventListener('click', exportarCSV);
 }
 
 async function carregar(){
   const { data: perfis, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
   if (error){ document.getElementById('estado').textContent = 'Erro ao carregar: ' + error.message; return; }
+  allPerfis = perfis;
   document.getElementById('estado').style.display = 'none';
   document.getElementById('painel').style.display = 'block';
+  calcularStats();
+  mostrarAvisos();
+  filtrar();
+}
+
+function getStatus(p){
+  if (p.is_admin) return 'admin';
+  if (p.is_pro) return 'pro';
+  const expirou = Date.now() - new Date(p.trial_start).getTime() > DIA;
+  return expirou ? 'expirado' : 'teste';
+}
+
+function diasAtéVencimento(p){
+  if (p.is_admin || p.is_pro) return null;
+  const vencimento = new Date(p.trial_start).getTime() + DIA;
+  const dias = Math.ceil((vencimento - Date.now()) / DIA);
+  return Math.max(-999, dias);
+}
+
+function calcularStats(){
+  let nTotal = 0, nPro = 0, nTeste = 0, nExp = 0, recMes = 0, recTotal = 0, expSem = 0;
+  const agora = Date.now();
+  const mesAtras = agora - 30 * DIA;
+  
+  allPerfis.forEach(p => {
+    nTotal++;
+    const st = getStatus(p);
+    if (st === 'admin') {}
+    else if (st === 'pro'){ 
+      nPro++;
+      recTotal += 37.99;
+      const criado = new Date(p.created_at).getTime();
+      if (criado > mesAtras) recMes += 37.99;
+    }
+    else if (st === 'teste'){ nTeste++; }
+    else { nExp++; }
+    
+    const dias = diasAtéVencimento(p);
+    if (dias !== null && dias >= 0 && dias <= 7) expSem++;
+  });
+  
+  document.getElementById('stTotal').textContent = nTotal;
+  document.getElementById('stPro').textContent = nPro;
+  document.getElementById('stTeste').textContent = nTeste;
+  document.getElementById('stExp').textContent = nExp;
+  document.getElementById('recMes').textContent = 'R$ ' + recMes.toFixed(2);
+  document.getElementById('recTotal').textContent = 'R$ ' + recTotal.toFixed(2);
+  document.getElementById('expSem').textContent = expSem;
+  document.getElementById('receita').style.display = 'flex';
+}
+
+function mostrarAvisos(){
+  const wrap = document.getElementById('avisos');
+  wrap.innerHTML = '';
+  const expirando = allPerfis.filter(p => {
+    const dias = diasAtéVencimento(p);
+    return dias !== null && dias >= 0 && dias <= 3;
+  });
+  if (expirando.length > 0){
+    const av = document.createElement('div');
+    av.className = 'aviso';
+    av.innerHTML = '⚠️ <strong>' + expirando.length + ' teste(s) expiram em até 3 dias:</strong> ' + expirando.map(p => p.email).join(', ');
+    wrap.appendChild(av);
+  }
+}
+
+function filtrar(){
   const tb = document.getElementById('linhas');
   tb.innerHTML = '';
-  let nPro = 0, nTeste = 0, nExp = 0;
-  perfis.forEach(p => {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  const status = document.getElementById('filtroStatus').value;
+  
+  let filtrados = allPerfis.filter(p => {
+    if (busca && !p.email.toLowerCase().includes(busca)) return false;
+    if (status && getStatus(p) !== status) return false;
+    return true;
+  });
+  
+  filtrados.forEach(p => {
     const tr = document.createElement('tr');
-    const expirou = Date.now() - new Date(p.trial_start).getTime() > DIA;
+    const st = getStatus(p);
     let pill, rotulo;
-    if (p.is_admin){ pill = 'p-admin'; rotulo = 'ADMIN'; }
-    else if (p.is_pro){ pill = 'p-pro'; rotulo = 'PRO'; nPro++; }
-    else if (!expirou){ pill = 'p-teste'; rotulo = 'TESTE'; nTeste++; }
-    else { pill = 'p-exp'; rotulo = 'EXPIRADO'; nExp++; }
+    if (st === 'admin'){ pill = 'p-admin'; rotulo = 'ADMIN'; }
+    else if (st === 'pro'){ pill = 'p-pro'; rotulo = 'PRO'; }
+    else if (st === 'teste'){ pill = 'p-teste'; rotulo = 'TESTE'; }
+    else { pill = 'p-exp'; rotulo = 'EXPIRADO'; }
+    
     const tdMail = document.createElement('td'); tdMail.textContent = p.email || '—';
     const tdData = document.createElement('td'); tdData.textContent = new Date(p.created_at).toLocaleDateString('pt-BR');
-    const tdSt = document.createElement('td'); tdSt.innerHTML = '<span class="pill ' + pill + '">' + rotulo + '</span>';
+    
+    const tdVenc = document.createElement('td');
+    const dias = diasAtéVencimento(p);
+    if (dias !== null){
+      const vencimento = new Date(new Date(p.trial_start).getTime() + DIA);
+      tdVenc.textContent = vencimento.toLocaleDateString('pt-BR');
+    } else {
+      tdVenc.textContent = '—';
+    }
+    
+    const tdSt = document.createElement('td'); 
+    tdSt.innerHTML = '<span class="pill ' + pill + '">' + rotulo + '</span>';
+    
+    const tdDias = document.createElement('td');
+    if (dias !== null){
+      if (dias > 0) tdDias.textContent = dias + 'd';
+      else if (dias === 0) { tdDias.textContent = 'hoje'; tdDias.style.color = '#ffb33c'; tdDias.style.fontWeight = '800'; }
+      else tdDias.textContent = dias + 'd';
+    } else {
+      tdDias.textContent = '—';
+    }
+    
     const tdAc = document.createElement('td');
     if (!p.is_admin){
       const b = document.createElement('button');
@@ -102,17 +231,27 @@ async function carregar(){
         b.disabled = true;
         const { error: e2 } = await sb.from('profiles').update({ is_pro: !p.is_pro }).eq('id', p.id);
         if (e2) alert('Erro: ' + e2.message);
-        await carregar();
+        else await carregar();
       });
       tdAc.appendChild(b);
     }
-    tr.appendChild(tdMail); tr.appendChild(tdData); tr.appendChild(tdSt); tr.appendChild(tdAc);
+    tr.appendChild(tdMail); tr.appendChild(tdData); tr.appendChild(tdVenc); tr.appendChild(tdSt); tr.appendChild(tdDias); tr.appendChild(tdAc);
     tb.appendChild(tr);
   });
-  document.getElementById('stTotal').textContent = perfis.length;
-  document.getElementById('stPro').textContent = nPro;
-  document.getElementById('stTeste').textContent = nTeste;
-  document.getElementById('stExp').textContent = nExp;
+}
+
+function exportarCSV(){
+  let csv = 'E-mail,Criado em,Status,Dias até vencimento,Pro\n';
+  allPerfis.forEach(p => {
+    const st = getStatus(p);
+    const dias = diasAtéVencimento(p);
+    csv += '"' + (p.email || '') + '","' + new Date(p.created_at).toLocaleDateString('pt-BR') + '","' + st + '","' + (dias !== null ? dias : '—') + '","' + (p.is_pro ? 'Sim' : 'Não') + '"\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'legendapro-contas-' + new Date().toISOString().split('T')[0] + '.csv';
+  link.click();
 }
 
 document.getElementById('sair').addEventListener('click', async ev => {

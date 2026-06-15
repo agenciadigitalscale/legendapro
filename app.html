@@ -2,7 +2,14 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Gerador de legendas dinâmicas para CapCut, Premiere Pro e DaVinci Resolve">
+<meta name="theme-color" content="#00d9ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LegendaPro">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%2308090c' width='192' height='192'/><text x='96' y='120' font-size='80' font-weight='800' font-family='Anton' text-anchor='middle' fill='%2300d9ff'>LP</text></svg>">
 <title>LegendaPro — Legendas dinâmicas pra CapCut, Premiere e DaVinci</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700;1,800&family=Caveat:wght@700&family=Montserrat:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
@@ -130,6 +137,15 @@
     font-size: 13px; color: #b9b9c2; line-height: 1.7;
   }
   .howto strong { color: #fff; }
+  .btn { position: relative; }
+  .btn.loading::after { content: ''; display: inline-block; width: 14px; height: 14px; margin-left: 8px; border: 2px solid rgba(255,255,255,.3); border-top: 2px solid #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .tooltip { position: relative; }
+  .tooltip::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #252a34; color: #eef1f4; padding: 6px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 99; margin-bottom: 4px; }
+  .tooltip:hover::after { opacity: 1; }
+  .model-btn.tooltip::after { content: attr(data-tip); bottom: auto; top: 100%; margin-bottom: 0; margin-top: 4px; }
+  .salvo { display: inline-block; color: #00ffa3; font-size: 11px; margin-left: 4px; font-weight: 800; }
+  .preview-info { font-size: 12px; color: #8a93a0; text-align: center; margin-top: 8px; }
   @media (max-width: 700px){
     header { padding: 12px 16px 8px; }
     header h1 { font-size: 18px; }
@@ -145,6 +161,7 @@
     }
     #preview { width: 148px; border-radius: 10px; }
     .preview-hint { display: none; }
+    .preview-info { display: none; }
     .controls { min-width: 0; width: 100%; }
     .models { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
     .btns .btn { flex: 1 1 100%; }
@@ -173,6 +190,11 @@
   <div class="preview-col">
     <canvas id="preview" width="1080" height="1920"></canvas>
     <p class="preview-hint">O fundo escuro é só do preview — o PNG sai com fundo transparente.</p>
+    <p class="preview-info" id="previewInfo"></p>
+    <div style="font-size:12px;color:#6f6f78;text-align:center;margin-top:12px;gap:8px;display:flex;flex-direction:column;">
+      <button id="btnLimparHistorico" class="btn btn-play" style="font-size:11px;padding:8px 12px;width:100%;">Limpar rascunho</button>
+      <small id="salvoLabel"></small>
+    </div>
   </div>
 
   <div class="controls">
@@ -194,6 +216,15 @@
         <div class="field"><label>Cor de destaque</label><input type="color" id="c2" value="#00d9ff"></div>
         <div class="field"><label>Cor extra</label><input type="color" id="c3" value="#00ffa3"></div>
         <div class="field"><label>Sombra no texto</label><input type="checkbox" id="glow" style="width:22px;height:22px;accent-color:#00d9ff;margin-top:5px;"></div>
+        <div class="field"><label>Efeito sonoro</label>
+          <select id="soundEffect">
+            <option value="fade">Suave (fade)</option>
+            <option value="pop">Impacto (pop)</option>
+            <option value="slide">Desliza (slide)</option>
+            <option value="typewriter">Máquina de escrever</option>
+            <option value="none">Nenhum</option>
+          </select>
+        </div>
         <div class="field"><label>Formato</label>
           <select id="fmt">
             <option value="9x16">Vertical 9:16 (Reels/TikTok)</option>
@@ -227,6 +258,31 @@
       </div>
     </div>
 
+    <div class="section" id="cloudSection" style="display:none;">
+      <h2>☁️ Salvo na Nuvem</h2>
+      <div class="row">
+        <button class="btn btn-play" id="btnSaveCloud" style="flex:1;">Salvar template na nuvem</button>
+        <button class="btn btn-play" id="btnLoadCloud" style="flex:1;">Carregar da nuvem</button>
+        <button class="btn btn-play" id="btnListCloud" style="flex:1;">Meus templates</button>
+      </div>
+      <div id="cloudList" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="section" id="batchSection" style="display:none;">
+      <h2>📦 Exportar múltiplas</h2>
+      <div style="font-size:12px;color:#9a9aa3;margin-bottom:12px;">Selecione cores de clientes pra exportar todas de uma vez</div>
+      <div id="batchList" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
+      <div class="row">
+        <select id="batchFormat" style="flex:1;">
+          <option value="png">PNG (rápido)</option>
+          <option value="webm">WebM (CapCut)</option>
+          <option value="mp4">MP4 (Premiere)</option>
+        </select>
+        <button class="btn btn-webm" id="btnBatchExport" style="flex:1;">Gerar pacote 📦</button>
+      </div>
+      <p id="batchStatus" style="font-size:12px;color:#9a9aa3;margin-top:8px;"></p>
+    </div>
+
     <div class="section">
       <h2>Exportar</h2>
       <div class="row" style="margin-bottom:12px;">
@@ -238,12 +294,12 @@
         </div>
       </div>
       <div class="btns">
-        <button class="btn btn-play" id="btnPlay">&#9654; Ver animação</button>
-        <button class="btn btn-png" id="btnPng">PNG transparente</button>
-        <button class="btn btn-webm" id="btnWebm">Vídeo WebM (CapCut)</button>
-        <button class="btn btn-webm" id="btnMp4">Vídeo MP4 (Premiere/DaVinci)</button>
-        <button class="btn btn-play" id="btnZip">Sequência PNG (Premiere/DaVinci)</button>
-        <button class="btn btn-webm" id="btnLayers">Camadas separadas — 1 PNG por palavra (ZIP)</button>
+        <button class="btn btn-play tooltip" id="btnPlay" data-tip="Space ou Enter">&#9654; Ver animação</button>
+        <button class="btn btn-png tooltip" id="btnPng" data-tip="Ctrl+S">PNG transparente</button>
+        <button class="btn btn-webm tooltip" id="btnWebm" data-tip="CapCut 📱">Vídeo WebM (CapCut)</button>
+        <button class="btn btn-webm tooltip" id="btnMp4" data-tip="Premiere/DaVinci">Vídeo MP4 (Premiere/DaVinci)</button>
+        <button class="btn btn-play tooltip" id="btnZip" data-tip="Premiere/DaVinci">Sequência PNG (Premiere/DaVinci)</button>
+        <button class="btn btn-webm tooltip" id="btnLayers" data-tip="Sincronizar palavra por palavra">Camadas separadas — 1 PNG por palavra (ZIP)</button>
       </div>
       <p id="status"></p>
     </div>
@@ -267,6 +323,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="lp-config.js"></script>
+<script src="sound-effects.js"></script>
 <script>
 const FORMATS = {
   '9x16': [1080, 1920],
@@ -414,7 +471,123 @@ const MODELS = [
   { id:'mixdestaque', name:'Mix com destaque', cat:'editorial', anim:'pop', lines:[
     { f:'Playfair Display', s:85, it:1, w:700, c:'c1', d:'o que', dx:-160 },
     { f:'Archivo Black', s:135, c:'c1', d:'NINGUÉM', gap:-14 },
-    { f:'Playfair Display', s:155, it:1, w:800, c:'c2', d:'te ensina', dx:70, gap:-30 } ]}
+    { f:'Playfair Display', s:155, it:1, w:800, c:'c2', d:'te ensina', dx:70, gap:-30 } ]},
+  
+  { id:'duplo1', name:'Duplo impacto', cat:'geral', anim:'pop', lines:[
+    { f:'Bebas Neue', s:160, c:'c1', d:'PASSO' },
+    { f:'Bebas Neue', s:160, c:'c2', d:'1', gap:-28 },
+    { f:'Montserrat', s:48, w:800, c:'c1', d:'aprenda agora', gap:12 } ]},
+  { id:'dinamico1', name:'Dinâmico diagonal', cat:'geral', anim:'slide', lines:[
+    { f:'Playfair Display', s:100, it:1, w:700, c:'c2', d:'VIRA', dx:-120, rot:-5 },
+    { f:'Playfair Display', s:180, it:1, w:800, c:'c1', d:'VIRAL', dx:40, gap:-50, rot:2 } ]},
+  { id:'trio1', name:'Trio harmonizado', cat:'promo', anim:'fade', lines:[
+    { f:'Montserrat', s:50, w:800, sp:8, c:'c1', d:'ENCONTROU' },
+    { f:'Anton', s:180, c:'c2', d:'AQUILO', gap:-20 },
+    { f:'Montserrat', s:50, w:800, sp:8, c:'c3', d:'que buscava', gap:12 } ]},
+  { id:'sombra1', name:'Texto com sombra dupla', cat:'editorial', anim:'fade', lines:[
+    { f:'Archivo Black', s:140, c:'c2', sh:'c1', d:'DESTAQUE', gap:20 },
+    { f:'Montserrat', s:60, w:800, c:'c1', d:'em foco', gap:8 } ]},
+  { id:'neon1', name:'Contorno neon', cat:'geral', anim:'pop', lines:[
+    { f:'Bebas Neue', s:150, c:'c1', sp:6, stroke:1, d:'BRILHO NEON' },
+    { f:'Montserrat', s:46, w:700, c:'c2', d:'seu melhor aliado', gap:20 } ]},
+  { id:'elegante1', name:'Elegância minimalista', cat:'editorial', anim:'typewriter', lines:[
+    { f:'Playfair Display', s:95, it:1, w:700, c:'c1', d:'a arte da' },
+    { f:'Playfair Display', s:140, it:1, w:800, c:'c2', d:'simplicidade', gap:-8 },
+    { rule:1, c:'c3', gap:20 } ]},
+  { id:'energia1', name:'Energia pura', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:220, c:'c2', d:'⚡' },
+    { f:'Bebas Neue', s:140, c:'c1', sp:4, d:'BOMBA', gap:-20 },
+    { f:'Montserrat', s:48, w:700, c:'c3', d:'vem vindo', gap:12 } ]},
+  { id:'destaque2', name:'Destaque em box', cat:'promo', anim:'slide', lines:[
+    { f:'Montserrat', s:56, w:700, box:{ bg:'c2', fg:'dark' }, d:'BLACK FRIDAY' },
+    { f:'Montserrat', s:48, it:1, w:600, c:'c1', d:'desconto total', gap:24 } ]},
+  
+  { id:'stacked1', name:'Empilhado alternado', cat:'gancho', anim:'pop', lines:[
+    { f:'Montserrat', s:80, w:800, c:'c1', d:'PIOR' },
+    { f:'Montserrat', s:80, w:800, c:'c2', d:'ERRO', gap:-20 },
+    { f:'Montserrat', s:80, w:800, c:'c3', d:'QUE VEJO', gap:-20 } ]},
+  { id:'fluxo1', name:'Fluxo de leitura', cat:'editorial', anim:'fade', lines:[
+    { f:'Montserrat', s:50, w:700, sp:12, c:'c1', d:'DICA 1 / 2 / 3' },
+    { f:'Playfair Display', s:130, it:1, w:800, c:'c2', d:'aplicável agora', gap:8 } ]},
+  { id:'impacto2', name:'Impacto com delay', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:250, c:'c2', d:'ESPERA' },
+    { f:'Montserrat', s:56, w:800, box:{ bg:'c1', fg:'dark' }, d:'você precisa saber isso', gap:40 } ]},
+  { id:'combo1', name:'Combo de cores', cat:'promo', anim:'slide', lines:[
+    { f:'Anton', s:200, c:'c1', d:'150' },
+    { f:'Montserrat', s:70, w:800, c:'c2', d:'de desconto', gap:-8 },
+    { f:'Caveat', s:120, w:700, c:'c3', rot:-3, d:'em tudo', gap:10 } ]},
+  { id:'profundo1', name:'Profundidade 3D', cat:'editorial', anim:'fade', lines:[
+    { f:'Playfair Display', s:170, it:1, w:800, c:'c1', d:'camadas', gap:-50 },
+    { f:'Montserrat', s:70, w:800, c:'c2', d:'de sentido', gap:30 } ]},
+  { id:'ritmo1', name:'Ritmo acelerado', cat:'cta', anim:'pop', lines:[
+    { f:'Bebas Neue', s:140, c:'c1', sp:8, d:'ME' },
+    { f:'Bebas Neue', s:140, c:'c2', sp:8, d:'SEGUE' },
+    { f:'Bebas Neue', s:140, c:'c3', sp:8, d:'AGORA', gap:-10 } ]},
+  { id:'sutil1', name:'Sutil elegante', cat:'geral', anim:'typewriter', lines:[
+    { f:'Playfair Display', s:100, it:1, w:700, c:'c2', d:'aquele momento' },
+    { f:'Montserrat', s:50, w:700, c:'c1', d:'que tudo muda', gap:12 },
+    { rule:1, c:'c3', gap:16 } ]},
+  { id:'viral1', name:'Viral garantido', cat:'gancho', anim:'pop', lines:[
+    { f:'Bebas Neue', s:200, c:'c2', sp:4, d:'VIRAL' },
+    { f:'Montserrat', s:60, w:800, box:{ bg:'c1', fg:'dark' }, d:'100% comprovado', gap:28 } ]},
+  { id:'matriz1', name:'Matriz de texto', cat:'editorial', anim:'fade', lines:[
+    { f:'Archivo Black', s:110, c:'c1', d:'[ CÓDIGO ]', gap:16 },
+    { f:'Montserrat', s:100, it:1, w:700, c:'c2', d:'da criatividade', gap:8 } ]},
+  
+  { id:'gradual1', name:'Gradual crescente', cat:'editorial', anim:'slide', lines:[
+    { f:'Montserrat', s:44, w:700, c:'c1', d:'pequeno' },
+    { f:'Montserrat', s:70, w:700, c:'c2', d:'médio', gap:-10 },
+    { f:'Anton', s:200, c:'c3', d:'GRANDE', gap:-30 } ]},
+  { id:'retro1', name:'Retro futurista', cat:'geral', anim:'pop', lines:[
+    { f:'Bebas Neue', s:150, c:'c1', sp:10, d:'CYBER' },
+    { f:'Anton', s:140, c:'c2', d:'2099', gap:-18 },
+    { f:'Montserrat', s:48, w:700, c:'c3', d:'bem agora', gap:12 } ]},
+  { id:'foco1', name:'Foco extremo', cat:'gancho', anim:'pop', lines:[
+    { f:'Playfair Display', s:180, it:1, w:800, c:'c2', d:'OLHE' },
+    { f:'Montserrat', s:56, w:800, box:{ bg:'c1', fg:'dark' }, d:'PARA AQUI AGORA', gap:32 } ]},
+  { id:'poesia1', name:'Poético tipográfico', cat:'editorial', anim:'typewriter', lines:[
+    { f:'Caveat', s:140, w:700, c:'c2', rot:-3, d:'a beleza está' },
+    { f:'Playfair Display', s:120, it:1, w:700, c:'c1', d:'nos detalhes', gap:8 },
+    { rule:1, c:'c3', gap:16 } ]},
+  { id:'urgencia1', name:'Urgência máxima', cat:'promo', anim:'pop', lines:[
+    { f:'Bebas Neue', s:200, c:'c2', sp:6, d:'AGORA' },
+    { f:'Montserrat', s:60, w:800, c:'c1', d:'últimos 5 minutos', gap:12 } ]},
+  { id:'premium1', name:'Premium luxo', cat:'promo', anim:'fade', lines:[
+    { f:'Playfair Display', s:110, it:1, w:700, c:'c2', d:'PREMIUM' },
+    { rule:1, c:'c2', gap:12 },
+    { f:'Montserrat', s:56, w:800, c:'c1', d:'exclusivo para você', gap:12 } ]},
+  { id:'choque1', name:'Choque visual', cat:'gancho', anim:'pop', lines:[
+    { f:'Anton', s:280, c:'c2', d:'!' },
+    { f:'Montserrat', s:70, w:800, c:'c1', d:'isso é loucura', gap:16 } ]},
+  { id:'construcao1', name:'Construção em layers', cat:'editorial', anim:'slide', lines:[
+    { f:'Montserrat', s:60, w:700, c:'c1', d:'camada' },
+    { f:'Montserrat', s:80, w:700, c:'c2', d:'sobre camada', gap:-8 },
+    { f:'Anton', s:140, c:'c3', d:'COMPLEXA', gap:-12 } ]},
+  { id:'minimo1', name:'Mínimo radical', cat:'geral', anim:'fade', lines:[
+    { f:'Playfair Display', s:140, it:1, w:700, c:'c2', d:'ESSÊNCIA' },
+    { rule:1, c:'c2', gap:28 } ]},
+  { id:'impacto3', name:'Impacto triplo', cat:'gancho', anim:'pop', lines:[
+    { f:'Bebas Neue', s:160, c:'c1', sp:4, d:'BAM' },
+    { f:'Bebas Neue', s:160, c:'c2', sp:4, d:'POW', gap:-20 },
+    { f:'Bebas Neue', s:160, c:'c3', sp:4, d:'ZAP', gap:-20 } ]},
+  { id:'fluidez1', name:'Fluidez contínua', cat:'editorial', anim:'typewriter', lines:[
+    { f:'Playfair Display', s:120, it:1, w:800, c:'c1', d:'o tempo' },
+    { f:'Playfair Display', s:120, it:1, w:800, c:'c2', d:'flui sem parar', gap:-8 },
+    { rule:1, c:'c3', gap:20 } ]},
+  { id:'brutal1', name:'Tipografia brutal', cat:'gancho', anim:'pop', lines:[
+    { f:'Archivo Black', s:200, c:'c1', d:'DIRETO' },
+    { f:'Archivo Black', s:200, c:'c2', d:'AO PONTO', gap:-40 } ]},
+  { id:'sedutor1', name:'Sedutor suspeita', cat:'cta', anim:'slide', lines:[
+    { f:'Caveat', s:180, w:700, c:'c2', rot:-4, d:'descobre' },
+    { f:'Montserrat', s:120, w:800, c:'c1', d:'clicando aqui', gap:-12 } ]},
+  { id:'simetria1', name:'Simetria perfeita', cat:'editorial', anim:'fade', lines:[
+    { f:'Montserrat', s:70, w:800, c:'c2', d:'ESQUERDA', dx:-100 },
+    { rule:1, c:'c1', gap:28 },
+    { f:'Montserrat', s:70, w:800, c:'c3', d:'DIREITA', dx:100, gap:28 } ]},
+  { id:'cascata1', name:'Cascata colorida', cat:'geral', anim:'slide', lines:[
+    { f:'Anton', s:180, c:'c1', d:'A', gap:-40 },
+    { f:'Anton', s:180, c:'c2', d:'B', gap:-40 },
+    { f:'Anton', s:180, c:'c3', d:'C', gap:12 } ]}
 ];
 
 const state = { model: MODELS[0], texts: [], lineOv: [], c1:'#ffffff', c2:'#00d9ff', c3:'#00ffa3', glow:false, anim:'fade', scale:1, offset:0, fmt:'9x16' };
@@ -553,20 +726,60 @@ function playAnim(targetCtx, bg, onDone, holdMs){
   playRaf = requestAnimationFrame(tick);
 }
 
+function saveToLocalStorage(){
+  const save = { model: state.model.id, texts: state.texts, c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, lineOv: state.lineOv };
+  localStorage.setItem('legendas_save', JSON.stringify(save));
+  const ago = new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('salvoLabel').textContent = '✓ Salvo em ' + ago;
+}
+
+function loadFromLocalStorage(){
+  try {
+    const save = JSON.parse(localStorage.getItem('legendas_save'));
+    if (!save) return;
+    const m = MODELS.find(x => x.id === save.model);
+    if (!m) return;
+    state.model = m;
+    state.texts = save.texts || [];
+    state.c1 = save.c1 || '#ffffff';
+    state.c2 = save.c2 || '#00d9ff';
+    state.c3 = save.c3 || '#00ffa3';
+    state.glow = save.glow || false;
+    state.anim = save.anim || 'fade';
+    state.scale = save.scale || 1;
+    state.offset = save.offset || 0;
+    state.fmt = save.fmt || '9x16';
+    state.lineOv = save.lineOv || state.model.lines.map(() => ({ hide: false, sp: null }));
+    document.getElementById('c1').value = state.c1;
+    document.getElementById('c2').value = state.c2;
+    document.getElementById('c3').value = state.c3;
+    document.getElementById('glow').checked = state.glow;
+    document.getElementById('anim').value = state.anim;
+    document.getElementById('scale').value = state.scale * 100;
+    document.getElementById('offset').value = state.offset;
+    document.getElementById('fmt').value = state.fmt;
+    document.getElementById('scaleOut').textContent = (state.scale * 100) + '%';
+    document.getElementById('offOut').textContent = state.offset;
+    applyFormat();
+    setStatus('✓ Rascunho restaurado');
+  } catch (e) { }
+}
+
 function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
-  state.texts = state.model.lines.map(ln => ln.d || '');
-  state.lineOv = state.model.lines.map(() => ({ hide: false, sp: null }));
+  state.texts = state.model.lines.map((ln, i) => state.texts[i] !== undefined ? state.texts[i] : (ln.d || ''));
+  state.lineOv = state.model.lines.map((ln, i) => state.lineOv[i] || { hide: false, sp: null });
   state.model.lines.forEach((ln, i) => {
     if (ln.rule) return;
     const row = document.createElement('div');
     row.className = 'linha';
     const inp = document.createElement('input');
     inp.type = 'text';
-    inp.value = ln.d || '';
+    inp.value = state.texts[i] || '';
+    inp.maxLength = 200;
     inp.placeholder = 'Linha ' + (i + 1);
-    inp.addEventListener('input', () => { state.texts[i] = inp.value; renderPreview(); });
+    inp.addEventListener('input', () => { state.texts[i] = inp.value; renderPreview(); saveToLocalStorage(); });
     row.appendChild(inp);
     const spw = document.createElement('div');
     spw.className = 'spwrap';
@@ -756,26 +969,29 @@ async function exportLayers(){
 
 function setStatus(msg){ document.getElementById('status').textContent = msg; }
 
-document.getElementById('c1').addEventListener('input', e => { state.c1 = e.target.value; renderPreview(); });
-document.getElementById('c2').addEventListener('input', e => { state.c2 = e.target.value; renderPreview(); });
-document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); });
-document.getElementById('glow').addEventListener('change', e => { state.glow = e.target.checked; renderPreview(); });
-document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; playAnim(pctx, '#1c1c1f'); });
+document.getElementById('c1').addEventListener('input', e => { state.c1 = e.target.value; renderPreview(); saveToLocalStorage(); });
+document.getElementById('c2').addEventListener('input', e => { state.c2 = e.target.value; renderPreview(); saveToLocalStorage(); });
+document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); saveToLocalStorage(); });
+document.getElementById('glow').addEventListener('change', e => { state.glow = e.target.checked; renderPreview(); saveToLocalStorage(); });
+document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; playAnim(pctx, '#1c1c1f'); saveToLocalStorage(); });
 document.getElementById('scale').addEventListener('input', e => {
   state.scale = e.target.value / 100;
   document.getElementById('scaleOut').textContent = e.target.value + '%';
   renderPreview();
+  saveToLocalStorage();
 });
 document.getElementById('offset').addEventListener('input', e => {
   state.offset = Number(e.target.value);
   document.getElementById('offOut').textContent = e.target.value;
   renderPreview();
+  saveToLocalStorage();
 });
 function applyFormat(){
   const F = dims();
   preview.width = F[0]; preview.height = F[1];
   preview.style.aspectRatio = F[0] + ' / ' + F[1];
   renderPreview();
+  saveToLocalStorage();
 }
 document.getElementById('fmt').addEventListener('change', e => { state.fmt = e.target.value; applyFormat(); });
 
@@ -841,11 +1057,30 @@ const FONT_LOADS = [
 ];
 Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
   buildChips();
+  loadFromLocalStorage();
   buildModels();
   buildTexts();
   refreshPresetSel();
   renderPreview();
   playAnim(pctx, '#1c1c1f');
+});
+
+document.getElementById('btnLimparHistorico').addEventListener('click', () => {
+  if (confirm('Limpar rascunho salvo?')){
+    localStorage.removeItem('legendas_save');
+    setStatus('✓ Rascunho limpo — recarregue a página pra recomeçar');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's'){
+    e.preventDefault();
+    document.getElementById('btnPng').click();
+  }
+  if ((e.key === ' ' || e.key === 'Enter') && document.activeElement.tagName !== 'INPUT'){
+    e.preventDefault();
+    playAnim(pctx, '#1c1c1f');
+  }
 });
 
 const DIA_MS = 24 * 60 * 60 * 1000;
@@ -923,6 +1158,14 @@ function showPaywall(){
   });
 }
 authCheck();
+
+// Registrar service worker pra PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(e => {
+    console.log('SW registration failed:', e);
+  });
+}
 </script>
+<script src="cloud-features.js"></script>
 </body>
 </html>

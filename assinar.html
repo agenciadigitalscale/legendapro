@@ -57,6 +57,9 @@
   .volta { display: block; font-size: 13px; color: #8a93a0; margin-top: 18px; text-decoration: none; }
   .volta:hover { color: #00d9ff; }
   .ok-msg { font-size: 12px; color: #00ffa3; min-height: 16px; margin-top: 8px; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 800; background: rgba(0,255,163,.2); color: #00ffa3; padding: 3px 8px; border-radius: 999px; margin-bottom: 8px; }
+  .mp-wrapper { position: relative; }
+  .mp-wrapper::before { content: '✓ RECOMENDADO'; position: absolute; top: -10px; left: 0; right: 0; font-size: 9px; font-weight: 800; color: #00d9ff; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -67,8 +70,10 @@
   <div class="preco">R$ 37,99<small>/mês</small></div>
   <p class="sub">Escolha como pagar:</p>
 
-  <a class="wa" style="margin-top:0;" href="https://link.mercadopago.com.br/legendasproks">💳 Assinar com cartão — renovação automática</a>
-  <p style="font-size:12px;color:#8a93a0;margin:8px 0 0;">pelo Mercado Pago · seguro · sem precisar lembrar de pagar</p>
+  <div class="mp-wrapper" style="padding:4px 0 20px;">
+    <a class="wa" style="margin:0;" href="https://link.mercadopago.com.br/legendasproks">💳 Assinar com cartão — renovação automática</a>
+    <p style="font-size:11px;color:#00ffa3;margin:6px 0 0;font-weight:700;">seguro · sem precisar lembrar de pagar</p>
+  </div>
 
   <div style="display:flex;align-items:center;gap:10px;margin:20px 0 16px;">
     <div style="flex:1;border-top:1px solid #262b34;"></div>
@@ -93,12 +98,12 @@
   <p class="ok-msg" id="okmsg"></p>
 
   <div class="passos">
-    <p><b>1.</b> Pague: cartão (assinatura automática) ou PIX de R$ 37,99</p>
-    <p><b>2.</b> Mande o comprovante no WhatsApp junto com o e-mail da sua conta LegendaPro</p>
-    <p><b>3.</b> Seu acesso Pro é liberado na hora — é só recarregar o app</p>
+    <p><b>💳 Cartão (Mercado Pago):</b> assinatura automática, renova todo mês sem você fazer nada.</p>
+    <p><b>📱 PIX:</b> pague de uma vez — mande o comprovante pra liberarmos seu acesso na hora.</p>
+    <p style="margin-top:10px;"><b>Em dúvida?</b> Chama no WhatsApp! A gente tira todas as dúvidas em 5 minutos.</p>
   </div>
 
-  <a class="wa" href="https://wa.me/5511997295407?text=Ol%C3%A1!%20Paguei%20o%20LegendaPro%20via%20PIX%20%E2%80%94%20segue%20o%20comprovante.%20Meu%20e-mail%20de%20cadastro%20%C3%A9%3A%20">Enviar comprovante no WhatsApp</a>
+  <a class="wa" href="https://wa.me/5511997295407?text=Oi%20Kaique!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20LegendaPro">Falar no WhatsApp</a>
   <a class="volta" href="app.html">← voltar pro app</a>
 </div>
 

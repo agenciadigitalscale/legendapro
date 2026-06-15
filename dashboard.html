@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — LegendaPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#08090c">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Montserrat', sans-serif; background: #08090c; color: #eef1f4; min-height: 100vh; }
+  header { padding: 20px 28px; border-bottom: 1px solid #1d2128; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  h1 { font-size: 20px; font-weight: 800; }
+  h1 span { background: linear-gradient(90deg, #00d9ff, #00ffa3); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header a { color: #8a93a0; font-size: 13px; text-decoration: none; }
+  header a:hover { color: #00d9ff; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .stat { background: #101216; border: 1px solid #20252e; border-radius: 14px; padding: 18px; }
+  .stat .v { font-size: 28px; font-weight: 800; color: #00d9ff; }
+  .stat .l { font-size: 12px; color: #8a93a0; margin-top: 4px; }
+  .panel { background: #101216; border: 1px solid #20252e; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+  .panel h2 { font-size: 16px; font-weight: 800; margin-bottom: 16px; color: #fff; }
+  .item { background: #16181d; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .item .info { flex: 1; }
+  .item .label { color: #8a93a0; font-size: 11px; }
+  .item .value { color: #eef1f4; font-weight: 700; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: rgba(0,255,163,.12); color: #00ffa3; }
+  .badge.pending { background: rgba(255,179,60,.12); color: #ffb33c; }
+  .btn { background: transparent; border: 1px solid #2a2f38; color: #eef1f4; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 12px; transition: border-color .15s; }
+  .btn:hover { border-color: #00ffa3; }
+  .estado { padding: 60px 20px; text-align: center; color: #8a93a0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; letter-spacing: 1px; color: #8a93a0; text-transform: uppercase; padding: 12px; border-bottom: 1px solid #20252e; }
+  td { font-size: 13px; padding: 12px; border-bottom: 1px solid #181c22; }
+  tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Legenda<span>Pro</span> — seu dashboard</h1>
+  <div><a href="app.html">← voltar pro app</a><a href="#" id="sair">sair</a></div>
+</header>
+
+<div class="wrap">
+  <div id="estado">Carregando...</div>
+  <div id="painel" style="display:none;">
+    <div class="cards">
+      <div class="stat"><div class="v" id="stExports">0</div><div class="l">exportações</div></div>
+      <div class="stat"><div class="v" id="stTemplates">0</div><div class="l">templates salvos</div></div>
+      <div class="stat"><div class="v" id="stProDays">—</div><div class="l">dias Pro</div></div>
+      <div class="stat"><div class="v" id="stNextRenew">—</div><div class="l">próxima renovação</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>📊 Histórico de pagamentos</h2>
+      <table>
+        <thead><tr><th>Data</th><th>Método</th><th>Valor</th><th>Status</th></tr></thead>
+        <tbody id="payments"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>💾 Templates salvos na nuvem</h2>
+      <div id="templates"></div>
+    </div>
+
+    <div class="panel">
+      <h2>📥 Exportações recentes</h2>
+      <table>
+        <thead><tr><th>Tipo</th><th>Formato</th><th>Quando</th></tr></thead>
+        <tbody id="exports"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="lp-config.js"></script>
+<script>
+let sb = null;
+
+async function init(){
+  const estado = document.getElementById('estado');
+  if (!window.LP_CONFIGURADO()){ estado.textContent = 'Supabase não configurado.'; return; }
+  
+  sb = window.supabase.createClient(window.LP_SUPABASE_URL, window.LP_SUPABASE_ANON);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session){ location.href = 'login.html'; return; }
+  
+  await carregar(session.user.id);
+}
+
+async function carregar(userId){
+  try {
+    const { data: prof } = await sb.from('profiles').select('*').eq('id', userId).single();
+    const { data: exports } = await sb.from('exports').select('*').eq('user_id', userId).order('criado_em', { ascending: false }).limit(10);
+    const { data: templates } = await sb.from('templates').select('*').eq('user_id', userId).order('editado_em', { ascending: false });
+    const { data: payments } = await sb.from('payments').select('*').eq('user_id', userId).order('criado_em', { ascending: false }).limit(20);
+    
+    document.getElementById('estado').style.display = 'none';
+    document.getElementById('painel').style.display = 'block';
+    
+    // Stats
+    document.getElementById('stExports').textContent = exports ? exports.length : 0;
+    document.getElementById('stTemplates').textContent = templates ? templates.length : 0;
+    
+    if (prof && prof.is_pro) {
+      const created = new Date(prof.created_at).getTime();
+      const daysPro = Math.floor((Date.now() - created) / (24 * 60 * 60 * 1000));
+      document.getElementById('stProDays').textContent = daysPro;
+      document.getElementById('stNextRenew').textContent = 'Ativo ✓';
+    }
+    
+    // Payments
+    const payTable = document.getElementById('payments');
+    payTable.innerHTML = '';
+    if (payments && payments.length > 0) {
+      payments.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + new Date(p.criado_em).toLocaleDateString('pt-BR') + '</td>'
+          + '<td>' + p.metodo.toUpperCase() + '</td>'
+          + '<td>R$ ' + p.valor.toFixed(2) + '</td>'
+          + '<td><span class="badge' + (p.status === 'confirmado' ? '' : ' pending') + '">' + p.status + '</span></td>';
+        payTable.appendChild(tr);
+      });
+    } else {
+      payTable.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#8a93a0;">Nenhum pagamento ainda.</td></tr>';
+    }
+    
+    // Templates
+    const templatesDiv = document.getElementById('templates');
+    templatesDiv.innerHTML = '';
+    if (templates && templates.length > 0) {
+      templates.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        item.innerHTML = '<div class="info"><div class="value">' + t.nome + '</div><div class="label">modelo: ' + t.model_id + ' · ' + new Date(t.editado_em).toLocaleDateString('pt-BR') + '</div></div>'
+          + '<button class="btn" onclick="deletarTemplate(\'' + t.id + '\')">Excluir</button>';
+        templatesDiv.appendChild(item);
+      });
+    } else {
+      templatesDiv.innerHTML = '<div style="text-align:center;color:#8a93a0;padding:20px;">Nenhum template salvo na nuvem ainda.</div>';
+    }
+    
+    // Exports
+    const expTable = document.getElementById('exports');
+    expTable.innerHTML = '';
+    if (exports && exports.length > 0) {
+      exports.forEach(e => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + e.tipo.toUpperCase() + '</td>'
+          + '<td>' + (e.formato || '—') + '</td>'
+          + '<td>' + new Date(e.criado_em).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '</td>';
+        expTable.appendChild(tr);
+      });
+    } else {
+      expTable.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#8a93a0;">Nenhuma exportação ainda.</td></tr>';
+    }
+    
+  } catch (e) {
+    document.getElementById('estado').textContent = 'Erro ao carregar: ' + e.message;
+  }
+}
+
+window.deletarTemplate = async function(id) {
+  if (!confirm('Excluir este template?')) return;
+  const { error } = await sb.rpc('deletar_template_seguro', { template_id: id });
+  if (error) alert('Erro: ' + error.message);
+  else { 
+    const { data: { session } } = await sb.auth.getSession();
+    await carregar(session.user.id);
+  }
+};
+
+document.getElementById('sair').addEventListener('click', async ev => {
+  ev.preventDefault();
+  if (sb) await sb.auth.signOut();
+  location.href = 'login.html';
+});
+
+init();
+</script>
+</body>
+</html>
