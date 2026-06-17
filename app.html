@@ -199,6 +199,16 @@ select.si:focus{border-color:var(--cy);}
 .exp-bg-note{font-size:9px;color:var(--tx3);margin-top:3px;}
 #status{font-size:11px;color:var(--cy);margin-top:7px;min-height:14px;display:block;}
 #salvoLabel{font-size:10px;color:var(--tx3);}
+#preview{cursor:grab;}
+#preview:active{cursor:grabbing;}
+.exp-btn.esrt{background:var(--s3);color:var(--mt);border:1px solid rgba(0,255,163,.35);grid-column:1/-1;flex-direction:row;justify-content:center;gap:10px;padding:9px 12px;}
+.hist-list{display:flex;flex-direction:column;gap:4px;max-height:175px;overflow-y:auto;margin-top:4px;}
+.hist-item{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:6px 9px;cursor:pointer;transition:border-color .12s;}
+.hist-item:hover{border-color:var(--cy);}
+.hist-item-label{flex:1;font-size:10px;color:var(--tx2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-time{font-size:9px;color:var(--tx3);flex-shrink:0;}
+.hist-del{background:transparent;border:none;color:var(--tx3);cursor:pointer;padding:2px 5px;font-size:10px;line-height:1;flex-shrink:0;}
+.hist-del:hover{color:#ff6b6b;}
 
 /* ── BTN (legacy) ── */
 .btn{font-family:inherit;font-weight:700;font-size:12px;border:none;border-radius:7px;padding:8px 12px;cursor:pointer;transition:transform .1s,opacity .15s;position:relative;}
@@ -465,6 +475,15 @@ select.si:focus{border-color:var(--cy);}
             <button onclick="(function(){var k=document.getElementById('transcribeApiKey').value.trim();if(k){localStorage.setItem('lp_api_key',k);document.getElementById('transcribeMsg').textContent='✓ Salva';document.getElementById('transcribeApiKey').value='';document.getElementById('transcribeKeyHint').textContent='Chave salva ✓';}})()" style="background:var(--s3);border:1px solid var(--bd2);color:var(--cy);font-family:inherit;font-size:11px;font-weight:700;border-radius:6px;padding:7px 10px;cursor:pointer;">OK</button>
           </div>
           <p id="transcribeKeyHint" style="font-size:10px;color:var(--tx3);margin-bottom:8px;">Salva só no browser, nunca enviada a nós. Crie em platform.openai.com</p>
+          <div id="micBox" style="margin-bottom:6px;">
+            <button class="tool-btn" id="btnMic" style="width:100%;justify-content:center;padding:9px;font-size:11px;">🎙 Falar no microfone <span style="color:var(--mt);font-size:9px;font-weight:800;margin-left:4px;">GRÁTIS</span></button>
+            <div id="micStatus" style="font-size:10px;color:var(--cy);min-height:14px;margin-top:4px;line-height:1.5;word-break:break-word;"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin:0 0 6px;">
+            <div style="flex:1;height:1px;background:var(--bd);"></div>
+            <span style="font-size:9px;color:var(--tx3);font-weight:700;white-space:nowrap;">ou envie um arquivo</span>
+            <div style="flex:1;height:1px;background:var(--bd);"></div>
+          </div>
           <label id="transcribeDropzone" class="dropzone">
             <span class="dz-ico">🎵</span>
             <span class="dz-lbl" id="transcribeFileName">Clique ou arraste o arquivo</span>
@@ -532,6 +551,9 @@ select.si:focus{border-color:var(--cy);}
           </button>
           <button class="exp-btn elayers tooltip" id="btnLayers" data-tip="1 PNG por palavra">
             <span class="ei">🗂</span><span class="el">Camadas PNG</span><span class="es">1 PNG / linha</span>
+          </button>
+          <button class="exp-btn esrt tooltip" id="btnSrtExp" data-tip="CapCut · Premiere · DaVinci">
+            <span class="ei">📝</span><span class="el">Exportar SRT</span><span class="es">legenda em texto sincronizado</span>
           </button>
           <button class="exp-btn elaywebm tooltip" id="btnLayersWebm" data-tip="1 WebM animado por linha">
             <span class="ei">🎞</span><span class="el">Camadas WebM — 1 animação por linha (ZIP)</span>
@@ -625,6 +647,18 @@ select.si:focus{border-color:var(--cy);}
       <p style="font-size:10px;color:var(--tx3);margin-top:8px;line-height:1.7;">
         💡 <strong style="color:var(--tx);">Alternativa rápida:</strong> use <em>Camadas (ZIP)</em> — exporta 1 PNG por palavra já posicionado. Empilhe no CapCut e arraste cada um até a palavra na fala.
       </p>
+    </div>
+
+    <!-- HISTÓRICO DE VERSÕES -->
+    <button class="howto-toggle" onclick="var b=document.getElementById('histBody');b.classList.toggle('open');this.querySelector('.arr2').textContent=b.classList.contains('open')?'▲':'▼';">
+      💾 Histórico de versões <span class="arr2">▼</span>
+    </button>
+    <div class="howto-body" id="histBody">
+      <div style="display:flex;gap:5px;margin-bottom:8px;">
+        <input type="text" id="histLabel" placeholder="Nome da versão (opcional)..." style="flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 9px;outline:none;">
+        <button class="btn btn-play" id="btnSaveHist" style="font-size:10px;padding:7px 10px;white-space:nowrap;">Salvar</button>
+      </div>
+      <div class="hist-list" id="histList"><p style="font-size:10px;color:var(--tx3);text-align:center;padding:6px 0;">Nenhuma versão salva.</p></div>
     </div>
 
   </aside>
@@ -1809,6 +1843,7 @@ function buildModels(){
     btn.appendChild(lbl);
 
     btn.addEventListener('click', () => {
+      _autoHistSnap();
       state.model = model;
       state.anim = model.anim;
       document.getElementById('anim').value = model.anim;
@@ -2080,6 +2115,35 @@ async function exportLayersWebm(){
 
 function setStatus(msg){ document.getElementById('status').textContent = msg; }
 
+function exportSRT(){
+  const segs = state._srtSegs;
+  const toHMS = ms => {
+    const h=Math.floor(ms/3600000), m=Math.floor(ms%3600000/60000),
+          s=Math.floor(ms%60000/1000), ms2=ms%1000;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+
+           String(s).padStart(2,'0')+','+String(ms2).padStart(3,'0');
+  };
+  const durMs = getExpDur();
+  let out = '', n = 0;
+  if (segs && segs.length) {
+    segs.forEach((seg, i) => {
+      out += (i+1)+'\n'+toHMS(seg.start)+' --> '+toHMS(seg.end)+'\n'+seg.text+'\n\n';
+      n++;
+    });
+  } else {
+    state.model.lines.forEach((ln, i) => {
+      if (ln.rule) return;
+      const txt = (state.texts[i] || ln.d || '').trim();
+      if (!txt) return;
+      n++;
+      out += n+'\n'+toHMS((n-1)*durMs)+' --> '+toHMS(n*durMs)+'\n'+txt+'\n\n';
+    });
+  }
+  if (!n){ setStatus('Adicione textos antes de exportar o SRT.'); return; }
+  download(new Blob([out], { type:'text/plain;charset=utf-8' }), 'legenda-'+state.model.id+'.srt');
+  setStatus('SRT exportado! Importe no CapCut, Premiere ou DaVinci como legenda de texto.');
+}
+
 document.getElementById('c1').addEventListener('input', e => { state.c1 = e.target.value; renderPreview(); saveToLocalStorage(); });
 document.getElementById('c2').addEventListener('input', e => { state.c2 = e.target.value; renderPreview(); saveToLocalStorage(); });
 document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); saveToLocalStorage(); });
@@ -2186,6 +2250,7 @@ document.getElementById('btnMp4').addEventListener('click', () => exportVideo('m
 document.getElementById('btnZip').addEventListener('click', exportZip);
 document.getElementById('btnLayers').addEventListener('click', exportLayers);
 document.getElementById('btnLayersWebm').addEventListener('click', exportLayersWebm);
+document.getElementById('btnSrtExp').addEventListener('click', exportSRT);
 document.getElementById('expDur').addEventListener('input', () => {
   const v = parseFloat(document.getElementById('expDur').value);
   document.getElementById('durOut').textContent = v.toFixed(1).replace('.', ',') + 's';
@@ -2224,8 +2289,36 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ── DRAG NO CANVAS = ajuste de posição vertical do bloco ────────────────────
+let _previewDragMoved = false;
+(function(){
+  let _da = false, _dy0, _off0;
+  preview.addEventListener('mousedown', e => {
+    _da = true; _previewDragMoved = false;
+    _dy0 = e.clientY; _off0 = state.offset;
+  });
+  window.addEventListener('mousemove', e => {
+    if (!_da) return;
+    const delta = e.clientY - _dy0;
+    if (Math.abs(delta) > 4) {
+      _previewDragMoved = true;
+      const rect = preview.getBoundingClientRect();
+      const newOff = Math.max(-35, Math.min(35, _off0 + (delta / rect.height) * 70));
+      state.offset = Math.round(newOff);
+      document.getElementById('offset').value = state.offset;
+      document.getElementById('offOut').textContent = state.offset;
+      renderPreview();
+    }
+  });
+  window.addEventListener('mouseup', () => {
+    if (_da && _previewDragMoved) saveToLocalStorage();
+    _da = false;
+  });
+})();
+
 // Clique no canvas — detecta qual linha foi clicada e foca no painel
 preview.addEventListener('click', e => {
+  if (_previewDragMoved) { _previewDragMoved = false; return; }
   const rect = preview.getBoundingClientRect();
   const scaleY = preview.height / rect.height;
   const canvasY = (e.clientY - rect.top) * scaleY;
@@ -2628,6 +2721,72 @@ if ('serviceWorker' in navigator) {
   });
 })();
 
+// ── MICROFONE — Web Speech API (gratuito, Chrome nativo) ─────────────────────
+(function(){
+  const btn = document.getElementById('btnMic');
+  const micStatus = document.getElementById('micStatus');
+  if (!btn || !micStatus) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    btn.style.opacity = '0.5';
+    btn.addEventListener('click', () => { micStatus.textContent = 'Use o Google Chrome para transcrição gratuita por microfone.'; });
+    return;
+  }
+  let rec = null, isListening = false, _finalText = '';
+  function resetBtn(){
+    isListening = false;
+    btn.style.background = ''; btn.style.borderColor = '';
+    btn.innerHTML = '🎙 Falar no microfone <span style="color:var(--mt);font-size:9px;font-weight:800;margin-left:4px;">GRÁTIS</span>';
+  }
+  btn.addEventListener('click', () => {
+    if (isListening) { try { rec.stop(); } catch(e){} return; }
+    _finalText = '';
+    rec = new SR();
+    rec.lang = 'pt-BR';
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.onstart = () => {
+      isListening = true;
+      btn.style.background = 'rgba(255,80,80,.12)';
+      btn.style.borderColor = '#ff5050';
+      btn.innerHTML = '⏹ Parar <span style="color:#ff5050;font-size:9px;font-weight:800;margin-left:4px;">GRAVANDO...</span>';
+      micStatus.textContent = '🎤 Ouvindo... fale agora';
+    };
+    rec.onresult = e => {
+      let interim = '', final = '';
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
+        else interim += e.results[i][0].transcript;
+      }
+      _finalText = final;
+      micStatus.textContent = (final + interim).trim() || '🎤 Ouvindo...';
+    };
+    rec.onerror = e => {
+      micStatus.textContent = e.error === 'not-allowed'
+        ? '⚠ Permissão negada — autorize o microfone no navegador'
+        : '⚠ Erro: ' + e.error;
+      resetBtn();
+    };
+    rec.onend = () => {
+      resetBtn();
+      const text = _finalText.trim();
+      if (!text) { micStatus.textContent = 'Nada captado — tente novamente.'; return; }
+      const wordsPerLine = parseInt(document.getElementById('transcribeLines').value, 10) || 5;
+      const words = text.split(/\s+/).filter(Boolean);
+      let wi = 0;
+      state.model.lines.forEach((ln, i) => {
+        if (ln.rule) return;
+        state.texts[i] = words.slice(wi, wi + wordsPerLine).join(' ');
+        wi += wordsPerLine;
+      });
+      buildTexts(); renderPreview(); saveToLocalStorage();
+      micStatus.textContent = '✓ ' + words.length + ' palavras aplicadas!';
+      setStatus('✓ Transcrição por microfone aplicada — ' + words.length + ' palavras');
+    };
+    try { rec.start(); } catch(e) { micStatus.textContent = '⚠ Erro ao iniciar microfone.'; resetBtn(); }
+  });
+})();
+
 // Atualiza label quando som é selecionado pela biblioteca
 const _origSelectSFX = window.selectSoundEffect;
 window.selectSoundEffect = function(id, name) {
@@ -2641,6 +2800,113 @@ window.selectSoundEffect = function(id, name) {
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof initSoundLibrary === 'function') initSoundLibrary();
 });
+</script>
+<script>
+// ── HISTÓRICO DE VERSÕES ──────────────────────────────────────────────────────
+const HIST_KEY = 'lp_history';
+const HIST_MAX = 10;
+
+function _getHistory(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY))||[]; } catch(e){ return []; } }
+function _setHistory(arr){ localStorage.setItem(HIST_KEY, JSON.stringify(arr)); }
+
+function _histSnap(label){
+  return {
+    id: Date.now(),
+    label: label || (state.model.name + ' — ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})),
+    savedAt: Date.now(),
+    model: state.model.id,
+    texts: [...state.texts],
+    lineOv: JSON.parse(JSON.stringify(state.lineOv)),
+    c1: state.c1, c2: state.c2, c3: state.c3,
+    glow: state.glow, anim: state.anim,
+    scale: state.scale, offset: state.offset, fmt: state.fmt, bpm: state.bpm
+  };
+}
+
+function saveToHistory(label){
+  const arr = _getHistory();
+  const snap = _histSnap(label);
+  arr.unshift(snap);
+  if (arr.length > HIST_MAX) arr.length = HIST_MAX;
+  _setHistory(arr);
+  buildHistoryList();
+  setStatus('✓ Versão salva: "' + snap.label + '"');
+}
+
+function _autoHistSnap(){
+  if (!state.texts.some(t => t && t.trim())) return;
+  const arr = _getHistory();
+  const last = arr[0];
+  if (last && last.model === state.model.id && last.texts.join('|') === state.texts.join('|')) return;
+  const snap = _histSnap('↩ Auto: ' + state.model.name);
+  arr.unshift(snap);
+  if (arr.length > HIST_MAX) arr.length = HIST_MAX;
+  _setHistory(arr);
+  buildHistoryList();
+}
+
+function restoreFromHistory(snap){
+  const m = MODELS.find(x => x.id === snap.model);
+  if (!m){ setStatus('Modelo não encontrado.'); return; }
+  pushHistory();
+  state.model = m;
+  state.texts = snap.texts || [];
+  state.lineOv = snap.lineOv || m.lines.map(() => ({}));
+  state.c1 = snap.c1||'#ffffff'; state.c2 = snap.c2||'#00d9ff'; state.c3 = snap.c3||'#00ffa3';
+  state.glow = snap.glow||false; state.anim = snap.anim||'fade';
+  state.scale = snap.scale||1; state.offset = snap.offset||0;
+  state.fmt = snap.fmt||'9x16'; state.bpm = snap.bpm||0;
+  document.getElementById('c1').value = state.c1;
+  document.getElementById('c2').value = state.c2;
+  document.getElementById('c3').value = state.c3;
+  document.getElementById('glow').checked = state.glow;
+  document.getElementById('anim').value = state.anim;
+  document.getElementById('scale').value = Math.round(state.scale*100);
+  document.getElementById('scaleOut').textContent = Math.round(state.scale*100)+'%';
+  document.getElementById('offset').value = state.offset;
+  document.getElementById('offOut').textContent = state.offset;
+  document.getElementById('bpm').value = state.bpm;
+  document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm+' BPM' : 'OFF';
+  document.querySelectorAll('.fmt-tab').forEach(b => b.classList.toggle('active', b.dataset.fmt === state.fmt));
+  document.querySelectorAll('.model-thumb').forEach(b => b.classList.remove('active'));
+  buildTexts(); applyFormat(); renderPreview(); playAnim(pctx, '#1c1c1f');
+  setStatus('↩ Versão restaurada: "' + snap.label + '"');
+}
+
+function buildHistoryList(){
+  const wrap = document.getElementById('histList');
+  if (!wrap) return;
+  const arr = _getHistory();
+  if (!arr.length){
+    wrap.innerHTML = '<p style="font-size:10px;color:var(--tx3);text-align:center;padding:6px 0;">Nenhuma versão salva.</p>';
+    return;
+  }
+  wrap.innerHTML = '';
+  arr.forEach(snap => {
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+    item.title = 'Restaurar "' + snap.label + '"';
+    const dt = new Date(snap.savedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    item.innerHTML = '<div class="hist-item-label">' + snap.label + '</div>'
+      + '<span class="hist-item-time">' + dt + '</span>'
+      + '<button class="hist-del" title="Excluir esta versão">✕</button>';
+    item.querySelector('.hist-del').addEventListener('click', ev => {
+      ev.stopPropagation();
+      _setHistory(_getHistory().filter(x => x.id !== snap.id));
+      buildHistoryList();
+    });
+    item.addEventListener('click', () => restoreFromHistory(snap));
+    wrap.appendChild(item);
+  });
+}
+
+document.getElementById('btnSaveHist').addEventListener('click', () => {
+  const lbl = document.getElementById('histLabel').value.trim();
+  saveToHistory(lbl || undefined);
+  document.getElementById('histLabel').value = '';
+});
+
+buildHistoryList();
 </script>
 </body>
 </html>
