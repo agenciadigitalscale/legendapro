@@ -93,6 +93,42 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);mi
 .sk-close{margin-top:18px;width:100%;font-family:inherit;font-size:12px;font-weight:700;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx2);padding:8px;cursor:pointer;transition:border-color .12s,color .12s;}
 .sk-close:hover{border-color:var(--cy);color:var(--tx);}
 
+/* ── MODO BATCH ── */
+#batchOverlay{position:fixed;inset:0;background:#08090cf5;z-index:950;display:flex;flex-direction:column;overflow:hidden;}
+.batch-header{display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap;}
+.batch-header h2{font-size:14px;font-weight:800;color:var(--cy);letter-spacing:.5px;flex:1;white-space:nowrap;}
+.batch-header-sub{font-size:11px;color:var(--tx3);}
+.batch-header-right{display:flex;gap:8px;align-items:center;margin-left:auto;}
+.batch-body{flex:1;overflow:hidden;display:grid;grid-template-columns:300px 1fr;}
+.batch-input-col{display:flex;flex-direction:column;gap:10px;padding:16px;background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;}
+.batch-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);}
+.batch-hint{font-size:10px;color:var(--tx3);line-height:1.5;}
+.batch-hint code{color:var(--cy);background:var(--s2);padding:1px 4px;border-radius:3px;}
+#batchTA{font-family:'Montserrat',monospace;font-size:12px;background:var(--s2);color:var(--tx);border:1px solid var(--bd);border-radius:7px;padding:10px;resize:vertical;min-height:180px;transition:border-color .12s;}
+#batchTA:focus{outline:none;border-color:var(--cy);}
+.batch-btn-file{display:block;font-family:inherit;font-size:12px;font-weight:700;text-align:center;background:var(--s2);border:1px dashed var(--bd2);border-radius:7px;color:var(--tx2);padding:9px;cursor:pointer;transition:border-color .12s,color .12s;}
+.batch-btn-file:hover{border-color:var(--cy);color:var(--cy);}
+.batch-gen-btn{font-family:inherit;font-size:13px;font-weight:800;background:var(--cy);color:#04151c;border:none;border-radius:8px;padding:11px;cursor:pointer;transition:opacity .12s;}
+.batch-gen-btn:hover{opacity:.88;}
+.batch-preview-col{display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.batch-empty{display:flex;align-items:center;justify-content:center;flex:1;font-size:13px;color:var(--tx3);padding:40px;text-align:center;}
+.batch-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:16px;align-content:start;}
+.batch-card{background:var(--s2);border:2px solid transparent;border-radius:9px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;}
+.batch-card:hover{border-color:var(--cy);box-shadow:0 0 0 3px rgba(0,217,255,.1);}
+.batch-card.selected{border-color:var(--cy);}
+.batch-card canvas{width:100%;display:block;}
+.batch-card-idx{position:absolute;top:5px;left:5px;font-size:9px;font-weight:800;background:rgba(0,0,0,.7);color:var(--cy);border-radius:3px;padding:2px 5px;}
+.batch-card-lbl{font-size:9px;color:var(--tx3);padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--s2);border-top:1px solid var(--bd);}
+.batch-footer{flex-shrink:0;padding:10px 16px;background:var(--s1);border-top:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
+.batch-prog-wrap{flex:1;height:5px;background:var(--bd);border-radius:3px;overflow:hidden;}
+.batch-prog-bar{height:100%;background:var(--cy);border-radius:3px;width:0%;transition:width .1s;}
+.batch-prog-lbl{font-size:11px;color:var(--tx3);white-space:nowrap;min-width:90px;text-align:right;}
+.btn-batch-exp{font-family:inherit;font-size:11px;font-weight:700;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx2);padding:7px 12px;cursor:pointer;transition:border-color .12s,color .12s;white-space:nowrap;}
+.btn-batch-exp:hover{border-color:var(--cy);color:var(--cy);}
+.btn-batch-exp:disabled{opacity:.4;cursor:default;}
+.batch-close-btn{font-family:inherit;font-size:12px;font-weight:700;background:transparent;border:1px solid var(--bd);border-radius:7px;color:var(--tx2);padding:8px 14px;cursor:pointer;transition:border-color .12s;}
+.batch-close-btn:hover{border-color:var(--bd2);color:var(--tx);}
+
 /* ── RIGHT SIDEBAR ── */
 .sidebar-right{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;}
 
@@ -321,6 +357,7 @@ select.si:focus{border-color:var(--cy);}
     <span id="trialBadge" class="trial-badge" style="display:none;"></span>
     <span id="trialInfo" style="font-size:11px;color:#00d9ff;font-weight:700;"></span>
     <a id="lnkAdmin" href="admin.html" style="display:none;color:#00ffa3;">Admin</a>
+    <a href="#" id="lnkBatch" title="Modo Batch — múltiplas legendas de uma vez" style="font-weight:800;color:var(--cy);border:1px solid var(--cy25);border-radius:5px;padding:3px 9px;font-size:11px;">⚡ Batch</a>
     <a href="index.html">Produto</a>
     <a href="#" id="lnkShortcuts" title="Atalhos de teclado (?)">⌨️</a>
     <a id="lnkSair" href="#" style="display:none;">Sair</a>
@@ -3281,7 +3318,257 @@ document.getElementById('btnSaveHist').addEventListener('click', () => {
 });
 
 buildHistoryList();
+
+// ── MODO BATCH ────────────────────────────────────────────
+// DOMContentLoaded garante que o HTML do overlay (que fica após este script) está pronto
+document.addEventListener('DOMContentLoaded', function(){
+(function(){
+  let _items = []; // { texts: string[], canvas: HTMLCanvasElement }
+
+  // ── Abertura / fechamento ─────────────────────────────
+  function openBatch(){
+    document.getElementById('batchOverlay').style.display = 'flex';
+    pauseLivePreview();
+  }
+  function closeBatch(){
+    document.getElementById('batchOverlay').style.display = 'none';
+    if (typeof startLivePreview === 'function') startLivePreview();
+  }
+
+  document.getElementById('lnkBatch').addEventListener('click', e => { e.preventDefault(); openBatch(); });
+  document.getElementById('btnCloseBatch').addEventListener('click', closeBatch);
+  document.getElementById('batchOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('batchOverlay')) closeBatch();
+  });
+
+  // ── Parsers ───────────────────────────────────────────
+  function _parsePlainText(raw){
+    return raw.split('\n')
+      .map(l => l.trim())
+      .filter(l => l.length > 0)
+      .map(l => l.split('|').map(s => s.trim()));
+  }
+
+  function _parseSRTForBatch(txt){
+    // Reutiliza _parseSRTFull já definido no app
+    const segs = typeof _parseSRTFull === 'function' ? _parseSRTFull(txt) : [];
+    return segs.map(s => [s.text]);
+  }
+
+  // ── Importar .SRT ─────────────────────────────────────
+  document.getElementById('batchSrtFile').addEventListener('change', function(){
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const parsed = _parseSRTForBatch(ev.target.result);
+      document.getElementById('batchTA').value = parsed.map(p => p.join('|')).join('\n');
+      document.getElementById('batchInfo').textContent = parsed.length + ' segmentos importados do SRT.';
+    };
+    reader.readAsText(file, 'utf-8');
+    this.value = '';
+  });
+
+  // ── Gerar miniaturas ──────────────────────────────────
+  document.getElementById('btnBatchGenerate').addEventListener('click', function(){
+    const raw = document.getElementById('batchTA').value.trim();
+    if (!raw){ document.getElementById('batchInfo').textContent = '⚠ Cole o texto primeiro.'; return; }
+    const parsed = _parsePlainText(raw);
+    if (!parsed.length) return;
+    _buildItems(parsed);
+  });
+
+  function _buildItems(parsed){
+    _items = [];
+    const grid = document.getElementById('batchGrid');
+    const empty = document.getElementById('batchEmpty');
+    grid.innerHTML = '';
+    grid.style.display = 'none';
+    empty.style.display = 'flex';
+
+    // Linhas editáveis do modelo (sem separadores)
+    const editLines = state.model.lines
+      .map((ln, modelIdx) => ({ ln, modelIdx }))
+      .filter(({ ln }) => !ln.rule);
+
+    const TSCALE = 270 / 1080; // mesmo scale das thumbs de modelo
+    const TW = 270, TH = 480;
+
+    // Geração assíncrona para não travar a UI
+    let i = 0;
+    const info = document.getElementById('batchInfo');
+    function step(){
+      if (i >= parsed.length){
+        info.textContent = _items.length + ' legenda(s) gerada(s) — clique para aplicar ao editor';
+        grid.style.display = 'grid';
+        empty.style.display = 'none';
+        document.getElementById('batchFooter').style.display = 'flex';
+        document.getElementById('btnBatchPng').disabled = false;
+        document.getElementById('btnBatchGreen').disabled = false;
+        return;
+      }
+      info.textContent = 'Gerando ' + (i + 1) + '/' + parsed.length + '...';
+      const lineArr = parsed[i];
+
+      // Monta array de texts substituindo as linhas editáveis
+      const texts = [...state.texts];
+      lineArr.forEach((t, j) => {
+        if (j < editLines.length) texts[editLines[j].modelIdx] = t;
+      });
+
+      // Thumbnail canvas
+      const c = document.createElement('canvas');
+      c.width = TW; c.height = TH;
+      const tctx = c.getContext('2d');
+      tctx.scale(TSCALE, TSCALE);
+      drawFrame(tctx, 1, '#1a1c24', state.model, texts,
+        { ...state, anim: 'none', scale: state.scale, offset: state.offset, lineOv: state.lineOv, fmt: '9x16' });
+
+      _items.push({ texts, label: lineArr[0] });
+
+      // Card no grid
+      const card = document.createElement('div');
+      card.className = 'batch-card';
+      card.title = 'Clique para aplicar ao editor\n' + lineArr.join(' | ');
+
+      const badge = document.createElement('div');
+      badge.className = 'batch-card-idx';
+      badge.textContent = String(i + 1).padStart(3, '0');
+      card.appendChild(badge);
+      card.appendChild(c);
+
+      const lbl = document.createElement('div');
+      lbl.className = 'batch-card-lbl';
+      lbl.textContent = lineArr[0];
+      card.appendChild(lbl);
+
+      const idx = i;
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.batch-card').forEach(c2 => c2.classList.remove('selected'));
+        card.classList.add('selected');
+        // Aplica textos ao editor principal
+        state.texts = [..._items[idx].texts];
+        buildTexts();
+        if (typeof restartLivePreview === 'function') restartLivePreview();
+      });
+
+      grid.appendChild(card);
+      _items[i].card = card;
+      i++;
+      setTimeout(step, 0); // yield para não travar UI
+    }
+    step();
+  }
+
+  // ── Export batch PNG ──────────────────────────────────
+  document.getElementById('btnBatchPng').addEventListener('click', () => _exportBatch('png'));
+  document.getElementById('btnBatchGreen').addEventListener('click', () => _exportBatch('green'));
+
+  async function _exportBatch(mode){
+    if (!_items.length) return;
+    const btnPng = document.getElementById('btnBatchPng');
+    const btnGreen = document.getElementById('btnBatchGreen');
+    btnPng.disabled = btnGreen.disabled = true;
+
+    const progBar = document.getElementById('batchProgBar');
+    const progLbl = document.getElementById('batchProgLbl');
+    progBar.style.background = 'var(--cy)';
+    progBar.style.width = '0%';
+
+    const W = 1080, H = 1920;
+    const total = _items.length;
+    const zip = new JSZip();
+    const bg = mode === 'green' ? '#00ff00' : null;
+    const ext = 'png';
+
+    for (let i = 0; i < total; i++){
+      const item = _items[i];
+      const num = String(i + 1).padStart(3, '0');
+      progBar.style.width = Math.round((i / total) * 100) + '%';
+      progLbl.textContent = num + ' / ' + String(total).padStart(3, '0');
+
+      // Highlight card atual
+      document.querySelectorAll('.batch-card').forEach((c, ci) => c.classList.toggle('selected', ci === i));
+
+      // Renderiza em canvas offscreen
+      const offC = document.createElement('canvas');
+      offC.width = W; offC.height = H;
+      const offCtx = offC.getContext('2d');
+      if (bg){ offCtx.fillStyle = bg; offCtx.fillRect(0, 0, W, H); }
+      drawFrame(offCtx, 1, bg, state.model, item.texts,
+        { ...state, anim: 'none', scale: state.scale, offset: state.offset, lineOv: state.lineOv, fmt: '9x16' });
+
+      const blob = await new Promise(r => offC.toBlob(r, 'image/png'));
+      const buf = await blob.arrayBuffer();
+      zip.file('legenda_' + num + '.' + ext, buf);
+
+      await new Promise(r => setTimeout(r, 0)); // yield UI
+    }
+
+    progLbl.textContent = 'Gerando ZIP...';
+    const zipBlob = await zip.generateAsync({ type: 'blob' }, meta => {
+      progBar.style.width = Math.round(meta.percent) + '%';
+    });
+
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'legendas_batch_' + (mode === 'green' ? 'verde_' : '') + Date.now() + '.zip';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    progBar.style.width = '100%';
+    progBar.style.background = 'var(--mt)';
+    progLbl.textContent = '✓ ' + total + ' exportado(s)!';
+    document.querySelectorAll('.batch-card').forEach(c => c.classList.remove('selected'));
+    setTimeout(() => {
+      progBar.style.width = '0%';
+      progBar.style.background = 'var(--cy)';
+      progLbl.textContent = '';
+      btnPng.disabled = btnGreen.disabled = false;
+    }, 3000);
+  }
+})(); // fim IIFE batch
+}); // fim DOMContentLoaded
 </script>
+
+<!-- ── MODO BATCH ── -->
+<div id="batchOverlay" style="display:none;" role="dialog" aria-label="Modo Batch">
+  <div class="batch-header">
+    <h2>⚡ Modo Batch</h2>
+    <span class="batch-header-sub">Gera e exporta múltiplas legendas de uma vez · usa o modelo e cores atuais</span>
+    <div class="batch-header-right">
+      <button class="btn-batch-exp" id="btnBatchPng" disabled>📦 PNG ZIP</button>
+      <button class="btn-batch-exp" id="btnBatchGreen" disabled>🎬 WebM verde ZIP</button>
+      <button class="batch-close-btn" id="btnCloseBatch">✕ Fechar</button>
+    </div>
+  </div>
+  <div class="batch-body">
+    <!-- Coluna esquerda: input -->
+    <div class="batch-input-col">
+      <span class="batch-lbl">Texto das legendas</span>
+      <p class="batch-hint">
+        Uma legenda por linha.<br>
+        Use <code>|</code> para preencher múltiplas linhas do modelo.<br>
+        Exemplo: <code>Como fazer|legenda|atrativa</code>
+      </p>
+      <textarea id="batchTA" placeholder="Primeira legenda&#10;Segunda legenda&#10;Terceira|com duas linhas do modelo&#10;..."></textarea>
+      <label class="batch-btn-file" for="batchSrtFile">📄 Importar texto de .SRT</label>
+      <input type="file" id="batchSrtFile" accept=".srt" style="display:none;">
+      <button class="batch-gen-btn" id="btnBatchGenerate">▶ Gerar miniaturas</button>
+      <div id="batchInfo"></div>
+    </div>
+    <!-- Coluna direita: grid de miniaturas -->
+    <div class="batch-preview-col">
+      <div class="batch-empty" id="batchEmpty">Cole o texto ao lado e clique em <strong>Gerar miniaturas</strong></div>
+      <div class="batch-grid" id="batchGrid" style="display:none;"></div>
+      <div class="batch-footer" id="batchFooter" style="display:none;">
+        <div class="batch-prog-wrap"><div class="batch-prog-bar" id="batchProgBar"></div></div>
+        <span class="batch-prog-lbl" id="batchProgLbl"></span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── PAINEL DE ATALHOS DE TECLADO ── -->
 <div id="shortcutsOverlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Atalhos de teclado">
