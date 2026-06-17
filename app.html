@@ -80,6 +80,19 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);mi
 .btn-clear:hover{border-color:var(--bd2);color:var(--tx2);}
 #salvoLabel{font-size:11px;color:var(--tx3);}
 
+/* ── PAINEL DE ATALHOS ── */
+#shortcutsOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+#shortcutsPanel{background:var(--s1);border:1px solid var(--bd2);border-radius:14px;padding:24px 28px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+#shortcutsPanel h3{font-size:14px;font-weight:800;color:var(--cy);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.sk-table{width:100%;border-collapse:collapse;font-size:12px;}
+.sk-table tr{border-bottom:1px solid var(--bd);}
+.sk-table tr:last-child{border-bottom:none;}
+.sk-table td{padding:7px 4px;}
+.sk-table td:first-child{font-family:monospace;background:var(--s2);color:var(--cy);border-radius:4px;padding:4px 8px;white-space:nowrap;font-size:11px;font-weight:700;}
+.sk-table td:last-child{padding-left:14px;color:var(--tx2);}
+.sk-close{margin-top:18px;width:100%;font-family:inherit;font-size:12px;font-weight:700;background:var(--s2);border:1px solid var(--bd2);border-radius:7px;color:var(--tx2);padding:8px;cursor:pointer;transition:border-color .12s,color .12s;}
+.sk-close:hover{border-color:var(--cy);color:var(--tx);}
+
 /* ── RIGHT SIDEBAR ── */
 .sidebar-right{background:var(--s1);border-left:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;}
 
@@ -309,6 +322,7 @@ select.si:focus{border-color:var(--cy);}
     <span id="trialInfo" style="font-size:11px;color:#00d9ff;font-weight:700;"></span>
     <a id="lnkAdmin" href="admin.html" style="display:none;color:#00ffa3;">Admin</a>
     <a href="index.html">Produto</a>
+    <a href="#" id="lnkShortcuts" title="Atalhos de teclado (?)">⌨️</a>
     <a id="lnkSair" href="#" style="display:none;">Sair</a>
   </div>
 </header>
@@ -1635,15 +1649,13 @@ function restartLivePreview(){
 }
 // ─────────────────────────────────────────────────────────
 
-// ── UNDO (Ctrl+Z) ──────────────────────────────────────
-const _hist = [];
+// ── UNDO / REDO ──────────────────────────────────────────
+const _hist = [], _redo = [];
 const _MAX_HIST = 25;
 function _snap(){ return JSON.stringify({ model: state.model.id, texts: [...state.texts], lineOv: JSON.parse(JSON.stringify(state.lineOv)), c1: state.c1, c2: state.c2, c3: state.c3, glow: state.glow, anim: state.anim, scale: state.scale, offset: state.offset, fmt: state.fmt, bpm: state.bpm }); }
-function pushHistory(){ const s = _snap(); if (_hist[_hist.length-1] === s) return; _hist.push(s); if (_hist.length > _MAX_HIST) _hist.shift(); }
-function undoState(){
-  if (_hist.length < 2){ setStatus('Nada pra desfazer.'); return; }
-  _hist.pop();
-  const prev = JSON.parse(_hist[_hist.length-1]);
+function pushHistory(){ const s = _snap(); if (_hist[_hist.length-1] === s) return; _hist.push(s); if (_hist.length > _MAX_HIST) _hist.shift(); _redo.length = 0; }
+
+function _applyHistState(prev){
   const m = MODELS.find(x => x.id === prev.model); if (m) state.model = m;
   state.texts = prev.texts; state.lineOv = prev.lineOv;
   state.c1 = prev.c1; state.c2 = prev.c2; state.c3 = prev.c3;
@@ -1662,14 +1674,23 @@ function undoState(){
   document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
   document.querySelectorAll('.fmt-tab').forEach(b => b.classList.toggle('active', b.dataset.fmt === state.fmt));
   buildTexts(); renderPreview();
+}
+
+function undoState(){
+  if (_hist.length < 2){ setStatus('Nada pra desfazer.'); return; }
+  _redo.push(_hist.pop());
+  _applyHistState(JSON.parse(_hist[_hist.length-1]));
   setStatus('↩ Desfeito (Ctrl+Z)');
 }
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && !e.target.matches('input,textarea,select')) {
-    e.preventDefault(); undoState();
-  }
-});
-// ────────────────────────────────────────────────────────
+
+function redoState(){
+  if (!_redo.length){ setStatus('Nada pra refazer.'); return; }
+  const next = _redo.pop();
+  _hist.push(next);
+  _applyHistState(JSON.parse(next));
+  setStatus('↪ Refeito (Ctrl+Shift+Z)');
+}
+// ─────────────────────────────────────────────────────────
 
 function saveToLocalStorage(){
   pushHistory();
@@ -2378,6 +2399,10 @@ document.getElementById('btnDelPreset').addEventListener('click', () => {
   setStatus('Cliente "' + nome + '" excluído.');
 });
 
+// ── Rastreia último formato de exportação usado (Ctrl+Enter) ──
+let _lastExportBtn = 'btnPng';
+function _trackExport(id){ _lastExportBtn = id; }
+
 document.getElementById('btnPlayPause').addEventListener('click', toggleLivePreview);
 document.getElementById('btnLoop').addEventListener('click', () => {
   _liveLoop = !_liveLoop;
@@ -2410,15 +2435,15 @@ document.getElementById('btnLoop').addEventListener('click', () => {
   scrubEl.addEventListener('touchend', onScrubEnd);
 })();
 
-document.getElementById('btnPng').addEventListener('click', exportPNG);
-document.getElementById('btnAlpha').addEventListener('click', exportVideoAlpha);
-document.getElementById('btnWebm').addEventListener('click', () => exportVideo('webm', 'btnWebm'));
-document.getElementById('btnMp4').addEventListener('click', () => exportVideo('mp4', 'btnMp4'));
+document.getElementById('btnPng').addEventListener('click', () => { _trackExport('btnPng'); exportPNG(); });
+document.getElementById('btnAlpha').addEventListener('click', () => { _trackExport('btnAlpha'); exportVideoAlpha(); });
+document.getElementById('btnWebm').addEventListener('click', () => { _trackExport('btnWebm'); exportVideo('webm', 'btnWebm'); });
+document.getElementById('btnMp4').addEventListener('click', () => { _trackExport('btnMp4'); exportVideo('mp4', 'btnMp4'); });
 document.getElementById('btnZip').addEventListener('click', exportZip);
 document.getElementById('btnLayers').addEventListener('click', exportLayers);
 document.getElementById('btnLayersWebm').addEventListener('click', exportLayersWebm);
-document.getElementById('btnSrtExp').addEventListener('click', exportSRT);
-document.getElementById('btnGif').addEventListener('click', exportGIF);
+document.getElementById('btnSrtExp').addEventListener('click', () => { _trackExport('btnSrtExp'); exportSRT(); });
+document.getElementById('btnGif').addEventListener('click', () => { _trackExport('btnGif'); exportGIF(); });
 document.getElementById('expDur').addEventListener('input', () => {
   const v = parseFloat(document.getElementById('expDur').value);
   document.getElementById('durOut').textContent = v.toFixed(1).replace('.', ',') + 's';
@@ -2435,7 +2460,8 @@ Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
   buildModels();
   buildTexts();
   refreshPresetSel();
-  startLivePreview(); // inicia o loop de preview em tempo real
+  _initShortcutsPanel(); // precisa do DOM completo (modal fica após o bloco script principal)
+  startLivePreview();
 });
 
 document.getElementById('btnLimparHistorico').addEventListener('click', () => {
@@ -2445,14 +2471,87 @@ document.getElementById('btnLimparHistorico').addEventListener('click', () => {
   }
 });
 
+// ── Painel de atalhos — init após DOM estar pronto ────
+function _initShortcutsPanel(){
+  const overlay = document.getElementById('shortcutsOverlay');
+  if (!overlay) return;
+  function toggle(){ overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none'; }
+  document.getElementById('btnCloseShortcuts').addEventListener('click', () => { overlay.style.display = 'none'; });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+  document.getElementById('lnkShortcuts').addEventListener('click', e => { e.preventDefault(); toggle(); });
+  window._toggleShortcuts = toggle;
+}
+
 document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's'){
+  const tag = document.activeElement.tagName;
+  const inInput = ['INPUT','TEXTAREA','SELECT'].includes(tag);
+  const ctrlMeta = e.ctrlKey || e.metaKey;
+
+  // Fechar painel com Esc
+  if (e.key === 'Escape'){
+    document.getElementById('shortcutsOverlay').style.display = 'none';
+    return;
+  }
+
+  // Atalhos sem Ctrl, fora de inputs
+  if (!inInput && !ctrlMeta){
+    if (e.key === ' '){ e.preventDefault(); toggleLivePreview(); return; }
+    if (e.key === '?'){ e.preventDefault(); window._toggleShortcuts(); return; }
+  }
+
+  // Ctrl+S = PNG
+  if (ctrlMeta && e.key === 's' && !e.shiftKey){
     e.preventDefault();
     document.getElementById('btnPng').click();
+    return;
   }
-  if (e.key === ' ' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){
+
+  // Ctrl+Z = desfazer (fora de inputs)
+  if (ctrlMeta && e.key === 'z' && !e.shiftKey && !inInput){
+    e.preventDefault(); undoState(); return;
+  }
+
+  // Ctrl+Shift+Z = refazer (fora de inputs)
+  if (ctrlMeta && e.key === 'z' && e.shiftKey && !inInput){
+    e.preventDefault(); redoState(); return;
+  }
+
+  // Ctrl+Enter = exportar com último formato
+  if (ctrlMeta && e.key === 'Enter'){
     e.preventDefault();
-    toggleLivePreview();
+    document.getElementById(_lastExportBtn).click();
+    return;
+  }
+
+  // Ctrl+D = duplicar linha focada (dentro de input de texto)
+  if (ctrlMeta && e.key === 'd' && tag === 'INPUT' && document.activeElement.type === 'text'){
+    e.preventDefault();
+    const wrap = document.activeElement.closest('.linha-wrap');
+    if (!wrap){ return; }
+    const idx = parseInt(wrap.dataset.lineIdx);
+    // Acha o próximo linha-wrap com índice maior
+    const allWraps = Array.from(document.querySelectorAll('.linha-wrap'));
+    const nextWrap = allWraps.find(w => parseInt(w.dataset.lineIdx) > idx);
+    if (!nextWrap){ setStatus('Não há próxima linha para duplicar.'); return; }
+    const nextIdx = parseInt(nextWrap.dataset.lineIdx);
+    pushHistory();
+    state.texts[nextIdx] = state.texts[idx];
+    const nextInp = nextWrap.querySelector('input[type=text]');
+    if (nextInp){ nextInp.value = state.texts[nextIdx]; nextInp.focus(); nextInp.select(); }
+    renderPreview(); saveToLocalStorage();
+    setStatus('✓ Duplicado para próxima linha (Ctrl+D)');
+    return;
+  }
+
+  // Tab = navegar entre linhas de texto (somente dentro do painel de textos)
+  if (e.key === 'Tab' && tag === 'INPUT' && document.activeElement.type === 'text' && document.activeElement.closest('.linha-wrap')){
+    e.preventDefault();
+    const inputs = Array.from(document.querySelectorAll('.linha-wrap input[type=text]'));
+    const cur = inputs.indexOf(document.activeElement);
+    if (cur === -1){ return; }
+    const next = e.shiftKey ? (cur - 1 + inputs.length) % inputs.length : (cur + 1) % inputs.length;
+    inputs[next].focus(); inputs[next].select();
+    return;
   }
 });
 
@@ -2518,8 +2617,6 @@ preview.addEventListener('click', e => {
 });
 
 const DIA_MS = 24 * 60 * 60 * 1000;
-let sb = null;
-
 async function authCheck(){
   const info = document.getElementById('trialInfo');
   if (!window.LP_CONFIGURADO()){
@@ -3185,5 +3282,24 @@ document.getElementById('btnSaveHist').addEventListener('click', () => {
 
 buildHistoryList();
 </script>
+
+<!-- ── PAINEL DE ATALHOS DE TECLADO ── -->
+<div id="shortcutsOverlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Atalhos de teclado">
+  <div id="shortcutsPanel">
+    <h3>⌨️ Atalhos de teclado</h3>
+    <table class="sk-table">
+      <tr><td>Espaço</td><td>Play / Pause da animação</td></tr>
+      <tr><td>Ctrl + Z</td><td>Desfazer última ação</td></tr>
+      <tr><td>Ctrl + Shift + Z</td><td>Refazer ação desfeita</td></tr>
+      <tr><td>Ctrl + D</td><td>Duplicar linha de texto focada para a próxima</td></tr>
+      <tr><td>Tab</td><td>Navegar entre linhas de texto (Shift+Tab = voltar)</td></tr>
+      <tr><td>Ctrl + Enter</td><td>Exportar com o último formato usado</td></tr>
+      <tr><td>Ctrl + S</td><td>Exportar PNG transparente</td></tr>
+      <tr><td>?</td><td>Abrir / fechar este painel</td></tr>
+      <tr><td>Esc</td><td>Fechar este painel</td></tr>
+    </table>
+    <button class="sk-close" id="btnCloseShortcuts">Fechar (Esc)</button>
+  </div>
+</div>
 </body>
 </html>
