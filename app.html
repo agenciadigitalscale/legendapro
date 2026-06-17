@@ -63,9 +63,14 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);mi
 .preview-center{background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:hidden;}
 #preview{height:calc(100vh - 52px - 180px);width:auto;max-width:min(380px,100%);aspect-ratio:9/16;border-radius:14px;background:#1c1c1f;display:block;box-shadow:0 10px 50px rgba(0,0,0,.8);}
 .prev-actions{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;max-width:380px;}
-.btn-prev-play{width:100%;font-family:inherit;font-weight:700;font-size:14px;background:var(--s1);color:var(--tx);border:1px solid var(--bd2);border-radius:9px;padding:11px;cursor:pointer;transition:background .12s,border-color .12s;display:flex;align-items:center;justify-content:center;gap:7px;}
-.btn-prev-play:hover{background:var(--s2);border-color:var(--cy);}
 .prev-meta{font-size:11px;color:var(--tx3);text-align:center;}
+/* ── PLAYER BAR ── */
+.player-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:380px;background:var(--s1);border:1px solid var(--bd2);border-radius:9px;padding:8px 12px;}
+.player-btn{font-family:inherit;font-size:14px;background:transparent;border:none;color:var(--tx2);cursor:pointer;padding:3px 6px;border-radius:5px;transition:background .12s,color .12s;flex-shrink:0;line-height:1;}
+.player-btn:hover{background:var(--cy10);color:var(--cy);}
+.player-btn.playing{color:var(--cy);}
+.player-scrub{flex:1;height:3px;accent-color:var(--cy);cursor:pointer;min-width:0;}
+.player-time{font-size:10px;color:var(--tx3);font-weight:700;flex-shrink:0;min-width:28px;text-align:right;font-variant-numeric:tabular-nums;}
 .beat-bar{width:100%;max-width:380px;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:11px 14px;display:flex;flex-direction:column;gap:6px;}
 .beat-row{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);font-weight:700;}
 .beat-row em{color:var(--cy);font-style:normal;font-weight:800;}
@@ -336,7 +341,12 @@ select.si:focus{border-color:var(--cy);}
       <button class="btn-bg" id="btnBgRemove" style="display:none;color:#ff6b6b;border-color:rgba(255,107,107,.4);">✕ Remover</button>
     </div>
     <div class="prev-actions">
-      <button class="btn-prev-play tooltip" id="btnPlay" data-tip="Space ou Enter">▶ &nbsp;Ver animação</button>
+      <div class="player-bar">
+        <button class="player-btn playing" id="btnPlayPause" title="Play / Pause (Espaço)">⏸</button>
+        <input type="range" class="player-scrub" id="scrub" min="0" max="1000" value="0" step="1" title="Scrub — arraste para navegar na animação">
+        <span class="player-time" id="scrubTime">0,0s</span>
+        <button class="player-btn playing" id="btnLoop" title="Loop contínuo">🔁</button>
+      </div>
       <p class="prev-meta" id="previewInfo">PNG transparente · WebM · MP4 croma</p>
     </div>
     <div class="beat-bar">
@@ -1503,7 +1513,8 @@ function _applyBgImage(ctx, t){
 }
 
 function renderPreview(t){
-  if (t === undefined) t = 1;
+  // Se o loop estiver rodando não precisa re-renderizar (o loop já cuida disso)
+  if (t === undefined) t = (typeof _liveT !== 'undefined') ? _liveT : 1;
   if (state.bgImage) { _applyBgImage(pctx, t); return; }
   drawFrame(pctx, t, '#1c1c1f', state.model, state.texts, { ...state, wallMs: performance.now() });
 }
@@ -1513,6 +1524,7 @@ function _stopBeatLoop(){ if(beatRaf){ cancelAnimationFrame(beatRaf); beatRaf=nu
 function _startBeatLoop(){
   _stopBeatLoop();
   if (!state.bpm) return;
+  if (typeof pauseLivePreview === 'function') pauseLivePreview(); // beat sync assume o canvas
   function btick(){ renderPreview(1); if(state.bpm) beatRaf = requestAnimationFrame(btick); else beatRaf = null; }
   beatRaf = requestAnimationFrame(btick);
 }
@@ -1555,6 +1567,73 @@ function playAnim(targetCtx, bg, onDone, holdMs){
   }
   playRaf = requestAnimationFrame(tick);
 }
+
+// ── LIVE PREVIEW — loop de animação em tempo real ────────
+const LIVE_DUR = 1400; // ms por ciclo (mesma duração do playAnim)
+let _liveActive = true;
+let _liveRaf = null;
+let _liveT = 0;
+let _liveStart = null;
+let _liveScrubbing = false;
+let _liveLoop = true; // loop contínuo ativado por padrão
+
+function _renderLiveFrame(t){
+  if (state.bgImage) _applyBgImage(pctx, t);
+  else drawFrame(pctx, t, '#1c1c1f', state.model, state.texts, { ...state, wallMs: performance.now() });
+}
+
+function _liveUpdateScrub(t){
+  const scrubEl = document.getElementById('scrub');
+  const timeEl  = document.getElementById('scrubTime');
+  if (scrubEl) scrubEl.value = Math.round(t * 1000);
+  if (timeEl)  timeEl.textContent = (t * LIVE_DUR / 1000).toFixed(1).replace('.', ',') + 's';
+}
+
+function _liveTick(now){
+  if (!_liveActive || _liveScrubbing){ _liveRaf = null; return; }
+  const el = now - _liveStart;
+  if (_liveLoop){
+    _liveT = (el % LIVE_DUR) / LIVE_DUR;
+  } else {
+    _liveT = Math.min(el / LIVE_DUR, 1);
+    if (_liveT >= 1){ _liveRaf = null; pauseLivePreview(); return; }
+  }
+  _renderLiveFrame(_liveT);
+  _liveUpdateScrub(_liveT);
+  _liveRaf = requestAnimationFrame(_liveTick);
+}
+
+function startLivePreview(){
+  if (_liveRaf) cancelAnimationFrame(_liveRaf);
+  _stopBeatLoop();
+  _liveActive = true;
+  _liveStart = performance.now() - _liveT * LIVE_DUR;
+  _liveRaf = requestAnimationFrame(_liveTick);
+  const btn = document.getElementById('btnPlayPause');
+  if (btn){ btn.textContent = '⏸'; btn.classList.add('playing'); }
+}
+
+function pauseLivePreview(){
+  if (_liveRaf){ cancelAnimationFrame(_liveRaf); _liveRaf = null; }
+  _liveActive = false;
+  const btn = document.getElementById('btnPlayPause');
+  if (btn){ btn.textContent = '▶'; btn.classList.remove('playing'); }
+  _renderLiveFrame(_liveT);
+  _liveUpdateScrub(_liveT);
+}
+
+function toggleLivePreview(){
+  if (_liveActive) pauseLivePreview();
+  else startLivePreview();
+}
+
+function restartLivePreview(){
+  _liveT = 0;
+  if (state.bpm){ renderPreview(1); return; } // beat sync ativo — só re-renderiza
+  if (_liveActive) startLivePreview();
+  else { _renderLiveFrame(0); _liveUpdateScrub(0); }
+}
+// ─────────────────────────────────────────────────────────
 
 // ── UNDO (Ctrl+Z) ──────────────────────────────────────
 const _hist = [];
@@ -1906,7 +1985,7 @@ function buildModels(){
       document.getElementById('anim').value = model.anim;
       document.querySelectorAll('.model-thumb').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      buildTexts(); renderPreview(); playAnim(pctx, '#1c1c1f');
+      buildTexts(); restartLivePreview();
     });
 
     wrap.appendChild(btn);
@@ -2205,11 +2284,11 @@ document.getElementById('c1').addEventListener('input', e => { state.c1 = e.targ
 document.getElementById('c2').addEventListener('input', e => { state.c2 = e.target.value; renderPreview(); saveToLocalStorage(); });
 document.getElementById('c3').addEventListener('input', e => { state.c3 = e.target.value; renderPreview(); saveToLocalStorage(); });
 document.getElementById('glow').addEventListener('change', e => { state.glow = e.target.checked; renderPreview(); saveToLocalStorage(); });
-document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; playAnim(pctx, '#1c1c1f'); saveToLocalStorage(); });
+document.getElementById('anim').addEventListener('change', e => { state.anim = e.target.value; restartLivePreview(); saveToLocalStorage(); });
 document.getElementById('bpm').addEventListener('input', e => {
   state.bpm = parseInt(e.target.value);
   document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
-  if (state.bpm > 0) _startBeatLoop(); else { _stopBeatLoop(); renderPreview(); }
+  if (state.bpm > 0) _startBeatLoop(); else { _stopBeatLoop(); restartLivePreview(); }
   saveToLocalStorage();
 });
 document.getElementById('scale').addEventListener('input', e => {
@@ -2299,7 +2378,38 @@ document.getElementById('btnDelPreset').addEventListener('click', () => {
   setStatus('Cliente "' + nome + '" excluído.');
 });
 
-document.getElementById('btnPlay').addEventListener('click', () => playAnim(pctx, '#1c1c1f'));
+document.getElementById('btnPlayPause').addEventListener('click', toggleLivePreview);
+document.getElementById('btnLoop').addEventListener('click', () => {
+  _liveLoop = !_liveLoop;
+  const btn = document.getElementById('btnLoop');
+  btn.classList.toggle('playing', _liveLoop);
+  if (_liveLoop && _liveActive) startLivePreview();
+});
+
+// ── Scrub bar — arrastar para navegar na animação ──
+(function(){
+  const scrubEl = document.getElementById('scrub');
+  function onScrubStart(){
+    _liveScrubbing = true;
+    if (_liveRaf){ cancelAnimationFrame(_liveRaf); _liveRaf = null; }
+  }
+  function onScrubMove(){
+    _liveT = scrubEl.value / 1000;
+    _renderLiveFrame(_liveT);
+    _liveUpdateScrub(_liveT);
+  }
+  function onScrubEnd(){
+    _liveScrubbing = false;
+    _liveStart = performance.now() - _liveT * LIVE_DUR;
+    if (_liveActive) _liveRaf = requestAnimationFrame(_liveTick);
+  }
+  scrubEl.addEventListener('mousedown', onScrubStart);
+  scrubEl.addEventListener('touchstart', onScrubStart, { passive: true });
+  scrubEl.addEventListener('input', onScrubMove);
+  scrubEl.addEventListener('mouseup', onScrubEnd);
+  scrubEl.addEventListener('touchend', onScrubEnd);
+})();
+
 document.getElementById('btnPng').addEventListener('click', exportPNG);
 document.getElementById('btnAlpha').addEventListener('click', exportVideoAlpha);
 document.getElementById('btnWebm').addEventListener('click', () => exportVideo('webm', 'btnWebm'));
@@ -2325,8 +2435,7 @@ Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
   buildModels();
   buildTexts();
   refreshPresetSel();
-  renderPreview();
-  playAnim(pctx, '#1c1c1f');
+  startLivePreview(); // inicia o loop de preview em tempo real
 });
 
 document.getElementById('btnLimparHistorico').addEventListener('click', () => {
@@ -2341,9 +2450,9 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     document.getElementById('btnPng').click();
   }
-  if ((e.key === ' ' || e.key === 'Enter') && document.activeElement.tagName !== 'INPUT'){
+  if (e.key === ' ' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){
     e.preventDefault();
-    playAnim(pctx, '#1c1c1f');
+    toggleLivePreview();
   }
 });
 
@@ -2626,8 +2735,8 @@ function buildLookChips(){
       document.getElementById('glow').checked = state.glow;
       document.getElementById('bpm').value = state.bpm;
       document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm + ' BPM' : 'OFF';
-      buildTexts(); playAnim(pctx, '#1c1c1f'); saveToLocalStorage();
-      if(state.bpm > 0) _startBeatLoop(); else _stopBeatLoop();
+      buildTexts(); saveToLocalStorage();
+      if(state.bpm > 0) _startBeatLoop(); else { _stopBeatLoop(); restartLivePreview(); }
       document.getElementById('lookName').value = look.name;
       setStatus('✓ Look "' + look.name + '" aplicado');
     });
@@ -3037,7 +3146,7 @@ function restoreFromHistory(snap){
   document.getElementById('bpmOut').textContent = state.bpm > 0 ? state.bpm+' BPM' : 'OFF';
   document.querySelectorAll('.fmt-tab').forEach(b => b.classList.toggle('active', b.dataset.fmt === state.fmt));
   document.querySelectorAll('.model-thumb').forEach(b => b.classList.remove('active'));
-  buildTexts(); applyFormat(); renderPreview(); playAnim(pctx, '#1c1c1f');
+  buildTexts(); applyFormat(); restartLivePreview();
   setStatus('↩ Versão restaurada: "' + snap.label + '"');
 }
 
