@@ -116,9 +116,21 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--tx);mi
 .batch-card{background:var(--s2);border:2px solid transparent;border-radius:9px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;}
 .batch-card:hover{border-color:var(--cy);box-shadow:0 0 0 3px rgba(0,217,255,.1);}
 .batch-card.selected{border-color:var(--cy);}
+.batch-card.error{border-color:#ff6060;}
+.batch-card.error .batch-card-idx{background:rgba(255,80,80,.85);color:#fff;}
 .batch-card canvas{width:100%;display:block;}
 .batch-card-idx{position:absolute;top:5px;left:5px;font-size:9px;font-weight:800;background:rgba(0,0,0,.7);color:var(--cy);border-radius:3px;padding:2px 5px;}
 .batch-card-lbl{font-size:9px;color:var(--tx3);padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--s2);border-top:1px solid var(--bd);}
+.batch-card-actions{position:absolute;top:5px;right:5px;display:flex;gap:3px;opacity:0;transition:opacity .15s;}
+.batch-card:hover .batch-card-actions{opacity:1;}
+.batch-card-btn{font-size:10px;font-family:inherit;background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:#fff;cursor:pointer;padding:2px 5px;line-height:1.4;transition:border-color .1s,color .1s;}
+.batch-card-btn:hover{border-color:var(--cy);color:var(--cy);}
+.batch-card-btn.del{border-color:rgba(255,128,128,.35);color:#ff9090;}
+.batch-card-btn.del:hover{border-color:#ff8080;color:#ff8080;}
+.batch-card-edit{display:flex;gap:4px;padding:4px 6px;background:var(--s3);border-top:1px solid var(--cy);}
+.batch-card-edit input{flex:1;font-family:inherit;font-size:9px;background:var(--s2);border:1px solid var(--bd2);border-radius:3px;color:var(--tx);padding:3px 5px;outline:none;min-width:0;}
+.batch-card-edit input:focus{border-color:var(--cy);}
+.batch-card-edit button{font-family:inherit;font-size:10px;font-weight:800;background:var(--cy);border:none;border-radius:3px;color:#04151c;cursor:pointer;padding:3px 7px;flex-shrink:0;}
 .batch-footer{flex-shrink:0;padding:10px 16px;background:var(--s1);border-top:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
 .batch-prog-wrap{flex:1;height:5px;background:var(--bd);border-radius:3px;overflow:hidden;}
 .batch-prog-bar{height:100%;background:var(--cy);border-radius:3px;width:0%;transition:width .1s;}
@@ -210,6 +222,30 @@ select.si:focus{border-color:var(--cy);}
 .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .preset-grid input{background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-family:inherit;font-size:11px;padding:7px 8px;outline:none;}
 .preset-grid input:focus{border-color:var(--cy);}
+
+/* ── BIBLIOTECA DE CLIENTES ── */
+.client-chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px;}
+.client-chip{font-family:inherit;font-size:10px;font-weight:700;padding:4px 10px 4px 7px;border-radius:4px;cursor:pointer;border:1px solid var(--bd2);background:var(--s2);color:var(--tx2);transition:border-color .12s,color .12s,background .12s;display:flex;align-items:center;gap:5px;}
+.client-chip:hover{border-color:var(--cy);color:var(--cy);}
+.client-chip.active{border-color:var(--cy);color:var(--cy);background:rgba(0,217,255,.08);}
+.client-chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.12);}
+.client-empty{font-size:10px;color:var(--tx3);}
+.nicho-lbl{font-size:9px;color:var(--tx3);font-weight:700;letter-spacing:.5px;display:block;margin-bottom:3px;}
+.nicho-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.nicho-chip{font-family:inherit;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;cursor:pointer;border:1px solid var(--bd2);background:var(--s3);color:var(--tx2);transition:border-color .12s,color .12s;display:flex;align-items:center;gap:5px;}
+.nicho-chip:hover{border-color:var(--cy);color:var(--cy);}
+.nicho-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.12);}
+.client-editor{border:1px solid var(--bd);border-radius:6px;margin-bottom:10px;overflow:hidden;}
+.client-editor>summary{font-size:10px;font-weight:700;color:var(--tx3);cursor:pointer;padding:6px 10px;background:var(--s2);list-style:none;letter-spacing:.5px;text-transform:uppercase;user-select:none;}
+.client-editor>summary::-webkit-details-marker{display:none;}
+.client-editor>summary::after{content:' ▼';font-size:8px;}
+.client-editor[open]>summary::after{content:' ▲';}
+.client-editor>summary:hover{color:var(--cy);}
+.client-form{padding:8px 10px 10px;display:flex;flex-direction:column;gap:5px;}
+.client-clr-row{display:flex;gap:7px;align-items:flex-start;}
+.client-clr-cell{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.client-clr-cell>span{font-size:8px;color:var(--tx3);font-weight:700;letter-spacing:.5px;}
+.client-btns{display:flex;gap:5px;margin-top:3px;}
 
 /* ── TRANSCRIPTION ── */
 .dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:var(--s2);border:2px dashed var(--bd2);border-radius:8px;padding:14px 10px;cursor:pointer;transition:border-color .12s;text-align:center;margin-bottom:8px;}
@@ -525,16 +561,35 @@ select.si:focus{border-color:var(--cy);}
 
         <div class="divider"></div>
 
-        <!-- Paletas de cliente -->
-        <span class="lbl">Paletas de clientes</span>
-        <div class="preset-grid" style="margin-bottom:6px;">
-          <select id="presetSel" class="si" style="font-size:11px;"><option value="">— selecionar —</option></select>
-          <input type="text" id="presetName" placeholder="Nome do cliente...">
-        </div>
-        <div style="display:flex;gap:6px;margin-bottom:10px;">
-          <button class="btn btn-play" id="btnSavePreset" style="flex:1;font-size:10px;padding:7px 9px;">Salvar cores</button>
-          <button class="btn btn-play" id="btnDelPreset" style="flex:1;font-size:10px;padding:7px 9px;">Excluir</button>
-        </div>
+        <!-- Biblioteca de Clientes -->
+        <span class="lbl">Clientes</span>
+        <div class="client-chips" id="clientChips"><span class="client-empty">Nenhum cliente salvo ainda.</span></div>
+
+        <details class="client-editor" id="clientEditor">
+          <summary>Adicionar / editar cliente</summary>
+          <div class="client-form">
+            <span class="nicho-lbl">PARTIR DE NICHO</span>
+            <div class="nicho-chips" id="nichoChips"></div>
+            <input type="text" id="clientName" class="si" placeholder="Nome do cliente..." style="width:100%;box-sizing:border-box;">
+            <span style="font-size:9px;color:var(--tx3);font-weight:700;letter-spacing:.5px;">CORES DA MARCA (até 5)</span>
+            <div class="client-clr-row">
+              <div class="client-clr-cell"><input type="color" id="cc1" class="clr-sw" title="Cor 1"><span>C1</span></div>
+              <div class="client-clr-cell"><input type="color" id="cc2" class="clr-sw" title="Cor 2"><span>C2</span></div>
+              <div class="client-clr-cell"><input type="color" id="cc3" class="clr-sw" title="Cor 3"><span>C3</span></div>
+              <div class="client-clr-cell"><input type="color" id="cc4" class="clr-sw" title="Cor extra 4" value="#ffffff"><span>C4</span></div>
+              <div class="client-clr-cell"><input type="color" id="cc5" class="clr-sw" title="Cor extra 5" value="#ffffff"><span>C5</span></div>
+            </div>
+            <div class="preset-grid">
+              <select id="clientFont" class="si" style="font-size:11px;"><option value="">Fonte do modelo</option><option value="Anton">Anton</option><option value="Archivo Black">Archivo Black</option><option value="Bebas Neue">Bebas Neue</option><option value="Montserrat">Montserrat</option><option value="Oswald">Oswald</option><option value="Roboto Condensed">Roboto Condensed</option><option value="Poppins">Poppins</option><option value="Raleway">Raleway</option><option value="Nunito">Nunito</option><option value="Outfit">Outfit</option><option value="Lora">Lora</option><option value="Pacifico">Pacifico</option><option value="Dancing Script">Dancing Script</option><option value="Caveat">Caveat</option></select>
+              <select id="clientAnim" class="si" style="font-size:11px;"><option value="">Animação atual</option><option value="fade">Fade</option><option value="pop">Pop</option><option value="zoom">Zoom in</option><option value="bounce">Bounce</option><option value="elastic">Elástico</option><option value="slide">Slide ↑</option><option value="slide-down">Slide ↓</option><option value="slide-left">Slide ←</option><option value="slide-right">Slide →</option><option value="word-pop">Word Pop</option><option value="word-slide">Word Slide</option><option value="word-fade">Word Fade</option><option value="word-bounce">Word Bounce</option><option value="reveal">Reveal</option><option value="typewriter">Máquina</option><option value="none">Sem animação</option></select>
+            </div>
+            <div class="client-btns">
+              <button class="btn btn-play" id="btnCapColors" title="Capturar as 3 cores atuais como C1-C3" style="flex:1;font-size:10px;padding:6px 8px;">⬇ Cores atuais</button>
+              <button class="btn btn-play" id="btnSaveClient" style="flex:1;font-size:10px;padding:6px 8px;">Salvar</button>
+              <button class="btn btn-play" id="btnDelClient" style="font-size:10px;padding:6px 8px;color:#ff8080;border-color:rgba(255,128,128,.35);">✕</button>
+            </div>
+          </div>
+        </details>
 
         <div class="divider"></div>
 
@@ -1773,6 +1828,36 @@ function loadFromLocalStorage(){
   } catch (e) { }
 }
 
+// Integração DS HUB: aberto pelo painel (?from=dshub&roteiro=...&cliente=...) → preenche sozinho
+// e, se o cliente existir na Biblioteca de Clientes, já aplica a marca dele (cores/fonte/animação).
+function applyDsHubPrefill(){
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get('from') !== 'dshub') return;
+    const cliente = (q.get('cliente') || '').trim();
+    const lines = (q.get('roteiro') || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (cliente){ const cn = document.getElementById('clientName'); if (cn) cn.value = cliente; }
+    if (lines.length){ state.texts = lines; }
+
+    // Casa o cliente da URL com a Biblioteca de Clientes e aplica a marca
+    let marca = null;
+    if (cliente){
+      try { marca = loadClients().find(p => (p.nome || '').toLowerCase().trim() === cliente.toLowerCase().trim()) || null; } catch(e){}
+    }
+    if (marca){
+      applyClient(marca);          // aplica cores/fonte/anim + buildTexts + render + save
+    } else if (lines.length){
+      buildTexts();
+      renderPreview();
+      try { saveToLocalStorage(); } catch(e){}
+    }
+
+    if (cliente || lines.length){
+      setStatus('✓ Carregado do DS HUB' + (cliente ? ' · ' + cliente : '') + (marca ? ' · marca aplicada' : ''));
+    }
+  } catch(e){}
+}
+
 function buildTexts(){
   const wrap = document.getElementById('texts');
   wrap.innerHTML = '';
@@ -2388,52 +2473,166 @@ document.querySelectorAll('.fmt-tab').forEach(btn => {
   });
 });
 
-function loadPresets(){ try { return JSON.parse(localStorage.getItem('legendas_presets')) || []; } catch (e){ return []; } }
-function refreshPresetSel(){
-  const sel = document.getElementById('presetSel');
-  sel.innerHTML = '';
-  const opt0 = document.createElement('option');
-  opt0.value = ''; opt0.textContent = '— selecionar —';
-  sel.appendChild(opt0);
-  loadPresets().forEach((p, i) => {
-    const o = document.createElement('option');
-    o.value = i; o.textContent = p.nome;
-    sel.appendChild(o);
+// ── BIBLIOTECA DE CLIENTES ────────────────────────────────────────────────
+const NICHO_PRESETS = [
+  { nome:'Restaurante', c1:'#ff9500', c2:'#ff6b00', c3:'#fff0dc', font:'Playfair Display', anim:'slide' },
+  { nome:'Pousada',     c1:'#00bcd4', c2:'#ffffff', c3:'#ffe0a0', font:'Lora',             anim:'fade' },
+  { nome:'Imóveis',     c1:'#f5a623', c2:'#ffffff', c3:'#1c2340', font:'Montserrat',       anim:'slide-right' },
+  { nome:'Varejo',      c1:'#ff3366', c2:'#cc00aa', c3:'#ffffff', font:'Outfit',           anim:'word-pop' },
+  { nome:'Artista',     c1:'#a855f7', c2:'#ec4899', c3:'#22d3ee', font:'Bebas Neue',       anim:'bounce' },
+];
+
+function loadClients(){ try { return JSON.parse(localStorage.getItem('legendas_presets')) || []; } catch(e){ return []; } }
+function saveClients(list){ localStorage.setItem('legendas_presets', JSON.stringify(list)); }
+function loadPresets(){ return loadClients(); } // alias — mantém compatibilidade com cloud-features.js
+
+let _activeClientNome = null;
+
+function refreshClientChips(){
+  const wrap = document.getElementById('clientChips');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const list = loadClients();
+  if (!list.length){
+    wrap.innerHTML = '<span class="client-empty">Nenhum cliente salvo ainda.</span>';
+    return;
+  }
+  list.forEach(p => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'client-chip' + (_activeClientNome === p.nome ? ' active' : '');
+    chip.title = 'Aplicar: ' + p.nome;
+    const dot = document.createElement('span');
+    dot.className = 'client-chip-dot';
+    dot.style.background = p.c1 || '#fff';
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(p.nome));
+    chip.addEventListener('click', () => {
+      _activeClientNome = p.nome;
+      refreshClientChips();
+      applyClient(p);
+      _populateClientForm(p);
+      document.getElementById('clientEditor').open = true;
+    });
+    wrap.appendChild(chip);
   });
 }
-document.getElementById('presetSel').addEventListener('change', e => {
-  if (e.target.value === '') return;
-  const p = loadPresets()[Number(e.target.value)];
-  if (!p) return;
+
+function _populateClientForm(p){
+  document.getElementById('clientName').value  = p.nome  || '';
+  document.getElementById('cc1').value         = p.c1    || '#ffffff';
+  document.getElementById('cc2').value         = p.c2    || '#00d9ff';
+  document.getElementById('cc3').value         = p.c3    || '#00ffa3';
+  document.getElementById('cc4').value         = p.c4    || '#ffffff';
+  document.getElementById('cc5').value         = p.c5    || '#ffffff';
+  document.getElementById('clientFont').value  = p.font  || '';
+  document.getElementById('clientAnim').value  = p.anim  || '';
+}
+
+function applyClient(p){
+  pushHistory();
   state.c1 = p.c1; state.c2 = p.c2; state.c3 = p.c3;
   document.getElementById('c1').value = p.c1;
   document.getElementById('c2').value = p.c2;
   document.getElementById('c3').value = p.c3;
-  document.getElementById('presetName').value = p.nome;
-  renderPreview();
-  setStatus('Cores de "' + p.nome + '" aplicadas.');
-});
-document.getElementById('btnSavePreset').addEventListener('click', () => {
-  const nome = document.getElementById('presetName').value.trim();
-  if (!nome){ setStatus('Digite o nome do cliente antes de salvar.'); return; }
-  const ps = loadPresets();
-  const novo = { nome: nome, c1: state.c1, c2: state.c2, c3: state.c3 };
-  const idx = ps.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
-  if (idx >= 0) ps[idx] = novo; else ps.push(novo);
-  localStorage.setItem('legendas_presets', JSON.stringify(ps));
-  refreshPresetSel();
-  document.getElementById('presetSel').value = String(ps.findIndex(p => p.nome === nome));
-  setStatus('Cliente "' + nome + '" salvo com as cores atuais.');
-});
-document.getElementById('btnDelPreset').addEventListener('click', () => {
-  const sel = document.getElementById('presetSel');
-  if (sel.value === ''){ setStatus('Selecione um cliente pra excluir.'); return; }
-  const ps = loadPresets();
-  const nome = ps[Number(sel.value)].nome;
-  ps.splice(Number(sel.value), 1);
-  localStorage.setItem('legendas_presets', JSON.stringify(ps));
-  refreshPresetSel();
-  setStatus('Cliente "' + nome + '" excluído.');
+  if (state.lineOv){
+    const fnt = p.font || null;
+    state.lineOv.forEach(ov => { ov.font = fnt; });
+  }
+  if (p.anim){
+    state.anim = p.anim;
+    document.getElementById('anim').value = p.anim;
+  }
+  buildTexts();
+  saveToLocalStorage();
+  restartLivePreview();
+  const extras = [];
+  if (p.font) extras.push('fonte: ' + p.font);
+  if (p.anim) extras.push('anim: ' + p.anim);
+  setStatus('✓ "' + p.nome + '" aplicado' + (extras.length ? ' · ' + extras.join(' · ') : '') + '.');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  refreshClientChips();
+
+  // Nicho chips — preenchem o formulário de cliente com paleta pré-definida por segmento
+  const _ncWrap = document.getElementById('nichoChips');
+  NICHO_PRESETS.forEach(n => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'nicho-chip';
+    chip.title = 'Pré-preencher com paleta de ' + n.nome;
+    const dot = document.createElement('span');
+    dot.className = 'nicho-chip-dot';
+    dot.style.background = n.c1;
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(n.nome));
+    chip.addEventListener('click', () => {
+      document.getElementById('cc1').value = n.c1;
+      document.getElementById('cc2').value = n.c2;
+      document.getElementById('cc3').value = n.c3;
+      document.getElementById('cc4').value = '#ffffff';
+      document.getElementById('cc5').value = '#ffffff';
+      document.getElementById('clientFont').value = n.font || '';
+      document.getElementById('clientAnim').value = n.anim || '';
+      document.getElementById('clientName').focus();
+      setStatus('Paleta "' + n.nome + '" carregada · dê um nome e salve.');
+    });
+    _ncWrap.appendChild(chip);
+  });
+
+  document.getElementById('clientEditor').addEventListener('toggle', function(){
+    if (this.open && !document.getElementById('clientName').value.trim()){
+      document.getElementById('cc1').value = state.c1;
+      document.getElementById('cc2').value = state.c2;
+      document.getElementById('cc3').value = state.c3;
+      document.getElementById('clientAnim').value = state.anim || '';
+    }
+  });
+
+  document.getElementById('btnCapColors').addEventListener('click', () => {
+    document.getElementById('cc1').value = state.c1;
+    document.getElementById('cc2').value = state.c2;
+    document.getElementById('cc3').value = state.c3;
+    setStatus('Cores C1/C2/C3 capturadas das cores atuais.');
+  });
+
+  document.getElementById('btnSaveClient').addEventListener('click', () => {
+    const nome = document.getElementById('clientName').value.trim();
+    if (!nome){ setStatus('Digite o nome do cliente antes de salvar.'); return; }
+    const list = loadClients();
+    const novo = {
+      nome,
+      c1: document.getElementById('cc1').value,
+      c2: document.getElementById('cc2').value,
+      c3: document.getElementById('cc3').value,
+      c4: document.getElementById('cc4').value,
+      c5: document.getElementById('cc5').value,
+      font: document.getElementById('clientFont').value  || null,
+      anim: document.getElementById('clientAnim').value  || null,
+    };
+    const idx = list.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+    if (idx >= 0) list[idx] = novo; else list.push(novo);
+    saveClients(list);
+    _activeClientNome = nome;
+    refreshClientChips();
+    setStatus('✓ Cliente "' + nome + '" salvo.');
+  });
+
+  document.getElementById('btnDelClient').addEventListener('click', () => {
+    const nome = document.getElementById('clientName').value.trim();
+    if (!nome){ setStatus('Preencha o nome do cliente a excluir.'); return; }
+    const list = loadClients();
+    const idx = list.findIndex(p => p.nome.toLowerCase() === nome.toLowerCase());
+    if (idx < 0){ setStatus('Cliente "' + nome + '" não encontrado.'); return; }
+    const excluido = list[idx].nome;
+    list.splice(idx, 1);
+    saveClients(list);
+    if (_activeClientNome === excluido) _activeClientNome = null;
+    document.getElementById('clientName').value = '';
+    refreshClientChips();
+    setStatus('Cliente "' + excluido + '" excluído.');
+  });
 });
 
 // ── Rastreia último formato de exportação usado (Ctrl+Enter) ──
@@ -2496,7 +2695,8 @@ Promise.all(FONT_LOADS.map(f => document.fonts.load(f))).then(() => {
   loadFromLocalStorage();
   buildModels();
   buildTexts();
-  refreshPresetSel();
+  applyDsHubPrefill();
+  refreshClientChips();
   _initShortcutsPanel(); // precisa do DOM completo (modal fica após o bloco script principal)
   startLivePreview();
 });
@@ -3323,12 +3523,25 @@ buildHistoryList();
 // DOMContentLoaded garante que o HTML do overlay (que fica após este script) está pronto
 document.addEventListener('DOMContentLoaded', function(){
 (function(){
-  let _items = []; // { texts: string[], canvas: HTMLCanvasElement }
+  let _items = []; // { texts: string[], label: string, dur: number, canvas: HTMLCanvasElement }
+  let _batchAppliedClient = null;  // cliente escolhido no momento da geração
+  let _batchRenderOpts    = null;  // opts de render (cores/fonte) fixados para o lote
+  let _batchCancelled     = false; // flag de cancelamento do export
 
   // ── Abertura / fechamento ─────────────────────────────
   function openBatch(){
     document.getElementById('batchOverlay').style.display = 'flex';
     pauseLivePreview();
+    // Popula seletor de clientes
+    const sel = document.getElementById('batchClient');
+    const prevNome = _batchAppliedClient ? _batchAppliedClient.nome : '';
+    sel.innerHTML = '<option value="">— Estilo atual do editor —</option>';
+    loadClients().forEach((c, i) => {
+      const o = document.createElement('option');
+      o.value = String(i); o.textContent = c.nome;
+      if (c.nome === prevNome) o.selected = true;
+      sel.appendChild(o);
+    });
   }
   function closeBatch(){
     document.getElementById('batchOverlay').style.display = 'none';
@@ -3380,6 +3593,22 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function _buildItems(parsed){
     _items = [];
+
+    // ── Resolver cliente e duração ─────────────────────────
+    const clientSel = document.getElementById('batchClient');
+    const clientIdx = clientSel.value;
+    _batchAppliedClient = clientIdx !== '' ? (loadClients()[Number(clientIdx)] || null) : null;
+    const _dur = Math.max(0.5, parseFloat(document.getElementById('batchDur').value) || 1.4);
+
+    // Constrói opts de render: sobrescreve cores/fonte do cliente se houver
+    let _bLineOv = state.lineOv;
+    if (_batchAppliedClient && _batchAppliedClient.font) {
+      _bLineOv = state.lineOv.map(ov => ({ ...ov, font: _batchAppliedClient.font }));
+    }
+    _batchRenderOpts = _batchAppliedClient
+      ? { ...state, c1: _batchAppliedClient.c1, c2: _batchAppliedClient.c2, c3: _batchAppliedClient.c3, lineOv: _bLineOv }
+      : { ...state, lineOv: _bLineOv };
+
     const grid = document.getElementById('batchGrid');
     const empty = document.getElementById('batchEmpty');
     grid.innerHTML = '';
@@ -3405,6 +3634,7 @@ document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('batchFooter').style.display = 'flex';
         document.getElementById('btnBatchPng').disabled = false;
         document.getElementById('btnBatchGreen').disabled = false;
+        document.getElementById('btnBatchAlpha').disabled = false;
         return;
       }
       info.textContent = 'Gerando ' + (i + 1) + '/' + parsed.length + '...';
@@ -3422,14 +3652,13 @@ document.addEventListener('DOMContentLoaded', function(){
       const tctx = c.getContext('2d');
       tctx.scale(TSCALE, TSCALE);
       drawFrame(tctx, 1, '#1a1c24', state.model, texts,
-        { ...state, anim: 'none', scale: state.scale, offset: state.offset, lineOv: state.lineOv, fmt: '9x16' });
+        { ..._batchRenderOpts, anim: 'none', fmt: '9x16' });
 
-      _items.push({ texts, label: lineArr[0] });
+      _items.push({ texts, label: lineArr[0], dur: _dur, canvas: c });
 
       // Card no grid
       const card = document.createElement('div');
       card.className = 'batch-card';
-      card.title = 'Clique para aplicar ao editor\n' + lineArr.join(' | ');
 
       const badge = document.createElement('div');
       badge.className = 'batch-card-idx';
@@ -3442,33 +3671,175 @@ document.addEventListener('DOMContentLoaded', function(){
       lbl.textContent = lineArr[0];
       card.appendChild(lbl);
 
-      const idx = i;
+      // ── Ações por card: ✏ editar | ✕ remover ────────────
+      const actions = document.createElement('div');
+      actions.className = 'batch-card-actions';
+      const btnEdit2 = document.createElement('button');
+      btnEdit2.type = 'button'; btnEdit2.className = 'batch-card-btn'; btnEdit2.title = 'Editar texto'; btnEdit2.textContent = '✏';
+      const btnDel2 = document.createElement('button');
+      btnDel2.type = 'button'; btnDel2.className = 'batch-card-btn del'; btnDel2.title = 'Remover da fila'; btnDel2.textContent = '✕';
+      actions.append(btnEdit2, btnDel2);
+      card.appendChild(actions);
+
+      btnDel2.addEventListener('click', e => {
+        e.stopPropagation();
+        const pos = Array.from(grid.children).indexOf(card);
+        if (pos >= 0) _items.splice(pos, 1);
+        card.remove();
+        Array.from(grid.querySelectorAll('.batch-card-idx')).forEach((b, bi) => b.textContent = String(bi + 1).padStart(3, '0'));
+        const rem = _items.length;
+        info.textContent = rem ? rem + ' legenda(s) na fila.' : 'Fila vazia.';
+        if (!rem){ grid.style.display = 'none'; document.getElementById('batchEmpty').style.display = 'flex'; document.getElementById('btnBatchPng').disabled = true; document.getElementById('btnBatchGreen').disabled = true; document.getElementById('btnBatchAlpha').disabled = true; }
+      });
+
+      btnEdit2.addEventListener('click', e => {
+        e.stopPropagation();
+        const existing = card.querySelector('.batch-card-edit');
+        if (existing){ existing.remove(); return; }
+        const pos = Array.from(grid.children).indexOf(card);
+        const item = _items[pos];
+        if (!item) return;
+
+        const editRow = document.createElement('div');
+        editRow.className = 'batch-card-edit';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = editLines.map(({ modelIdx }) => item.texts[modelIdx] || '').join('|');
+        inp.placeholder = 'linha1|linha2|linha3';
+        const btnOk = document.createElement('button');
+        btnOk.type = 'button'; btnOk.textContent = '✓'; btnOk.title = 'Confirmar (Enter)';
+
+        const doConfirm = () => {
+          const ci = Array.from(grid.children).indexOf(card);
+          const it = _items[ci];
+          if (!it) return;
+          const parts = inp.value.split('|').map(s => s.trim()).filter(Boolean);
+          if (!parts.length) return;
+          const newTexts = [...it.texts];
+          parts.forEach((t, j) => { if (j < editLines.length) newTexts[editLines[j].modelIdx] = t; });
+          it.texts = newTexts; it.label = parts[0]; lbl.textContent = parts[0];
+          // Re-renderiza thumbnail com mesmo estilo do lote
+          const tctx = it.canvas.getContext('2d');
+          tctx.setTransform(TSCALE, 0, 0, TSCALE, 0, 0);
+          drawFrame(tctx, 1, '#1a1c24', state.model, newTexts, { ..._batchRenderOpts, anim: 'none', fmt: '9x16' });
+          editRow.remove();
+        };
+
+        btnOk.addEventListener('click', e2 => { e2.stopPropagation(); doConfirm(); });
+        inp.addEventListener('keydown', e3 => {
+          if (e3.key === 'Enter'){ e3.preventDefault(); doConfirm(); }
+          if (e3.key === 'Escape') editRow.remove();
+        });
+        editRow.append(inp, btnOk);
+        card.appendChild(editRow);
+        inp.focus(); inp.select();
+      });
+
       card.addEventListener('click', () => {
         document.querySelectorAll('.batch-card').forEach(c2 => c2.classList.remove('selected'));
         card.classList.add('selected');
-        // Aplica textos ao editor principal
-        state.texts = [..._items[idx].texts];
+        const pos = Array.from(grid.children).indexOf(card);
+        const item = _items[pos];
+        if (!item) return;
+        state.texts = [...item.texts];
         buildTexts();
         if (typeof restartLivePreview === 'function') restartLivePreview();
       });
 
       grid.appendChild(card);
-      _items[i].card = card;
       i++;
       setTimeout(step, 0); // yield para não travar UI
     }
     step();
   }
 
-  // ── Export batch PNG ──────────────────────────────────
-  document.getElementById('btnBatchPng').addEventListener('click', () => _exportBatch('png'));
-  document.getElementById('btnBatchGreen').addEventListener('click', () => _exportBatch('green'));
+  // ── Fila de export assíncrona ─────────────────────────
+  document.getElementById('btnBatchPng').addEventListener('click',    () => _exportBatch('png'));
+  document.getElementById('btnBatchGreen').addEventListener('click',  () => _exportBatch('green'));
+  document.getElementById('btnBatchAlpha').addEventListener('click',  () => _exportBatch('alpha'));
+  document.getElementById('btnBatchCancel').addEventListener('click', () => { _batchCancelled = true; });
+
+  // WebM verde animado via MediaRecorder (substitui o antigo PNG com fundo verde)
+  function _batchRecordWebm(item, bg, W, H){
+    return new Promise((resolve, reject) => {
+      const mimes = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+      const mime  = mimes.find(m => MediaRecorder.isTypeSupported(m));
+      if (!mime){ reject(new Error('WebM não suportado neste navegador')); return; }
+      const offC = document.createElement('canvas');
+      offC.width = W; offC.height = H;
+      const offCtx = offC.getContext('2d');
+      const rec = new MediaRecorder(offC.captureStream(30), { mimeType: mime, videoBitsPerSecond: 14_000_000 });
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      rec.onstop  = () => resolve(new Blob(chunks, { type: mime.split(';')[0] }));
+      rec.onerror = e => reject(e.error || new Error('MediaRecorder error'));
+      rec.start();
+      const animDur  = (item.dur || 1.4) * 1000;
+      const totalMs  = animDur + 300;
+      const animAnim = (_batchAppliedClient && _batchAppliedClient.anim) || state.anim;
+      const animOpts = { ..._batchRenderOpts, anim: animAnim, fmt: '9x16' };
+      const t0 = performance.now();
+      function tick(now){
+        if (_batchCancelled){ rec.stop(); return; }
+        const el = now - t0;
+        const t  = Math.min(el / animDur, 1);
+        offCtx.fillStyle = bg; offCtx.fillRect(0, 0, W, H);
+        drawFrame(offCtx, t, bg, state.model, item.texts, animOpts);
+        if (el < totalMs) requestAnimationFrame(tick); else rec.stop();
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // WebM transparente via WebCodecs + VP9 alpha (reutiliza _loadMuxer do motor principal)
+  async function _batchEncodeAlpha(item, W, H){
+    if (!('VideoEncoder' in window))
+      throw new Error('WebM transparente requer Chrome 94+. Use PNG ou WebM verde.');
+    const { Muxer, ArrayBufferTarget } = await _loadMuxer();
+    const animDur = (item.dur || 1.4) * 1000;
+    const totalMs = animDur + 300;
+    const fps     = 30;
+    const nFrames = Math.ceil(fps * totalMs / 1000);
+    const cfg = { codec:'vp09.00.10.08', width:W, height:H, bitrate:8_000_000, alpha:'keep', hardwareAcceleration:'prefer-software' };
+    if (!(await VideoEncoder.isConfigSupported(cfg)).supported)
+      throw new Error('VP9 alpha não suportado. Use Chrome desktop atualizado.');
+    const target  = new ArrayBufferTarget();
+    const muxer   = new Muxer({ target, video:{ codec:'V_VP9', width:W, height:H, frameRate:fps, alpha:true }, firstTimestampBehavior:'offset' });
+    let encErr = null;
+    const encoder = new VideoEncoder({ output:(chunk,meta)=>muxer.addVideoChunk(chunk,meta), error:e=>{encErr=e;} });
+    encoder.configure(cfg);
+    const c    = document.createElement('canvas');
+    c.width    = W; c.height = H;
+    const cctx = c.getContext('2d', { alpha: true });
+    const animAnim = (_batchAppliedClient && _batchAppliedClient.anim) || state.anim;
+    const animOpts = { ..._batchRenderOpts, anim: animAnim, fmt: '9x16' };
+    for (let i = 0; i < nFrames; i++){
+      if (_batchCancelled || encErr) break;
+      const elapsed = (i / fps) * 1000;
+      const t   = Math.min(elapsed / animDur, 1);
+      drawFrame(cctx, t, null, state.model, item.texts, animOpts);
+      const bmp = await createImageBitmap(c);
+      const frame = new VideoFrame(bmp, { timestamp: Math.round(elapsed * 1000), duration: Math.round(1_000_000 / fps), alpha:'keep' });
+      encoder.encode(frame, { keyFrame: i % (fps * 2) === 0 });
+      frame.close(); bmp.close();
+      if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+    if (encErr) throw encErr;
+    await encoder.flush();
+    encoder.close();
+    muxer.finalize();
+    return new Blob([target.buffer], { type: 'video/webm' });
+  }
 
   async function _exportBatch(mode){
     if (!_items.length) return;
-    const btnPng = document.getElementById('btnBatchPng');
+    _batchCancelled = false;
+    const btnPng   = document.getElementById('btnBatchPng');
     const btnGreen = document.getElementById('btnBatchGreen');
-    btnPng.disabled = btnGreen.disabled = true;
+    const btnAlpha = document.getElementById('btnBatchAlpha');
+    const btnCan   = document.getElementById('btnBatchCancel');
+    btnPng.disabled = btnGreen.disabled = btnAlpha.disabled = true;
+    btnCan.style.display = 'inline-flex';
 
     const progBar = document.getElementById('batchProgBar');
     const progLbl = document.getElementById('batchProgLbl');
@@ -3477,56 +3848,70 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const W = 1080, H = 1920;
     const total = _items.length;
-    const zip = new JSZip();
-    const bg = mode === 'green' ? '#00ff00' : null;
-    const ext = 'png';
+    const zip   = new JSZip();
+    const ext   = mode === 'png' ? 'png' : 'webm';
+    const clientSuffix = _batchAppliedClient
+      ? '_' + _batchAppliedClient.nome.replace(/[^a-zA-Z0-9À-ÿ]/g, '_').slice(0, 20)
+      : '';
+    let ok = 0, fail = 0;
 
     for (let i = 0; i < total; i++){
+      if (_batchCancelled) break;
       const item = _items[i];
-      const num = String(i + 1).padStart(3, '0');
+      const num  = String(i + 1).padStart(3, '0');
       progBar.style.width = Math.round((i / total) * 100) + '%';
-      progLbl.textContent = num + ' / ' + String(total).padStart(3, '0');
+      progLbl.textContent = 'Exportando ' + (i + 1) + ' de ' + total + '...';
+      document.querySelectorAll('.batch-card').forEach((c, ci) => { c.classList.toggle('selected', ci === i); });
 
-      // Highlight card atual
-      document.querySelectorAll('.batch-card').forEach((c, ci) => c.classList.toggle('selected', ci === i));
-
-      // Renderiza em canvas offscreen
-      const offC = document.createElement('canvas');
-      offC.width = W; offC.height = H;
-      const offCtx = offC.getContext('2d');
-      if (bg){ offCtx.fillStyle = bg; offCtx.fillRect(0, 0, W, H); }
-      drawFrame(offCtx, 1, bg, state.model, item.texts,
-        { ...state, anim: 'none', scale: state.scale, offset: state.offset, lineOv: state.lineOv, fmt: '9x16' });
-
-      const blob = await new Promise(r => offC.toBlob(r, 'image/png'));
-      const buf = await blob.arrayBuffer();
-      zip.file('legenda_' + num + '.' + ext, buf);
-
-      await new Promise(r => setTimeout(r, 0)); // yield UI
+      try {
+        let blob;
+        if (mode === 'png'){
+          const offC = document.createElement('canvas');
+          offC.width = W; offC.height = H;
+          drawFrame(offC.getContext('2d'), 1, null, state.model, item.texts, { ..._batchRenderOpts, anim:'none', fmt:'9x16' });
+          blob = await new Promise(r => offC.toBlob(r, 'image/png'));
+        } else if (mode === 'green'){
+          blob = await _batchRecordWebm(item, '#00ff00', W, H);
+        } else {
+          blob = await _batchEncodeAlpha(item, W, H);
+        }
+        if (!_batchCancelled){
+          zip.file('legenda_' + num + clientSuffix + '.' + ext, await blob.arrayBuffer());
+          ok++;
+        }
+      } catch(err){
+        fail++;
+        const cards = document.querySelectorAll('.batch-card');
+        if (cards[i]) cards[i].classList.add('error');
+        console.warn('Batch item ' + (i + 1) + ' falhou:', err.message);
+      }
+      await new Promise(r => setTimeout(r, 0));
     }
 
-    progLbl.textContent = 'Gerando ZIP...';
-    const zipBlob = await zip.generateAsync({ type: 'blob' }, meta => {
-      progBar.style.width = Math.round(meta.percent) + '%';
-    });
-
-    const url = URL.createObjectURL(zipBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'legendas_batch_' + (mode === 'green' ? 'verde_' : '') + Date.now() + '.zip';
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!_batchCancelled && ok > 0){
+      progLbl.textContent = 'Gerando ZIP...';
+      const zipBlob = await zip.generateAsync({ type:'blob' }, m => { progBar.style.width = Math.round(m.percent) + '%'; });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'legendas_batch_' + mode + '_' + (_batchAppliedClient ? _batchAppliedClient.nome.replace(/\s+/g,'_') + '_' : '') + Date.now() + '.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
     progBar.style.width = '100%';
-    progBar.style.background = 'var(--mt)';
-    progLbl.textContent = '✓ ' + total + ' exportado(s)!';
+    progBar.style.background = fail > 0 ? '#ff6060' : 'var(--mt)';
+    progLbl.textContent = _batchCancelled
+      ? '⚠ Cancelado · ' + ok + ' ✓'
+      : ok + ' ✓' + (fail ? ' · ' + fail + ' ✕ com erro' : '');
     document.querySelectorAll('.batch-card').forEach(c => c.classList.remove('selected'));
+    btnCan.style.display = 'none';
     setTimeout(() => {
       progBar.style.width = '0%';
       progBar.style.background = 'var(--cy)';
       progLbl.textContent = '';
-      btnPng.disabled = btnGreen.disabled = false;
-    }, 3000);
+      btnPng.disabled = btnGreen.disabled = btnAlpha.disabled = false;
+    }, 4000);
   }
 })(); // fim IIFE batch
 }); // fim DOMContentLoaded
@@ -3536,16 +3921,25 @@ document.addEventListener('DOMContentLoaded', function(){
 <div id="batchOverlay" style="display:none;" role="dialog" aria-label="Modo Batch">
   <div class="batch-header">
     <h2>⚡ Modo Batch</h2>
-    <span class="batch-header-sub">Gera e exporta múltiplas legendas de uma vez · usa o modelo e cores atuais</span>
+    <span class="batch-header-sub">Gera e exporta múltiplas legendas de uma vez · escolha o cliente para aplicar a identidade completa</span>
     <div class="batch-header-right">
       <button class="btn-batch-exp" id="btnBatchPng" disabled>📦 PNG ZIP</button>
       <button class="btn-batch-exp" id="btnBatchGreen" disabled>🎬 WebM verde ZIP</button>
+      <button class="btn-batch-exp" id="btnBatchAlpha" disabled style="background:linear-gradient(135deg,rgba(0,255,163,.18),rgba(0,217,255,.12));color:var(--mt);border:1px solid rgba(0,255,163,.35);">✨ WebM alpha ZIP</button>
       <button class="batch-close-btn" id="btnCloseBatch">✕ Fechar</button>
     </div>
   </div>
   <div class="batch-body">
     <!-- Coluna esquerda: input -->
     <div class="batch-input-col">
+      <span class="batch-lbl">Cliente / estilo</span>
+      <select id="batchClient" class="si" style="font-size:11px;"><option value="">— Estilo atual do editor —</option></select>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label for="batchDur" style="font-size:11px;color:var(--tx3);white-space:nowrap;">Duração por legenda</label>
+        <input type="number" id="batchDur" class="si" value="1.4" min="0.5" max="10" step="0.1" style="font-size:11px;width:68px;">
+        <span style="font-size:10px;color:var(--tx3);">seg</span>
+      </div>
+      <div style="height:1px;background:var(--bd);"></div>
       <span class="batch-lbl">Texto das legendas</span>
       <p class="batch-hint">
         Uma legenda por linha.<br>
@@ -3565,6 +3959,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="batch-footer" id="batchFooter" style="display:none;">
         <div class="batch-prog-wrap"><div class="batch-prog-bar" id="batchProgBar"></div></div>
         <span class="batch-prog-lbl" id="batchProgLbl"></span>
+        <button class="batch-close-btn" id="btnBatchCancel" style="display:none;color:#ff9090;border-color:rgba(255,144,144,.35);padding:4px 12px;font-size:11px;">✕ Cancelar</button>
       </div>
     </div>
   </div>
